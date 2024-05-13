@@ -20,20 +20,20 @@ def single_infer_input(abc: str, tone_choice: str):
     return output
 
 
-def single_infer_ipload(abc_file: str, tone_choice: str):
+def single_infer_upload(abc_file: str, tone_choice: str):
     with open(abc_file, 'r', encoding='utf-8') as f:
         abc_text_lines = f.readlines()
 
-    return single_infer_input(abc_text_lines, tone_choice)
+    return abc_text_lines, single_infer_input(abc_text_lines, tone_choice)
 
 
 def batch_infer(zip_file: str, tone_choice: str):
+    # TODO:
     return zip_file, zip_file + "\n" + tone_choice
 
 
 with gr.Blocks() as demo:
-    # TODO:
-    gr.Markdown()
+    gr.Markdown("# abc调性转换器")
     with gr.Tab("单曲转调(输入模式)"):
         gr.Interface(
             fn=single_infer_input,
@@ -54,7 +54,7 @@ with gr.Blocks() as demo:
 
     with gr.Tab("单曲转调(上传模式)"):
         gr.Interface(
-            fn=single_infer_ipload,
+            fn=single_infer_upload,
             inputs=[
                 gr.components.File(label="上传abc乐谱"),
                 gr.Dropdown(
@@ -64,6 +64,7 @@ with gr.Blocks() as demo:
                 ),
             ],
             outputs=[
+                gr.TextArea(label="上传abc解析", show_copy_button=True),
                 gr.TextArea(label="转调结果", show_copy_button=True),
             ],
             concurrency_limit=4,

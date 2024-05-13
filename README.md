@@ -11,6 +11,6 @@ cd abc_transposition
 
 ## Maintenance
 ```bash
-git clone git clone git@gitee.com:MuGeminorum/abc_transposition.git
+git clone git@gitee.com:MuGeminorum/abc_transposition.git
 cd abc_transposition
 ```

@@ -575,6 +575,8 @@ def transpose_an_abc_text(abc_text_lines, des_key):
             transposed_line = 'K:' + transposed_key + '\n'
         else:
             transposed_line = line
+        if not transposed_line.endswith('\n'):
+            transposed_line = transposed_line + '\n'
         transposed_abc_text += transposed_line
 
     for i, part_text in enumerate(part_text_list):
@@ -582,10 +584,14 @@ def transpose_an_abc_text(abc_text_lines, des_key):
         part_symbol = part_symbol_list[i]
         part_ori_key = part_symbol_Key_dict[part_symbol]
         if part_ori_key == 'none':
+            if not part_text.endswith('\n'):
+                part_text = part_text + '\n'
             transposed_abc_text += part_text
         else:
             part_des_key = lookup_new_key_to_transpose(part_ori_key, global_K, des_key)
             transposed_part_text = transpose_a_voice(part_text, part_ori_key, part_des_key)
+            if not transposed_part_text.endswith('\n'):
+                transposed_part_text = transposed_part_text + '\n'
             transposed_abc_text += transposed_part_text
 
     return transposed_abc_text

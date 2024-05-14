@@ -8,14 +8,21 @@ tone_choices = ['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',
                 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'All']
 
 
-def single_infer_input(abc: str, tone_choice: str):
+def single_infer_input(abc, tone_choice: str):
     output = ""
+    if type(abc) == list:
+        abc_text_lines = abc
+    else:
+        abc_text_lines = abc.splitlines()
+
     if tone_choice == "All":
         for i, tone in enumerate(tone_choices[:-1]):
-            output += f"X:{i+1}\n" + transpose_an_abc_text(abc, tone) + "\n"
+            output += f"X:{i+1}\n" + \
+                transpose_an_abc_text(abc_text_lines, tone) + "\n\n"
 
     else:
-        output = "X:1\n" + transpose_an_abc_text(abc, tone_choice) + "\n"
+        output = "X:1\n" + \
+            transpose_an_abc_text(abc_text_lines, tone_choice) + "\n"
 
     return output
 
@@ -24,7 +31,7 @@ def single_infer_upload(abc_file: str, tone_choice: str):
     with open(abc_file, 'r', encoding='utf-8') as f:
         abc_text_lines = f.readlines()
 
-    return abc_text_lines, single_infer_input(abc_text_lines, tone_choice)
+    return ''.join(abc_text_lines), single_infer_input(abc_text_lines, tone_choice)
 
 
 def unzip(zip_file, extract_to="./data/batch"):

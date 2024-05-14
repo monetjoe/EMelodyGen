@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import zipfile
 import gradio as gr
@@ -9,20 +10,27 @@ tone_choices = ['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',
 
 
 def single_infer_input(abc, tone_choice: str):
+    from_list = type(abc) == list
+    abc_text_lines = abc if from_list else abc.splitlines()
     output = ""
-    if type(abc) == list:
-        abc_text_lines = abc
-    else:
-        abc_text_lines = abc.splitlines()
 
     if tone_choice == "All":
         for i, tone in enumerate(tone_choices[:-1]):
-            output += f"X:{i+1}\n" + \
-                transpose_an_abc_text(abc_text_lines, tone) + "\n\n"
+            transposed_abc_text = transpose_an_abc_text(abc_text_lines, tone)
+            if not from_list:
+                transposed_abc_text = re.sub(
+                    r'(?<!\n)(M:|K:|V:)', r'\n\1', transposed_abc_text)
+
+            output += f"X:{i+1}\n{transposed_abc_text}\n\n"
 
     else:
-        output = "X:1\n" + \
-            transpose_an_abc_text(abc_text_lines, tone_choice) + "\n"
+        transposed_abc_text = transpose_an_abc_text(
+            abc_text_lines, tone_choice)
+        if not from_list:
+            transposed_abc_text = re.sub(
+                r'(?<!\n)(M:|K:|V:)', r'\n\1', transposed_abc_text)
+
+        output = f"X:1\n{transposed_abc_text}\n"
 
     return output
 

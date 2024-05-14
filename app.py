@@ -134,7 +134,7 @@ with gr.Blocks() as demo:
         gr.Interface(
             fn=batch_infer,
             inputs=[
-                gr.components.File(label="上传abc多乐谱压缩包"),
+                gr.components.File(label="上传abc多乐谱zip压缩包"),
                 gr.Dropdown(
                     label="目标调性",
                     choices=tone_choices,
@@ -143,7 +143,6 @@ with gr.Blocks() as demo:
             ],
             outputs=[
                 gr.components.File(label="下载abc增强数据压缩包"),
-                # gr.TextArea(label="转调结果", show_copy_button=True),
             ],
             concurrency_limit=4,
             allow_flagging=False,

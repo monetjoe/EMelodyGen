@@ -21,4 +21,4 @@ cd abc_transposition
 ```bash
 python app.py
 ```
-Then go to <http://127.0.0.1:7860> or <http://localhost:7860>
+Then operate on <http://127.0.0.1:7860> or <http://localhost:7860>, check logs in terminal.

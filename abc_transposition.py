@@ -492,7 +492,7 @@ def transpose_an_abc_text(abc_text_lines, des_key):
 
     reserved_info_field = ['L:', 'K:', 'M:', 'Q:', 'V:', 'I:', 'U:']
 
-    global_K = 'none'
+    global_K = None
     # 滤掉除 Q:K:M:L:V:I: 以外的 information field
     # 滤掉除 %%score 以外的 %%行
     V_found_flag = False
@@ -507,6 +507,9 @@ def transpose_an_abc_text(abc_text_lines, des_key):
             V_found_flag = True
         if line.startswith('K:') and not V_found_flag:
             global_K = line.lstrip('K:').strip()
+            if global_K == 'none':
+                global_K = 'C'
+                line = 'K:C\n'
         if save_state:
             if not line.endswith('\n'):
                 line = line + '\n'
@@ -515,6 +518,7 @@ def transpose_an_abc_text(abc_text_lines, des_key):
     # 分割为各个声部
     part_symbol_list = []
     part_symbol_Key_dict = {}
+    part_symbol_metadata_dict = {}  # for debugging
 
     tunebody_index = None
     for i, line in enumerate(filtered_abc_text_lines):
@@ -533,7 +537,7 @@ def transpose_an_abc_text(abc_text_lines, des_key):
         if i == 0:
             last_start_index = 1
             part_symbol_list.append(line.strip())
-            part_symbol_Key_dict[line.strip()] = 'none'
+            part_symbol_Key_dict[line.strip()] = None
             continue
         if line.startswith('V:'):
             last_end_index = i
@@ -541,6 +545,12 @@ def transpose_an_abc_text(abc_text_lines, des_key):
             part_symbol_list.append(line.strip())
             last_start_index = i + 1
     part_text_list.append(''.join(tunebody_lines[last_start_index:]))
+
+    # for debugging
+    for i, line in enumerate(metadata_lines):
+        if line.startswith('V:'):
+            part_symbol = line.split()[0]
+            part_symbol_metadata_dict[part_symbol] = line.lstrip(part_symbol).strip()
 
     # 写入每个声部的初始Key
     for part_symbol in part_symbol_list:
@@ -555,15 +565,11 @@ def transpose_an_abc_text(abc_text_lines, des_key):
                 K_found_flag = True
                 part_symbol_Key_dict[part_symbol] = line.lstrip('K:').strip()
 
-        if not K_found_flag and global_K != 'none':
-            part_symbol_Key_dict[part_symbol] = global_K
-
-    # 如果无 global_K，则第一个有key的声部的key算global_key
-    if global_K == 'none':
-        for part_symbol in part_symbol_list:
-            if part_symbol_Key_dict[part_symbol] != 'none':
-                global_K = part_symbol_Key_dict[part_symbol]
-                break
+        if not K_found_flag:
+            if 'perc' in part_symbol_metadata_dict[part_symbol]:
+                part_symbol_Key_dict[part_symbol] = 'none'
+            else:
+                part_symbol_Key_dict[part_symbol] = global_K
 
     transposed_abc_text = ''
     # 开始转调
@@ -577,8 +583,6 @@ def transpose_an_abc_text(abc_text_lines, des_key):
             transposed_line = 'K:' + transposed_key + '\n'
         else:
             transposed_line = line
-        # if not transposed_line.endswith('\n'):
-        #     transposed_line = transposed_line + '\n'
         transposed_abc_text += transposed_line
 
     for i, part_text in enumerate(part_text_list):
@@ -586,47 +590,48 @@ def transpose_an_abc_text(abc_text_lines, des_key):
         part_symbol = part_symbol_list[i]
         part_ori_key = part_symbol_Key_dict[part_symbol]
         if part_ori_key == 'none':
-            # if not part_text.endswith('\n'):
-            #     part_text = part_text + '\n'
             transposed_abc_text += part_text
         else:
             part_des_key = lookup_new_key_to_transpose(part_ori_key, global_K, des_key)
             transposed_part_text = transpose_a_voice(part_text, part_ori_key, part_des_key)
-            # if not transposed_part_text.endswith('\n'):
-            #     transposed_part_text = transposed_part_text + '\n'
             transposed_abc_text += transposed_part_text
 
-    return transposed_abc_text
+    return transposed_abc_text, global_K, des_key
 
 
-def transpose_dataset():
+def transpose_dataset(dataset, transposed_dataset):
+    if not os.path.exists(transposed_dataset):
+        os.mkdir(transposed_dataset)
 
-    for abc_path in find_all_abc('04_abc_cleaned\\piano'):
-        abc_name = abc_path.split('\\')[-1].split('.')[0]
-
-        # if abc_name != '100701':
-        #     continue
-
+    for abc_path in find_all_abc(dataset):
+        ori_filename = abc_path.split('\\')[-1][:-4]
         print(abc_path)
         with open(abc_path, 'r', encoding='utf-8') as f:
             abc_text_lines = f.readlines()
 
-        print('X:1')
-        print(''.join(abc_text_lines))
-        print('')
+        for key in Proto_transpose_key_matrix.keys():
+            try:
+                transposed_abc_text, ori_key, des_key = transpose_an_abc_text(abc_text_lines, key)
+                if ori_key == des_key:
+                    filename = ori_filename + '_original_' + des_key
+                else:
+                    filename = ori_filename + '_transposed_' + des_key
+                transposed_filepath = os.path.join(transposed_dataset, filename + '.abc')
+                with open(transposed_filepath, 'w', encoding='utf-8') as f:
+                    f.write(transposed_abc_text)
+                print(filename, 'is written.')
 
-        transposed_abc_text = transpose_an_abc_text(abc_text_lines, 'C')
+            except Exception as e:
+                print(abc_path, e)
 
-        print('X:2')
-        print(transposed_abc_text)
-        print('')
+
 
 
 def sample_and_test(dataset_folder):
     file_list = os.listdir(dataset_folder)
     random_files = random.sample(file_list, 10)
 
-    with open('tranposition_test_samples.txt', 'w', encoding='utf-8') as w:
+    with open('tranposition_test_samples.abc', 'w', encoding='utf-8') as w:
 
         for i, file in enumerate(random_files):
             print(file)
@@ -635,13 +640,13 @@ def sample_and_test(dataset_folder):
             with open(file_path, 'r', encoding='utf-8') as f:
                 abc_text_lines = f.readlines()
 
-            w.write('X:' + str(2*i+1) + '\n')
+            # w.write('X:' + str(2*i+1) + '\n')
             w.write('%%' + file + '\n')
             w.write(''.join(abc_text_lines))
             w.write('\n\n')
 
-            print('X:', str(2*i+1))
-            print(''.join(abc_text_lines))
+            # print('X:', str(2*i+1))
+            # print(''.join(abc_text_lines))
 
             transposed_abc_text = transpose_an_abc_text(abc_text_lines, des_key)
 
@@ -657,23 +662,24 @@ def sample_and_test(dataset_folder):
 
 
 if __name__ == '__main__':
-    # transpose_dataset()
+    # transpose_dataset(r'D:\Research\Projects\PM2S\Datasets\baseline\ASAP_extracted\abc_cleaned',
+    #                   r'D:\Research\Projects\PM2S\Datasets\baseline\ASAP_extracted\abc_augmented')
 
     # transpose_a_voice(test, 'C', 'C')
     # note = transpose_a_note(r"^^c''", 'C', 'Eb')
     # print(note)
 
-    # with open(r"D:\Research\Projects\MultitrackComposer\dataset\00_raw\MAD\de73467ae7532c73eb7afe18bcbfd6de.abc", 'r', encoding='utf-8') as f:
-    #     abc_text_lines = f.readlines()
-    #
-    # print('X:1')
-    # print(''.join(abc_text_lines))
-    # print('')
-    #
-    # transposed_abc_text = transpose_an_abc_text(abc_text_lines, 'F#')
-    #
-    # print('X:2')
-    # print(transposed_abc_text)
-    # print('')
+    with open(r"C:\Users\Alexis\Documents\WeChat Files\wxid_l9uje1jrfx8b22\FileStorage\File\2024-05\Sumeru_ef14dcf1691673b36aba04e10b84c19d_501.abc", 'r', encoding='utf-8') as f:
+        abc_text_lines = f.readlines()
 
-    sample_and_test(r'D:\Research\Projects\MultitrackComposer\dataset\00_raw\MAD')
+    print('X:1')
+    print(''.join(abc_text_lines))
+    print('')
+
+    transposed_abc_text, _, _ = transpose_an_abc_text(abc_text_lines, 'F#')
+
+    print('X:2')
+    print(transposed_abc_text)
+    print('')
+
+    # sample_and_test(r'D:\Research\Projects\MultitrackComposer\dataset\03_abc\musescoreV2')

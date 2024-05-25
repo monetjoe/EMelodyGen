@@ -22,17 +22,17 @@ def create_dir(dirpath=OUTPUT_PATH):
         os.makedirs(dirpath)
 
 
-def download(url=WEIGHT_URL, filename='./output/weights.pth'):
+def download(url=WEIGHT_URL, filename="./output/weights.pth"):
     create_dir()
     try:
         response = requests.get(url, stream=True)
-        total_size = int(response.headers.get('content-length', 0))
+        total_size = int(response.headers.get("content-length", 0))
         chunk_size = 1024
 
-        with open(filename, 'wb') as file, tqdm(
+        with open(filename, "wb") as file, tqdm(
             desc=f"Downloading weights to '{filename}'...",
             total=total_size,
-            unit='B',
+            unit="B",
             unit_scale=True,
             unit_divisor=1024,
         ) as bar:
@@ -48,7 +48,7 @@ def download(url=WEIGHT_URL, filename='./output/weights.pth'):
 
 class Patchilizer:
     """
-    A class for converting music bars to patches and vice versa. 
+    A class for converting music bars to patches and vice versa.
     """
 
     def __init__(self):
@@ -62,7 +62,7 @@ class Patchilizer:
         """
         Split a body of music into individual bars.
         """
-        bars = re.split(self.regexPattern, ''.join(body))
+        bars = re.split(self.regexPattern, "".join(body))
         bars = list(filter(None, bars))
         # remove empty strings
         if bars[0] in self.delimiters:
@@ -76,8 +76,7 @@ class Patchilizer:
         """
         Convert a bar into a patch of specified length.
         """
-        patch = [self.bos_token_id] + \
-            [ord(c) for c in bar] + [self.eos_token_id]
+        patch = [self.bos_token_id] + [ord(c) for c in bar] + [self.eos_token_id]
         patch = patch[:patch_size]
         patch += [self.pad_token_id] * (patch_size - len(patch))
         return patch
@@ -86,31 +85,46 @@ class Patchilizer:
         """
         Convert a patch into a bar.
         """
-        return ''.join(chr(idx) if idx > self.eos_token_id else '' for idx in patch if idx != self.eos_token_id)
+        return "".join(
+            chr(idx) if idx > self.eos_token_id else ""
+            for idx in patch
+            if idx != self.eos_token_id
+        )
 
-    def encode(self, abc_code, patch_length=PATCH_LENGTH, patch_size=PATCH_SIZE, add_special_patches=False):
+    def encode(
+        self,
+        abc_code,
+        patch_length=PATCH_LENGTH,
+        patch_size=PATCH_SIZE,
+        add_special_patches=False,
+    ):
         """
         Encode music into patches of specified length.
         """
-        lines = unidecode(abc_code).split('\n')
+        lines = unidecode(abc_code).split("\n")
         lines = list(filter(None, lines))  # remove empty lines
 
         body = ""
         patches = []
 
         for line in lines:
-            if len(line) > 1 and ((line[0].isalpha() and line[1] == ':') or line.startswith('%%score')):
+            if len(line) > 1 and (
+                (line[0].isalpha() and line[1] == ":") or line.startswith("%%score")
+            ):
                 if body:
                     bars = self.split_bars(body)
                     patches.extend(
-                        self.bar2patch(bar + '\n' if idx == len(bars) - 1 else bar, patch_size) for idx, bar in enumerate(bars)
+                        self.bar2patch(
+                            bar + "\n" if idx == len(bars) - 1 else bar, patch_size
+                        )
+                        for idx, bar in enumerate(bars)
                     )
                     body = ""
 
-                patches.append(self.bar2patch(line + '\n', patch_size))
+                patches.append(self.bar2patch(line + "\n", patch_size))
 
             else:
-                body += line + '\n'
+                body += line + "\n"
 
         if body:
             patches.extend(
@@ -118,10 +132,8 @@ class Patchilizer:
             )
 
         if add_special_patches:
-            bos_patch = [self.bos_token_id] * \
-                (patch_size-1) + [self.eos_token_id]
-            eos_patch = [self.bos_token_id] + \
-                [self.eos_token_id] * (patch_size-1)
+            bos_patch = [self.bos_token_id] * (patch_size - 1) + [self.eos_token_id]
+            eos_patch = [self.bos_token_id] + [self.eos_token_id] * (patch_size - 1)
             patches = [bos_patch] + patches + [eos_patch]
 
         return patches[:patch_length]
@@ -130,12 +142,12 @@ class Patchilizer:
         """
         Decode patches into music.
         """
-        return ''.join(self.patch2bar(patch) for patch in patches)
+        return "".join(self.patch2bar(patch) for patch in patches)
 
 
 class PatchLevelDecoder(PreTrainedModel):
     """
-    An Patch-level Decoder model for generating patch features in an auto-regressive manner. 
+    An Patch-level Decoder model for generating patch features in an auto-regressive manner.
     It inherits PreTrainedModel from transformers.
     """
 
@@ -160,7 +172,7 @@ class PatchLevelDecoder(PreTrainedModel):
 
 class CharLevelDecoder(PreTrainedModel):
     """
-    A Char-level Decoder model for generating the characters within each bar patch sequentially. 
+    A Char-level Decoder model for generating the characters within each bar patch sequentially.
     It inherits PreTrainedModel from transformers.
     """
 
@@ -171,7 +183,12 @@ class CharLevelDecoder(PreTrainedModel):
         self.eos_token_id = 2
         self.base = GPT2LMHeadModel(config)
 
-    def forward(self, encoded_patches: torch.Tensor, target_patches: torch.Tensor, patch_sampling_batch_size: int):
+    def forward(
+        self,
+        encoded_patches: torch.Tensor,
+        target_patches: torch.Tensor,
+        patch_sampling_batch_size: int,
+    ):
         """
         The forward pass of the char-level decoder model.
         :param encoded_patches: the encoded patches
@@ -187,7 +204,10 @@ class CharLevelDecoder(PreTrainedModel):
         target_masks = target_masks.masked_fill_(labels == -100, 0)
 
         # select patches
-        if patch_sampling_batch_size != 0 and patch_sampling_batch_size < target_patches.shape[0]:
+        if (
+            patch_sampling_batch_size != 0
+            and patch_sampling_batch_size < target_patches.shape[0]
+        ):
             indices = list(range(len(target_patches)))
             random.shuffle(indices)
             selected_indices = sorted(indices[:patch_sampling_batch_size])
@@ -199,20 +219,16 @@ class CharLevelDecoder(PreTrainedModel):
 
         # get input embeddings
         inputs_embeds = torch.nn.functional.embedding(
-            target_patches,
-            self.base.transformer.wte.weight
+            target_patches, self.base.transformer.wte.weight
         )
 
         # concatenate the encoded patches with the input embeddings
         inputs_embeds = torch.cat(
-            (encoded_patches.unsqueeze(1), inputs_embeds[:, 1:, :]),
-            dim=1
+            (encoded_patches.unsqueeze(1), inputs_embeds[:, 1:, :]), dim=1
         )
 
         return self.base(
-            inputs_embeds=inputs_embeds,
-            attention_mask=target_masks,
-            labels=labels
+            inputs_embeds=inputs_embeds, attention_mask=target_masks, labels=labels
         )
 
     def generate(self, encoded_patch: torch.Tensor, tokens: torch.Tensor):
@@ -226,10 +242,7 @@ class CharLevelDecoder(PreTrainedModel):
         tokens = tokens.reshape(1, -1)
 
         # Get input embeddings
-        tokens = torch.nn.functional.embedding(
-            tokens,
-            self.base.transformer.wte.weight
-        )
+        tokens = torch.nn.functional.embedding(tokens, self.base.transformer.wte.weight)
 
         # Concatenate the encoded patch with the input embeddings
         tokens = torch.cat((encoded_patch, tokens[:, 1:, :]), dim=1)
@@ -238,17 +251,14 @@ class CharLevelDecoder(PreTrainedModel):
         outputs = self.base(inputs_embeds=tokens)
 
         # Get probabilities of next token
-        probs = torch.nn.functional.softmax(
-            outputs.logits.squeeze(0)[-1],
-            dim=-1
-        )
+        probs = torch.nn.functional.softmax(outputs.logits.squeeze(0)[-1], dim=-1)
 
         return probs
 
 
 class TunesFormer(PreTrainedModel):
     """
-    TunesFormer is a hierarchical music generation model based on bar patching. 
+    TunesFormer is a hierarchical music generation model based on bar patching.
     It includes a patch-level decoder and a character-level decoder.
     It inherits PreTrainedModel from transformers.
     """
@@ -260,18 +270,14 @@ class TunesFormer(PreTrainedModel):
         self.eos_token_id = 2
         if share_weights:
             max_layers = max(
-                encoder_config.num_hidden_layers,
-                decoder_config.num_hidden_layers
+                encoder_config.num_hidden_layers, decoder_config.num_hidden_layers
             )
 
-            max_context_size = max(
-                encoder_config.max_length,
-                decoder_config.max_length
-            )
+            max_context_size = max(encoder_config.max_length, decoder_config.max_length)
 
             max_position_embeddings = max(
                 encoder_config.max_position_embeddings,
-                decoder_config.max_position_embeddings
+                decoder_config.max_position_embeddings,
             )
 
             encoder_config.num_hidden_layers = max_layers
@@ -287,17 +293,24 @@ class TunesFormer(PreTrainedModel):
         if share_weights:
             self.patch_level_decoder.base = self.char_level_decoder.base.transformer
 
-    def forward(self, patches: torch.Tensor, patch_sampling_batch_size: int = PATCH_SAMPLING_BATCH_SIZE):
+    def forward(
+        self,
+        patches: torch.Tensor,
+        patch_sampling_batch_size: int = PATCH_SAMPLING_BATCH_SIZE,
+    ):
         """
         The forward pass of the TunesFormer model.
         :param patches: the patches to be both encoded and decoded
         :return: the decoded patches
         """
         patches = patches.reshape(len(patches), -1, PATCH_SIZE)
-        encoded_patches = self.patch_level_decoder(
-            patches)["last_hidden_state"]
+        encoded_patches = self.patch_level_decoder(patches)["last_hidden_state"]
 
-        return self.char_level_decoder(encoded_patches.squeeze(0)[:-1, :], patches.squeeze(0)[1:, :], patch_sampling_batch_size)
+        return self.char_level_decoder(
+            encoded_patches.squeeze(0)[:-1, :],
+            patches.squeeze(0)[1:, :],
+            patch_sampling_batch_size,
+        )
 
     def generate(
         self,
@@ -306,7 +319,7 @@ class TunesFormer(PreTrainedModel):
         top_p: float = 1,
         top_k: int = 0,
         temperature: float = 1,
-        seed: int = None
+        seed: int = None,
     ):
         """
         The generate function for generating patches based on patches.
@@ -314,8 +327,7 @@ class TunesFormer(PreTrainedModel):
         :return: the generated patches
         """
         patches = patches.reshape(len(patches), -1, PATCH_SIZE)
-        encoded_patches = self.patch_level_decoder(
-            patches)["last_hidden_state"]
+        encoded_patches = self.patch_level_decoder(patches)["last_hidden_state"]
 
         if tokens == None:
             tokens = torch.tensor([self.bos_token_id], device=self.device)
@@ -331,19 +343,16 @@ class TunesFormer(PreTrainedModel):
             else:
                 n_seed = None
 
-            prob = self.char_level_decoder.generate(
-                encoded_patches[0][-1],
-                tokens
-            ).cpu().detach().numpy()
+            prob = (
+                self.char_level_decoder.generate(encoded_patches[0][-1], tokens)
+                .cpu()
+                .detach()
+                .numpy()
+            )
 
             prob = top_p_sampling(prob, top_p=top_p, return_probs=True)
             prob = top_k_sampling(prob, top_k=top_k, return_probs=True)
-
-            token = temperature_sampling(
-                prob,
-                temperature=temperature,
-                seed=n_seed
-            )
+            token = temperature_sampling(prob, temperature=temperature, seed=n_seed)
 
             generated_patch.append(token)
             if token == self.eos_token_id or len(tokens) >= PATCH_SIZE - 1:
@@ -351,8 +360,7 @@ class TunesFormer(PreTrainedModel):
 
             else:
                 tokens = torch.cat(
-                    (tokens, torch.tensor([token], device=self.device)),
-                    dim=0
+                    (tokens, torch.tensor([token], device=self.device)), dim=0
                 )
 
         return generated_patch, n_seed
@@ -363,8 +371,9 @@ class PatchilizedData(Dataset):
         self.texts = []
 
         for item in tqdm(items):
-            text = item['control code'] + \
-                "\n".join(item['abc notation'].split('\n')[1:])
+            text = item["control code"] + "\n".join(
+                item["abc notation"].split("\n")[1:]
+            )
             input_patch = patchilizer.encode(text, add_special_patches=True)
             input_patch = torch.tensor(input_patch)
             if torch.sum(input_patch) != 0:

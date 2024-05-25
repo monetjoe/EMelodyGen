@@ -1,6 +1,6 @@
 import os
-import time
 import json
+import time
 from utils import *
 from torch.utils.data import DataLoader
 from modelscope.msdatasets import MsDataset

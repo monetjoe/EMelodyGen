@@ -1,7 +1,6 @@
 import os
 import time
 from utils import *
-from datasets import load_dataset
 from torch.utils.data import DataLoader
 from modelscope.msdatasets import MsDataset
 from torch.cuda.amp import autocast, GradScaler

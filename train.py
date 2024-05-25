@@ -141,8 +141,8 @@ def eval_epoch(model):  # do one epoch for eval
 
 if __name__ == "__main__":
     # load data
-    trainset = MsDataset.load("monetjoe/EMOPIA_abc", split="train")
-    evalset = MsDataset.load("monetjoe/EMOPIA_abc", split="test")
+    trainset = MsDataset.load(f"monetjoe/{DATASET}", split="train")
+    evalset = MsDataset.load(f"monetjoe/{DATASET}", split="test")
     train_set, eval_set = [], []
     for song in trainset:
         train_set.append(
@@ -219,9 +219,9 @@ if __name__ == "__main__":
         with open(LOG_PATH, "a", encoding="utf-8") as jsonl_file:
             json_str = json.dumps(
                 {
-                    "epoch": str(epoch),
-                    "train_loss": str(train_loss),
-                    "eval_loss": str(eval_loss),
+                    "epoch": int(epoch),
+                    "train_loss": float(train_loss),
+                    "eval_loss": float(eval_loss),
                     "time": f"{time.asctime(time.localtime(time.time()))}",
                 }
             )

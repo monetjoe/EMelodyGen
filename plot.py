@@ -37,6 +37,7 @@ def plot_loss(tra_acc_list, val_acc_list):
     show_point(min1, y1)
     show_point(min2, y2)
     plt.legend()
+    plt.xticks(range(1, len(tra_acc_list) + 1))
     plt.show()
 
 
@@ -61,8 +62,8 @@ def save_loss(tra_acc_list, val_acc_list, save_path="./output"):
     show_point(min1, y1)
     show_point(min2, y2)
     plt.legend()
-    plt.savefig(save_path + "/acc.pdf", bbox_inches="tight")
-    plt.savefig(save_path + "/acc.jpg", bbox_inches="tight")
+    plt.xticks(range(1, len(tra_acc_list) + 1))
+    plt.savefig(save_path + "/loss.jpg", bbox_inches="tight")
     plt.close()
 
 

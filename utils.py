@@ -30,7 +30,7 @@ def download(url=WEIGHT_URL, filename='./output/weights.pth'):
         chunk_size = 1024
 
         with open(filename, 'wb') as file, tqdm(
-            desc=f"Downloading weights to '{filename}' from HF...",
+            desc=f"Downloading weights to '{filename}'...",
             total=total_size,
             unit='B',
             unit_scale=True,

@@ -1,5 +1,6 @@
 import os
 import time
+import json
 from utils import *
 from torch.utils.data import DataLoader
 from modelscope.msdatasets import MsDataset
@@ -215,10 +216,16 @@ if __name__ == "__main__":
         train_loss = train_epoch(model, is_autocast, scaler)
         eval_loss = eval_epoch(model)
 
-        with open(LOG_PATH, "a") as f:
-            f.write(
-                f"Epoch {str(epoch)}\ntrain_loss: {str(train_loss)}\neval_loss: {str(eval_loss)}\ntime: {time.asctime(time.localtime(time.time()))}\n\n"
+        with open(LOG_PATH, "a", encoding="utf-8") as jsonl_file:
+            json_str = json.dumps(
+                {
+                    "epoch": str(epoch),
+                    "train_loss": str(train_loss),
+                    "eval_loss": str(eval_loss),
+                    "time": f"{time.asctime(time.localtime(time.time()))}",
+                }
             )
+            jsonl_file.write(json_str + "\n")
 
         if eval_loss < min_eval_loss:
             best_epoch = epoch

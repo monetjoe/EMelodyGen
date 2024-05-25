@@ -1,4 +1,4 @@
-A:Mondstadt
+A:Q1
 S:2
 B:9
 E:4

@@ -141,17 +141,25 @@ def eval_epoch(model):  # do one epoch for eval
 
 if __name__ == "__main__":
     # load data
-    ds = MsDataset.load("monetjoe/EMOPIA_abc", subset_name="default", split="train")
-    emopia = []
-    for item in ds:
-        emopia.append(
+    trainset = MsDataset.load("monetjoe/EMOPIA_abc", split="train")
+    evalset = MsDataset.load("monetjoe/EMOPIA_abc", split="test")
+    train_set, eval_set = [], []
+    for song in trainset:
+        train_set.append(
             {
-                "control code": "A:" + item["label"] + "\n" + item["prompt"],
-                "abc notation": item["data"],
+                "control code": "A:" + song["label"] + "\n" + song["prompt"],
+                "abc notation": song["data"],
             }
         )
 
-    train_set, eval_set = split_data(emopia)
+    for song in evalset:
+        eval_set.append(
+            {
+                "control code": "A:" + song["label"] + "\n" + song["prompt"],
+                "abc notation": song["data"],
+            }
+        )
+
     batch_size, patchilizer, model, scaler, is_autocast, optimizer = init()
 
     train_set = DataLoader(

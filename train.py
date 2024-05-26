@@ -65,13 +65,15 @@ def split_data(data, eval_ratio=0.1):
     return train_set, eval_set
 
 
-def process_one_batch(batch):  # call model with a batch of input
+def process_one_batch(batch, model):  # call model with a batch of input
     input_patches = batch
     loss = model(input_patches).loss
     return loss.mean()
 
 
-def train_epoch(model, is_autocast, scaler):  # do one epoch for training
+def train_epoch(
+    model, optimizer, lr_scheduler, is_autocast, scaler, train_set
+):  # do one epoch for training
     tqdm_train_set = tqdm(train_set)
     total_train_loss = 0
     iter_idx = 1
@@ -81,7 +83,7 @@ def train_epoch(model, is_autocast, scaler):  # do one epoch for training
         try:
             if is_autocast:
                 with autocast():
-                    loss = process_one_batch(batch)
+                    loss = process_one_batch(batch, model)
 
                 if loss == None or torch.isnan(loss).item():
                     continue
@@ -91,7 +93,7 @@ def train_epoch(model, is_autocast, scaler):  # do one epoch for training
                 scaler.update()
 
             else:
-                loss = process_one_batch(batch)
+                loss = process_one_batch(batch, model)
                 if loss == None or torch.isnan(loss).item():
                     continue
 
@@ -118,7 +120,7 @@ def train_epoch(model, is_autocast, scaler):  # do one epoch for training
     return total_train_loss / (iter_idx - 1)
 
 
-def eval_epoch(model):  # do one epoch for eval
+def eval_epoch(model, eval_set):  # do one epoch for eval
     tqdm_eval_set = tqdm(eval_set)
     total_eval_loss = 0
     iter_idx = 1
@@ -127,7 +129,7 @@ def eval_epoch(model):  # do one epoch for eval
     # Evaluate data for one epoch
     for batch in tqdm_eval_set:
         with torch.no_grad():
-            loss = process_one_batch(batch)
+            loss = process_one_batch(batch, model)
             if loss == None or torch.isnan(loss).item():
                 continue
 
@@ -141,6 +143,11 @@ def eval_epoch(model):  # do one epoch for eval
 
 if __name__ == "__main__":
     # load data
+    from modelscope.hub.api import HubApi
+
+    api = HubApi()
+    api.login(os.getenv("ms_app_key"))
+
     trainset = MsDataset.load(f"monetjoe/{DATASET}", split="train")
     evalset = MsDataset.load(f"monetjoe/{DATASET}", split="test")
     train_set, eval_set = [], []
@@ -213,8 +220,10 @@ if __name__ == "__main__":
     for epoch in range(1, NUM_EPOCHS + 1 - pre_epoch):
         epoch += pre_epoch
         print(f"{'-' * 21}Epoch {str(epoch)}{'-' * 21}")
-        train_loss = train_epoch(model, is_autocast, scaler)
-        eval_loss = eval_epoch(model)
+        train_loss = train_epoch(
+            model, optimizer, lr_scheduler, is_autocast, scaler, train_set
+        )
+        eval_loss = eval_epoch(model, eval_set)
 
         with open(LOG_PATH, "a", encoding="utf-8") as jsonl_file:
             json_str = json.dumps(

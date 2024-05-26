@@ -3,3 +3,4 @@ output/*
 rename.sh
 test.py
 gpt2-abcmusic/*
+key.txt

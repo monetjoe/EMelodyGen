@@ -116,6 +116,25 @@ Pitch2Chordnote = {
     11: ['b',   None,   None,   None,   None,   '##',   '', ],
 }
 
+Key2Mode = {
+    'Cb': ['Cb',    'Dbdor',    'Ebphr',    'Fblyd',    'Gbmix',    'Abmin',    'Abm',  'Bbloc'],
+    'Gb': ['Gb',    'Abdor',    'Bbphr',    'Cblyd',    'Dbmix',    'Ebmin',    'Ebm',  'Floc'],
+    'Db': ['Db',    'Ebdor',    'Fphr',     'Gblyd',    'Abmix',    'Bbmin',    'Bbm',  'Cloc'],
+    'Ab': ['Ab',    'Bbdor',    'Cphr',     'Dblyd',    'Ebmix',    'Fmin',     'Fm',   'Gloc'],
+    'Eb': ['Eb',    'Fdor',     'Gphr',     'Ablyd',    'Bbmix',    'Cmin',     'Cm',   'Dloc'],
+    'Bb': ['Bb',    'Cdor',     'Dphr',     'Eblyd',    'Fmix',     'Gmin',     'Gm',   'Aloc'],
+    'F' : ['F',     'Gdor',     'Aphr',     'Bblyd',    'Cmix',     'Dmin',     'Dm',   'Eloc'],
+    'C' : ['C',     'Ddor',     'Ephr',     'Flyd',     'Gmix',     'Amin',     'Am',   'Bloc'],
+    'G' : ['G',     'Ador',     'Bphr',     'Clyd',     'Dmix',     'Emin',     'Em',   'F#loc'],
+    'D' : ['D',     'Edor',     'F#phr',    'Glyd',     'Amix',     'Bmin',     'Bm',   'C#loc'],
+    'A' : ['A',     'Bdor',     'C#phr',    'Dlyd',     'Emix',     'F#min',    'F#m',  'G#loc'],
+    'E' : ['E',     'F#dor',    'G#phr',    'Alyd',     'Bmix',     'C#min',    'C#m',  'D#loc'],
+    'B' : ['B',     'C#dor',    'D#phr',    'Elyd',     'F#mix',    'G#min',    'G#m',  'A#loc'],
+    'F#': ['F#',    'G#dor',    'A#phr',    'Blyd',     'C#mix',    'D#min',    'D#m',  'E#loc'],
+    'C#': ['C#',    'D#dor',    'E#phr',    'F#lyd',    'G#mix',    'A#min',    'A#m',  'B#loc'],
+}
+
+Mode2Key = {mode: key for key in Key2Mode.keys() for mode in Key2Mode[key]}
 
 def find_all_abc(directory):
     for root, directories, files in os.walk(directory):
@@ -123,6 +142,19 @@ def find_all_abc(directory):
             file_path = os.path.join(root, filename)
             if file_path.endswith('.abc') or file_path.endswith('txt'):
                 yield file_path
+
+
+def lookup_new_keymode_to_transpose(new_keymode, ori_keymode, des_key):
+    ori_key = Mode2Key[ori_keymode]
+    if len(new_keymode) >= 2:
+        mode = new_keymode[2:] if new_keymode[1] in ['#', 'b'] else new_keymode[1:]
+        tonic = new_keymode[:2] if new_keymode[1] in ['#', 'b'] else new_keymode[:1]
+    else:
+        mode = ''
+        tonic = new_keymode
+    transposed_keymode = lookup_new_key_to_transpose(tonic, ori_key, des_key) + mode
+    transposed_key = Mode2Key[transposed_keymode]
+    return transposed_keymode, transposed_key
 
 
 def lookup_new_key_to_transpose(new_key, ori_key, des_key):
@@ -214,9 +246,9 @@ def transpose_a_note(note, ori_key, des_key):
     return transposed_note
 
 
-def transpose_a_voice(abc_text, ori_key, des_key):
+def transpose_a_voice(abc_text, ori_keymode, des_key):
 
-    if ori_key == 'none':
+    if ori_keymode == 'none':
         return abc_text
 
     exclaim_re = r'![^!]+!'
@@ -230,10 +262,11 @@ def transpose_a_voice(abc_text, ori_key, des_key):
     transpose_ascii_list = [-1] * len(abc_text)
 
     # 根据 ori_key 以及 [K:] 来判断所有ascii字符的所在调，并挑出所有按[K:]转调的元素
-    ori_key_ascii_list = [ori_key] * len(abc_text)
-    keynote_list = []
-    keynote_start_index_list = []
-    keynote_end_index_list = []
+    ori_keymode_ascii_list = [ori_keymode] * len(abc_text)
+    ori_key_ascii_list = [Mode2Key[ori_keymode]] * len(abc_text)
+    keymode_list = []
+    keymode_start_index_list = []
+    keymode_end_index_list = []
 
     squareBracket_matches = re.finditer(squareBracket_re, abc_text)
     for squareBracket_match in squareBracket_matches:
@@ -241,11 +274,12 @@ def transpose_a_voice(abc_text, ori_key, des_key):
         sqaureBracket_end = squareBracket_match.end()
         squareBracket_string = squareBracket_match.group()
         if squareBracket_string[1:3] == 'K:' and squareBracket_string[3] in Key_list:
-            key = squareBracket_string[3:-1]
+            keymode = squareBracket_string[3:-1]
             key_start = sqaureBracket_start + 3
             key_end = sqaureBracket_end - 1
-            for i in range(key_start, len(ori_key_ascii_list)):
-                ori_key_ascii_list[i] = key
+            for i in range(key_start, len(ori_keymode_ascii_list)):
+                ori_keymode_ascii_list[i] = keymode
+                ori_key_ascii_list[i] = Mode2Key[keymode]
             for i in range(key_start, key_end):
                 transpose_ascii_list[i] = 3
             for j in range(sqaureBracket_start, key_start):
@@ -253,9 +287,9 @@ def transpose_a_voice(abc_text, ori_key, des_key):
             for j in range(key_end, sqaureBracket_end):
                 transpose_ascii_list[j] = 0
 
-            keynote_list.append(key)
-            keynote_start_index_list.append(key_start)
-            keynote_end_index_list.append(key_end)
+            keymode_list.append(keymode)
+            keymode_start_index_list.append(key_start)
+            keymode_end_index_list.append(key_end)
 
         elif squareBracket_string[2] == ':':    # information field，全部置0
             for j in range(sqaureBracket_start, sqaureBracket_end):
@@ -362,9 +396,12 @@ def transpose_a_voice(abc_text, ori_key, des_key):
         else:
             i += 1
 
-    des_key_ascii_list = []
-    for key in ori_key_ascii_list:
-        des_key_ascii_list.append(lookup_new_key_to_transpose(key, ori_key, des_key))
+    trasposed_keymode_ascii_list = []
+    trasposed_key_ascii_list = []
+    for keymode in ori_keymode_ascii_list:
+        trasposed_keymode, trasposed_key = lookup_new_keymode_to_transpose(keymode, ori_keymode, des_key)
+        trasposed_keymode_ascii_list.append(trasposed_keymode)
+        trasposed_key_ascii_list.append(trasposed_key)
 
     elements_to_transpose = []
     for i in range(len(barline_list)):
@@ -373,25 +410,25 @@ def transpose_a_voice(abc_text, ori_key, des_key):
             'start': barline_start_index_list[i], 'end': barline_end_index_list[i],
             'transposed_content': barline_list[i]
         })
-    for i in range(len(keynote_list)):
+    for i in range(len(keymode_list)):
         elements_to_transpose.append({
-            'type': 3, 'note': keynote_list[i], 'start': keynote_start_index_list[i], 'end': keynote_end_index_list[i],
-            'ori_key': ori_key_ascii_list[keynote_start_index_list[i]],
-            'des_key': des_key_ascii_list[keynote_start_index_list[i]],
-            'transposed_content': des_key_ascii_list[keynote_start_index_list[i]],
+            'type': 3, 'note': keymode_list[i], 'start': keymode_start_index_list[i], 'end': keymode_end_index_list[i],
+            'ori_key': ori_key_ascii_list[keymode_start_index_list[i]],
+            'des_key': trasposed_key_ascii_list[keymode_start_index_list[i]],
+            'transposed_content': trasposed_keymode_ascii_list[keymode_start_index_list[i]],
         })
     for i in range(len(chordnote_list)):
         elements_to_transpose.append({
             'type': 2, 'note': chordnote_list[i], 'start': chordnote_start_index_list[i], 'end': chordnote_end_index_list[i],
             'ori_key': ori_key_ascii_list[chordnote_start_index_list[i]],
-            'des_key': des_key_ascii_list[chordnote_start_index_list[i]],
+            'des_key': trasposed_key_ascii_list[chordnote_start_index_list[i]],
             'transposed_content': None
         })
     for i in range(len(note_list)):
         elements_to_transpose.append({
             'type': 1, 'note': note_list[i], 'start': note_start_index_list[i], 'end': note_end_index_list[i],
             'ori_key': ori_key_ascii_list[note_start_index_list[i]],
-            'des_key': des_key_ascii_list[note_start_index_list[i]],
+            'des_key': trasposed_key_ascii_list[note_start_index_list[i]],
             'actual_note': None,
             'transposed_actual_note': None,
             'transposed_content': None
@@ -453,8 +490,8 @@ def transpose_a_voice(abc_text, ori_key, des_key):
                 j -= 1
                 if elements_to_transpose[j]['type'] == 4 or elements_to_transpose[j]['type'] == 3:  # 回溯到小节线或者调号
                     # 根据调号来判断是否去掉临时升降号
-                    des_key = ele['des_key']
-                    if accidental == Key_accidental_dict[des_key][notename.upper()]: # 和调式升降号相符，则去掉临时升降号
+                    ele_des_key = ele['des_key']
+                    if accidental == Key_accidental_dict[ele_des_key][notename.upper()]: # 和调式升降号相符，则去掉临时升降号
                         ele['transposed_content'] = notename + octave
                     else:
                         ele['transposed_content'] = ele['transposed_actual_note']
@@ -474,8 +511,8 @@ def transpose_a_voice(abc_text, ori_key, des_key):
                         pass
 
             if j == 0 and ele['transposed_content'] is None:  # 如果很不幸就是第一个元素，或者没有回溯到以上三种类型，则根据调号来判断是否去掉临时升降号
-                des_key = ele['des_key']
-                if accidental == Key_accidental_dict[des_key][notename.upper()]:  # 和调式升降号相符，则去掉临时升降号
+                ele_des_key = ele['des_key']
+                if accidental == Key_accidental_dict[ele_des_key][notename.upper()]:  # 和调式升降号相符，则去掉临时升降号
                     ele['transposed_content'] = notename + octave
                 else:
                     ele['transposed_content'] = ele['transposed_actual_note']
@@ -490,19 +527,12 @@ def transpose_a_voice(abc_text, ori_key, des_key):
 
 def transpose_an_abc_text(abc_text_lines, des_key):
 
-    reserved_info_field = ['L:', 'K:', 'M:', 'Q:', 'V:', 'I:', 'U:']
+    # reserved_info_field = ['L:', 'K:', 'M:', 'Q:', 'V:', 'I:', 'U:']
 
     global_K = None
-    # 滤掉除 Q:K:M:L:V:I: 以外的 information field
-    # 滤掉除 %%score 以外的 %%行
     V_found_flag = False
     filtered_abc_text_lines = []
     for i, line in enumerate(abc_text_lines):
-        save_state = True
-        if re.search(r'^[A-Za-z]:', line) and line[:2] not in reserved_info_field:
-            save_state = False
-        if line.startswith("%") and not line.startswith('%%score'):
-            save_state = False
         if line.startswith('V:'):
             V_found_flag = True
         if line.startswith('K:') and not V_found_flag:
@@ -510,10 +540,9 @@ def transpose_an_abc_text(abc_text_lines, des_key):
             if global_K == 'none':
                 global_K = 'C'
                 line = 'K:C\n'
-        if save_state:
-            if not line.endswith('\n'):
-                line = line + '\n'
-            filtered_abc_text_lines.append(line)
+        if not line.endswith('\n'):
+            line = line + '\n'
+        filtered_abc_text_lines.append(line)
 
     # 分割为各个声部
     part_symbol_list = []
@@ -577,10 +606,10 @@ def transpose_an_abc_text(abc_text_lines, des_key):
         if line.startswith('K:'):
             key = line.lstrip('K:').strip()
             if key != 'none':
-                transposed_key = lookup_new_key_to_transpose(key, global_K, des_key)
+                transposed_keymode = lookup_new_keymode_to_transpose(key, global_K, des_key)[0]
             else:
-                transposed_key = 'none'
-            transposed_line = 'K:' + transposed_key + '\n'
+                transposed_keymode = 'none'
+            transposed_line = 'K:' + transposed_keymode + '\n'
         else:
             transposed_line = line
         transposed_abc_text += transposed_line
@@ -592,7 +621,7 @@ def transpose_an_abc_text(abc_text_lines, des_key):
         if part_ori_key == 'none':
             transposed_abc_text += part_text
         else:
-            part_des_key = lookup_new_key_to_transpose(part_ori_key, global_K, des_key)
+            part_des_key = lookup_new_keymode_to_transpose(part_ori_key, global_K, des_key)[1]
             transposed_part_text = transpose_a_voice(part_text, part_ori_key, part_des_key)
             transposed_abc_text += transposed_part_text
 
@@ -605,24 +634,24 @@ def transpose_dataset(dataset, transposed_dataset):
 
     for abc_path in find_all_abc(dataset):
         ori_filename = abc_path.split('\\')[-1][:-4]
-        print(abc_path)
+        # print(abc_path)
         with open(abc_path, 'r', encoding='utf-8') as f:
             abc_text_lines = f.readlines()
 
-        for key in Proto_transpose_key_matrix.keys():
-            try:
-                transposed_abc_text, ori_key, des_key = transpose_an_abc_text(abc_text_lines, key)
-                if ori_key == des_key:
-                    filename = ori_filename + '_original_' + des_key
-                else:
-                    filename = ori_filename + '_transposed_' + des_key
-                transposed_filepath = os.path.join(transposed_dataset, filename + '.abc')
-                with open(transposed_filepath, 'w', encoding='utf-8') as f:
-                    f.write(transposed_abc_text)
-                print(filename, 'is written.')
+        # for key in Proto_transpose_key_matrix.keys():
+        try:
+            transposed_abc_text, ori_key, des_key = transpose_an_abc_text(abc_text_lines, 'C')#key)
+            if ori_key == des_key:
+                filename = ori_filename + '_original_' + des_key
+            else:
+                filename = ori_filename + '_transposed_' + des_key
+            # transposed_filepath = os.path.join(transposed_dataset, filename + '.abc')
+            # with open(transposed_filepath, 'w', encoding='utf-8') as f:
+            #     f.write(transposed_abc_text)
+            # print(filename, 'is written.')
 
-            except Exception as e:
-                print(abc_path, e)
+        except Exception as e:
+            print(abc_path, e)
 
 
 
@@ -648,7 +677,7 @@ def sample_and_test(dataset_folder):
             # print('X:', str(2*i+1))
             # print(''.join(abc_text_lines))
 
-            transposed_abc_text = transpose_an_abc_text(abc_text_lines, des_key)
+            transposed_abc_text, _, _ = transpose_an_abc_text(abc_text_lines, des_key)
 
             w.write('X:' + str(2*i+2) + '\n')
             w.write('%%' + file + ' ' + des_key + '\n')
@@ -662,24 +691,24 @@ def sample_and_test(dataset_folder):
 
 
 if __name__ == '__main__':
-    # transpose_dataset(r'D:\Research\Projects\PM2S\Datasets\baseline\ASAP_extracted\abc_cleaned',
-    #                   r'D:\Research\Projects\PM2S\Datasets\baseline\ASAP_extracted\abc_augmented')
+    transpose_dataset(r'D:\Research\Projects\MultitrackComposer\dataset\06_abc_text-filtered\musescoreV2',
+                      r'D:\Research\Projects\MultitrackComposer\dataset\08_abc_key-augmented\musescoreV2')
 
     # transpose_a_voice(test, 'C', 'C')
     # note = transpose_a_note(r"^^c''", 'C', 'Eb')
     # print(note)
 
-    with open(r"C:\Users\Alexis\Documents\WeChat Files\wxid_l9uje1jrfx8b22\FileStorage\File\2024-05\Sumeru_ef14dcf1691673b36aba04e10b84c19d_501.abc", 'r', encoding='utf-8') as f:
-        abc_text_lines = f.readlines()
-
-    print('X:1')
-    print(''.join(abc_text_lines))
-    print('')
-
-    transposed_abc_text, _, _ = transpose_an_abc_text(abc_text_lines, 'F#')
-
-    print('X:2')
-    print(transposed_abc_text)
-    print('')
+    # with open(r"D:\Research\Projects\MultitrackComposer\dataset\03_abc\musescoreV2\1099496.abc", 'r', encoding='utf-8') as f:
+    #     abc_text_lines = f.readlines()
+    #
+    # print('X:1')
+    # print(''.join(abc_text_lines))
+    # print('')
+    #
+    # transposed_abc_text, _, _ = transpose_an_abc_text(abc_text_lines, 'Eb')
+    #
+    # print('X:2')
+    # print(transposed_abc_text)
+    # print('')
 
     # sample_and_test(r'D:\Research\Projects\MultitrackComposer\dataset\03_abc\musescoreV2')

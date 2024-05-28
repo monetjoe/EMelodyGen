@@ -8,6 +8,7 @@ Note_list = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'c', 'd', 'e', 'f', 'g', 'a', 'b
 Pitch_sign_list = ['_', '=', '^', '\'', ',']
 
 Proto_transpose_key_matrix = {  # 转调矩阵原型
+    'Fb': ['D',  'A',  'E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#'],
     'Cb': ['A',  'E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#'],
     'Gb': ['E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab'],
     'Db': ['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb'],
@@ -23,6 +24,11 @@ Proto_transpose_key_matrix = {  # 转调矩阵原型
     'B':  ['A',  'E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#'],
     'F#': ['E',  'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab'],
     'C#': ['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb'],
+    'G#': ['Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb'],
+    'D#': ['Db', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F' ],
+    'A#': ['Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C' ],
+    'E#': ['Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F' , 'C',  'G' ],
+    'B#': ['Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F',  'C',  'G',  'D',  'A',  'E',  'B',  'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F' , 'C' , 'G',  'D'],
 }
 
 Transpose_key_matrix = {    # 转调矩阵，需要根据原key索引，左列key为原调，右侧为要转的调
@@ -87,33 +93,33 @@ Note2pitch = {
 }
 
 Pitch2note = {
-    0:  ['=',   '__',   None,   None,   None,   '^^^',  '^'     ],
-    1:  ['^',   '_',    '___',  None,   None,   None,   '^^'    ],
-    2:  ['^^',  '=',    '__',   '___',  None,   None,   '^^^'   ],
-    3:  ['^^^', '^',    '_',    '__',   None,   None,   None,   ],
-    4:  [None,  '^^',   '=',    '_',    '___',  None,   None,   ],
-    5:  [None,  '^^^',  '^',    '=',    '__',   None,   None,   ],
-    6:  [None,  None,   '^^',   '^',    '_',    '___',  None,   ],
-    7:  [None,  None,   '^^^',  '^^',   '=',    '__',   None,   ],
-    8:  [None,  None,   None,   '^^^',  '^',    '_',    '___',  ],
-    9:  ['___', None,   None,   None,   '^^',   '=',    '__',   ],
-    10: ['__',  None,   None,   None,   '^^^',  '^',    '_',    ],
-    11: ['_',   '___',  None,   None,   None,   '^^',   '=',    ],
+    0:  ['=',       '__',       '____',     None,       None,       '^^^',      '^',    ],
+    1:  ['^',       '_',        '___',      '____',     None,       '^^^^',     '^^',   ],
+    2:  ['^^',      '=',        '__',       '___',      None,       None,       '^^^',  ],
+    3:  ['^^^',     '^',        '_',        '__',       '____',     None,       '^^^^', ],
+    4:  ['^^^^',    '^^',       '=',        '_',        '___',      None,       None,   ],
+    5:  [None,      '^^^',      '^',        '=',        '__',       '____',     None,   ],
+    6:  [None,      '^^^^',     '^^',       '^',        '_',        '___',      None,   ],
+    7:  [None,      None,       '^^^',      '^^',       '=',        '__',       '____', ],
+    8:  ['____',    None,       '^^^^',     '^^^',      '^',        '_',        '___',  ],
+    9:  ['___',     None,       None,       '^^^^',     '^^',       '=',        '__',   ],
+    10: ['__',      '____',     None,       None,       '^^^',      '^',        '_',    ],
+    11: ['_',       '___',      None,       None,       '^^^^',     '^^',       '=',    ],
 }
 
 Pitch2Chordnote = {
-    0:  ['',    'bb',   None,   None,   None,   None,   '#' ],
-    1:  ['#',   'b',    None,   None,   None,   None,   '##'],
-    2:  ['##',  '',     'bb',   None,   None,   None,   None],
-    3:  [None,  '#',    'b',    'bb',   None,   None,   None],
-    4:  [None,  '##',   '',     'b',    None,   None,   None],
-    5:  [None,  None,   '#',    '',     'bb',   None,   None],
-    6:  [None,  None,   '##',   '#',    'b',    None,   None],
-    7:  [None,  None,   None,   '##',   '',     'bb',   None],
-    8:  [None,  None,   None,   None,   '#',    'b',    None],
-    9:  [None,  None,   None,   None,   '##',   '',     'bb'],
-    10: ['bb',  None,   None,   None,   None,   '#',    'b' ],
-    11: ['b',   None,   None,   None,   None,   '##',   '', ],
+    0:  ['',    'bb',   None,   None,   None,   '###',  '#',    ],
+    1:  ['#',   'b',    'bbb',  None,   None,   None,   '##',   ],
+    2:  ['##',  '',     'bb',   'bbb',  None,   None,   '###',  ],
+    3:  ['###', '#',    'b',    'bb',   None,   None,   None,   ],
+    4:  [None,  '##',   '',     'b',    'bbb',  None,   None,   ],
+    5:  [None,  '###',  '#',    '',     'bb',   None,   None,   ],
+    6:  [None,  None,   '##',   '#',    'b',    'bbb',  None,   ],
+    7:  [None,  None,   '###',  '##',   '',     'bb',   None,   ],
+    8:  [None,  None,   None,   '###',  '#',    'b',    'bbb',  ],
+    9:  ['bbb', None,   None,   None,   '##',   '',     'bb',   ],
+    10: ['bb',  None,   None,   None,   '###',  '#',    'b',    ],
+    11: ['b',   'bbb',  None,   None,   None,   '##',   '',     ],
 }
 
 Key2Mode = {
@@ -136,6 +142,15 @@ Key2Mode = {
 
 Mode2Key = {mode: key for key in Key2Mode.keys() for mode in Key2Mode[key]}
 
+EqualNote = {'Cb': 'B',     'C': 'B#',      'C#': 'Db',
+             'Db': 'C#',                    'D#': 'Eb',
+             'Eb': 'D#',    'E': 'Fb',      'E#': 'F',
+             'Fb': 'E',     'F': 'E#',      'F#': 'Gb',
+             'Gb': 'F#',                    'G#': 'Ab',
+             'Ab': 'G#',                    'A#': 'Bb',
+             'Bb': 'A#',    'B': 'Cb',      'B#': 'C'}
+
+
 def find_all_abc(directory):
     for root, directories, files in os.walk(directory):
         for filename in files:
@@ -144,8 +159,22 @@ def find_all_abc(directory):
                 yield file_path
 
 
+def lookup_key_according_to_keymode(keymode):
+    if keymode in Mode2Key.keys():
+        return Mode2Key[keymode]
+    else:
+        if len(keymode) >= 2:
+            mode = keymode[2:] if keymode[1] in ['#', 'b'] else keymode[1:]
+            tonic = keymode[:2] if keymode[1] in ['#', 'b'] else keymode[:1]
+        else:
+            mode = ''
+            tonic = keymode
+        tonic = EqualNote[tonic]
+        return Mode2Key[tonic + mode]
+
+
 def lookup_new_keymode_to_transpose(new_keymode, ori_keymode, des_key):
-    ori_key = Mode2Key[ori_keymode]
+    ori_key = lookup_key_according_to_keymode(ori_keymode)
     if len(new_keymode) >= 2:
         mode = new_keymode[2:] if new_keymode[1] in ['#', 'b'] else new_keymode[1:]
         tonic = new_keymode[:2] if new_keymode[1] in ['#', 'b'] else new_keymode[:1]
@@ -153,7 +182,7 @@ def lookup_new_keymode_to_transpose(new_keymode, ori_keymode, des_key):
         mode = ''
         tonic = new_keymode
     transposed_keymode = lookup_new_key_to_transpose(tonic, ori_key, des_key) + mode
-    transposed_key = Mode2Key[transposed_keymode]
+    transposed_key = lookup_key_according_to_keymode(transposed_keymode)
     return transposed_keymode, transposed_key
 
 
@@ -180,14 +209,14 @@ def transpose_a_chordnote(chordnote, ori_key, des_key):
     transposed_accidental = Pitch2Chordnote[transposed_absolute_pitch % 12][Note2index[transposed_chordnotename]]
     if transposed_accidental is None:
         raise Exception('Cannot find proper notename')
-    elif len(transposed_accidental) >= 2:
+    elif len(transposed_accidental) > 1:
         if transposed_accidental[0] == '#':
             transposed_chordnotename = Key_list[(Note2index[transposed_chordnotename] + 1) % 7]
         elif transposed_accidental[0] == 'b':
             transposed_chordnotename = Key_list[(Note2index[transposed_chordnotename] + 6) % 7]
         else:
             raise Exception('Cannot find proper notename')
-        transposed_accidental = Pitch2note[transposed_absolute_pitch % 12][Note2index[transposed_chordnotename]]
+        transposed_accidental = Pitch2Chordnote[transposed_absolute_pitch % 12][Note2index[transposed_chordnotename]]
 
     transposed_chordnote = transposed_chordnotename + transposed_accidental
 
@@ -215,7 +244,7 @@ def transpose_a_note(note, ori_key, des_key):
     transposed_accidental = Pitch2note[transposed_absolute_pitch % 12][Note2index[transposed_notename]]
     if transposed_accidental is None:
         raise Exception('Cannot find proper notename')
-    elif len(transposed_accidental) >= 3:
+    while len(transposed_accidental) > 2:
         if transposed_accidental[0] == '^':
             transposed_notename = Key_list[(Note2index[transposed_notename] + 1) % 7]
         elif transposed_accidental[0] == '_':
@@ -263,7 +292,7 @@ def transpose_a_voice(abc_text, ori_keymode, des_key):
 
     # 根据 ori_key 以及 [K:] 来判断所有ascii字符的所在调，并挑出所有按[K:]转调的元素
     ori_keymode_ascii_list = [ori_keymode] * len(abc_text)
-    ori_key_ascii_list = [Mode2Key[ori_keymode]] * len(abc_text)
+    ori_key_ascii_list = [lookup_key_according_to_keymode(ori_keymode)] * len(abc_text)
     keymode_list = []
     keymode_start_index_list = []
     keymode_end_index_list = []
@@ -279,7 +308,7 @@ def transpose_a_voice(abc_text, ori_keymode, des_key):
             key_end = sqaureBracket_end - 1
             for i in range(key_start, len(ori_keymode_ascii_list)):
                 ori_keymode_ascii_list[i] = keymode
-                ori_key_ascii_list[i] = Mode2Key[keymode]
+                ori_key_ascii_list[i] = lookup_key_according_to_keymode(keymode)
             for i in range(key_start, key_end):
                 transpose_ascii_list[i] = 3
             for j in range(sqaureBracket_start, key_start):
@@ -691,24 +720,24 @@ def sample_and_test(dataset_folder):
 
 
 if __name__ == '__main__':
-    transpose_dataset(r'D:\Research\Projects\MultitrackComposer\dataset\06_abc_text-filtered\musescoreV2',
-                      r'D:\Research\Projects\MultitrackComposer\dataset\08_abc_key-augmented\musescoreV2')
+    # transpose_dataset(r'D:\Research\Projects\MultitrackComposer\dataset\06_abc_text-filtered\musescoreV2',
+    #                   r'D:\Research\Projects\MultitrackComposer\dataset\08_abc_key-augmented\musescoreV2')
 
     # transpose_a_voice(test, 'C', 'C')
     # note = transpose_a_note(r"^^c''", 'C', 'Eb')
     # print(note)
 
-    # with open(r"D:\Research\Projects\MultitrackComposer\dataset\03_abc\musescoreV2\1099496.abc", 'r', encoding='utf-8') as f:
-    #     abc_text_lines = f.readlines()
-    #
-    # print('X:1')
-    # print(''.join(abc_text_lines))
-    # print('')
-    #
-    # transposed_abc_text, _, _ = transpose_an_abc_text(abc_text_lines, 'Eb')
-    #
-    # print('X:2')
-    # print(transposed_abc_text)
-    # print('')
+    with open(r"D:\Research\Projects\MultitrackComposer\dataset\03_abc\musescoreV2\6115091.abc", 'r', encoding='utf-8') as f:
+        abc_text_lines = f.readlines()
+
+    print('X:1')
+    print(''.join(abc_text_lines))
+    print('')
+
+    transposed_abc_text, _, _ = transpose_an_abc_text(abc_text_lines, 'B')
+
+    print('X:2')
+    print(transposed_abc_text)
+    print('')
 
     # sample_and_test(r'D:\Research\Projects\MultitrackComposer\dataset\03_abc\musescoreV2')

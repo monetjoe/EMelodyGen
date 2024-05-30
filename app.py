@@ -5,8 +5,24 @@ import zipfile
 import gradio as gr
 from abc_transposition import transpose_an_abc_text, find_all_abc
 
-tone_choices = ['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F',
-                'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'All']
+tone_choices = [
+    "Cb",
+    "Gb",
+    "Db",
+    "Ab",
+    "Eb",
+    "Bb",
+    "F",
+    "C",
+    "G",
+    "D",
+    "A",
+    "E",
+    "B",
+    "F#",
+    "C#",
+    "All",
+]
 
 
 def single_infer_input(abc, tone_choice: str):
@@ -16,19 +32,30 @@ def single_infer_input(abc, tone_choice: str):
 
     if tone_choice == "All":
         for i, tone in enumerate(tone_choices[:-1]):
-            transposed_abc_text = transpose_an_abc_text(abc_text_lines, tone)
+            try:
+                transposed_abc_text, _, _ = transpose_an_abc_text(abc_text_lines, tone)
+            except Exception as e:
+                return f"{e}"
+
             if not from_list:
                 transposed_abc_text = re.sub(
-                    r'(?<!\n)(M:|K:|V:)', r'\n\1', transposed_abc_text)
+                    r"(?<!\n)(M:|K:|V:)", r"\n\1", transposed_abc_text
+                )
 
             output += f"X:{i+1}\n{transposed_abc_text}\n\n"
 
     else:
-        transposed_abc_text = transpose_an_abc_text(
-            abc_text_lines, tone_choice)
+        try:
+            transposed_abc_text, _, _ = transpose_an_abc_text(
+                abc_text_lines, tone_choice
+            )
+        except Exception as e:
+            return f"{e}"
+
         if not from_list:
             transposed_abc_text = re.sub(
-                r'(?<!\n)(M:|K:|V:)', r'\n\1', transposed_abc_text)
+                r"(?<!\n)(M:|K:|V:)", r"\n\1", transposed_abc_text
+            )
 
         output = f"X:1\n{transposed_abc_text}\n"
 
@@ -36,10 +63,10 @@ def single_infer_input(abc, tone_choice: str):
 
 
 def single_infer_upload(abc_file: str, tone_choice: str):
-    with open(abc_file, 'r', encoding='utf-8') as f:
+    with open(abc_file, "r", encoding="utf-8") as f:
         abc_text_lines = f.readlines()
 
-    return ''.join(abc_text_lines), single_infer_input(abc_text_lines, tone_choice)
+    return "".join(abc_text_lines), single_infer_input(abc_text_lines, tone_choice)
 
 
 def unzip(zip_file, extract_to="./data/batch"):
@@ -48,14 +75,14 @@ def unzip(zip_file, extract_to="./data/batch"):
 
     os.makedirs(extract_to)
 
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+    with zipfile.ZipFile(zip_file, "r") as zip_ref:
         zip_ref.extractall(extract_to)
 
     return extract_to
 
 
 def zip_dir(directory="./data/output", zip_file="./data/output.zip"):
-    with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+    with zipfile.ZipFile(zip_file, "w", zipfile.ZIP_DEFLATED) as zipf:
         for root, _, files in os.walk(directory):
             for file in files:
                 file_path = os.path.join(root, file)
@@ -69,7 +96,7 @@ def save_to_abc(text, file_path):
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
 
-    with open(file_path, 'w', encoding='utf-8') as file:
+    with open(file_path, "w", encoding="utf-8") as file:
         file.write(text)
 
 
@@ -80,13 +107,11 @@ def batch_infer(zip_file: str, tone_choice: str):
         if tone_choice == "All":
             for tone in tone_choices[:-1]:
                 _, transposed_abc_text = single_infer_upload(abc_path, tone)
-                save_to_abc(transposed_abc_text,
-                            f"./data/output/{tone}_{abc_name}")
+                save_to_abc(transposed_abc_text, f"./data/output/{tone}_{abc_name}")
 
         else:
             _, transposed_abc_text = single_infer_upload(abc_path, tone_choice)
-            save_to_abc(transposed_abc_text,
-                        f"./data/output/{tone_choice}_{abc_name}")
+            save_to_abc(transposed_abc_text, f"./data/output/{tone_choice}_{abc_name}")
 
     return zip_dir()
 
@@ -98,11 +123,7 @@ with gr.Blocks() as demo:
             fn=single_infer_input,
             inputs=[
                 gr.TextArea(label="贴入abc乐谱"),
-                gr.Dropdown(
-                    label="目标调性",
-                    choices=tone_choices,
-                    value="A"
-                ),
+                gr.Dropdown(label="目标调性", choices=tone_choices, value="A"),
             ],
             outputs=[
                 gr.TextArea(label="转调结果", show_copy_button=True),
@@ -116,11 +137,7 @@ with gr.Blocks() as demo:
             fn=single_infer_upload,
             inputs=[
                 gr.components.File(label="上传abc乐谱"),
-                gr.Dropdown(
-                    label="目标调性",
-                    choices=tone_choices,
-                    value="A"
-                ),
+                gr.Dropdown(label="目标调性", choices=tone_choices, value="A"),
             ],
             outputs=[
                 gr.TextArea(label="abc提取结果", show_copy_button=True),
@@ -135,11 +152,7 @@ with gr.Blocks() as demo:
             fn=batch_infer,
             inputs=[
                 gr.components.File(label="上传abc多乐谱zip压缩包"),
-                gr.Dropdown(
-                    label="目标调性",
-                    choices=tone_choices,
-                    value="A"
-                ),
+                gr.Dropdown(label="目标调性", choices=tone_choices, value="A"),
             ],
             outputs=[
                 gr.components.File(label="下载abc增强数据压缩包"),

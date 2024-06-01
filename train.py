@@ -54,7 +54,7 @@ def collate_batch(batch):
         input_patches, batch_first=True, padding_value=0
     )
 
-    return input_patches.to(device)
+    return input_patches.to(DEVICE)
 
 
 def split_data(data, eval_ratio=0.1):
@@ -213,7 +213,7 @@ if __name__ == "__main__":
         best_epoch = 0
         min_eval_loss = 100
 
-    model = model.to(device)
+    model = model.to(DEVICE)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     create_dir()
 

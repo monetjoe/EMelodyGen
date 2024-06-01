@@ -14,12 +14,12 @@ class PPOTrainer:
         model: TunesFormer,
         patchilizer: Patchilizer,
         lr=1e-5,
-        gamma=0.99,
-        epsilon=0.2,
+        # gamma=0.99,
+        # epsilon=0.2,
     ):
         self.model = model
-        self.gamma = gamma
-        self.epsilon = epsilon
+        # self.gamma = gamma
+        # self.epsilon = epsilon
         self.optimizer = Adam(self.model.parameters(), lr=lr)
         self.patchilizer = patchilizer
 

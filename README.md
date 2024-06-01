@@ -3,6 +3,13 @@
 
 Emotionally Conditioned Music Generation in ABC Notation with Chord
 
+## Requirements
+```bash
+conda create -n gpt --yes --file conda.txt
+conda activate gpt
+pip install -r requirements.txt
+```
+
 ## Maintenance
 ```bash
 git clone git@gitee.com:MuGeminorum/emo-abc-gen.git

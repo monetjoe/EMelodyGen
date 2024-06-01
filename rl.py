@@ -1,5 +1,6 @@
 import os
 import torch
+import random
 from torch.optim import Adam
 from transformers import GPT2Config
 from modelscope.msdatasets import MsDataset
@@ -38,7 +39,7 @@ class PPOTrainer:
             for i, prompt in enumerate(prompts):
                 # Generate outputs
                 with torch.no_grad():
-                    generated_abc = infer_abc("A:Q1\n", self.patchilizer, self.model)
+                    generated_abc = infer_abc(prompt, self.patchilizer, self.model)
 
                 # Compute rewards
                 rewards = self._rewards(generated_abc)
@@ -104,7 +105,10 @@ if __name__ == "__main__":
     evalset = MsDataset.load(f"monetjoe/{DATASET}", split="test")
     prompts = set("A:Q1\n", "A:Q2\n", "A:Q3\n", "A:Q4\n")
     for item in list(trainset) + list(evalset):
-        prompts.add("A:" + item["label"] + "\n" + item["prompt"])
+        prompts.add("A:" + item["label"] + "\n" + item["prompt"] + "\n")
+        prompts.add(item["prompt"] + "\n")
 
+    prompts = list(prompts)
+    random.shuffle(prompts)
     # Train the model
-    ppo_trainer.train(list(prompts))
+    ppo_trainer.train(prompts)

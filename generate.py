@@ -176,7 +176,7 @@ def generate_abc(args):
 
     print("Generation time: {:.2f} seconds".format(time.time() - start_time))
     timestamp = time.strftime("%a_%d_%b_%Y_%H_%M_%S", time.localtime())
-    create_dir()
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
     with open(f"{OUTPUT_PATH}/{timestamp}.abc", "w") as f:
         f.write(tunes)
 

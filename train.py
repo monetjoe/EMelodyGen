@@ -215,7 +215,7 @@ if __name__ == "__main__":
 
     model = model.to(DEVICE)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-    create_dir()
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
 
     for epoch in range(1, NUM_EPOCHS + 1 - pre_epoch):
         epoch += pre_epoch

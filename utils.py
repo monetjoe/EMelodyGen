@@ -11,16 +11,11 @@ from torch.utils.data import Dataset
 from transformers import GPT2Model, GPT2LMHeadModel, PreTrainedModel
 from samplings import top_p_sampling, top_k_sampling, temperature_sampling
 
-DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def create_dir(dirpath=OUTPUT_PATH):
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-
-
-def download(url=WEIGHT_URL, filename="./output/weights.pth"):
-    create_dir()
+def download(url=WEIGHT_URL, filename=WEIGHT_PATH):
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
     try:
         response = requests.get(url, stream=True)
         total_size = int(response.headers.get("content-length", 0))

@@ -12,17 +12,17 @@ class TextGenerationEnvironment:
         self.current_text = ""
         self.current_length = 0
 
-    def generate_text(self, input_text, max_length=None):
-        if max_length is None:
-            max_length = self.max_length
+    # def generate_text(self, input_text, max_length=None):
+    #     if max_length is None:
+    #         max_length = self.max_length
 
-        input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
-        output = self.model.generate(input_ids=input_ids, max_length=max_length)
-        generated_text = self.tokenizer.decode(output[0], skip_special_tokens=True)
-        return generated_text
+    #     input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
+    #     output = self.model.generate(input_ids=input_ids, max_length=max_length)
+    #     generated_text = self.tokenizer.decode(output[0], skip_special_tokens=True)
+    #     return generated_text
 
-    def get_tokenizer(self):
-        return self.tokenizer
+    # def get_tokenizer(self):
+    #     return self.tokenizer
 
     def reset(self):
         self.current_text = ""
@@ -119,23 +119,23 @@ class RolloutStorage:
         self.rewards = []
         self.dones = []
 
-    def compute_returns(self, gamma):
-        returns = []
-        R = 0
-        for r, done in zip(reversed(self.rewards), reversed(self.dones)):
-            if done:
-                R = 0
-            R = r + gamma * R
-            returns.insert(0, R)
+    # def compute_returns(self, gamma):
+    #     returns = []
+    #     R = 0
+    #     for r, done in zip(reversed(self.rewards), reversed(self.dones)):
+    #         if done:
+    #             R = 0
+    #         R = r + gamma * R
+    #         returns.insert(0, R)
 
-        return returns
+    #     return returns
 
-    def compute_advantages(self, returns):
-        advantages = []
-        for action_prob, return_ in zip(self.action_probs, returns):
-            advantages.append(return_ - action_prob)
+    # def compute_advantages(self, returns):
+    #     advantages = []
+    #     for action_prob, return_ in zip(self.action_probs, returns):
+    #         advantages.append(return_ - action_prob)
 
-        return advantages
+    #     return advantages
 
     def batch_by_indices(self, indices):
         obs_batch = [self.observations[i] for i in indices]

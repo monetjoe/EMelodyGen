@@ -15,17 +15,13 @@ class PPOTrainer:
         model: TunesFormer,
         patchilizer: Patchilizer,
         lr=1e-5,
-        # gamma=0.99,
-        # epsilon=0.2,
     ):
         self.model = model
-        # self.gamma = gamma
-        # self.epsilon = epsilon
-        self.optimizer = Adam(self.model.parameters(), lr=lr)
         self.patchilizer = patchilizer
+        self.optimizer = Adam(self.model.parameters(), lr=lr)
 
     def _rewards(self, generated_abc):
-        # Placeholder: Reward computation logic
+        # TODO: Placeholder - Reward computation logic
         rewards = [1.0] * len(generated_abc)
         return torch.tensor(rewards)
 
@@ -101,9 +97,9 @@ if __name__ == "__main__":
     # Initialize PPO trainer for TunesFormer
     ppo_trainer = PPOTrainer(model, patchilizer)
     # load prompts from the dataset
-    trainset = MsDataset.load(f"monetjoe/{DATASET}", split="test")
+    trainset = MsDataset.load(f"monetjoe/{DATASET}", split="train")
     evalset = MsDataset.load(f"monetjoe/{DATASET}", split="test")
-    prompts = set("A:Q1\n", "A:Q2\n", "A:Q3\n", "A:Q4\n")
+    prompts = set("A:Q1\n", "A:Q2\n", "A:Q3\n", "A:Q4\n", "")
     for item in list(trainset) + list(evalset):
         prompts.add("A:" + item["label"] + "\n" + item["prompt"] + "\n")
         prompts.add(item["prompt"] + "\n")

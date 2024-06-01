@@ -1,74 +1,10 @@
+import os
 import torch
 import numpy as np
 import torch.nn as nn
 from transformers import GPT2LMHeadModel, GPT2Tokenizer, GPT2Config
-
-
-class TextGenerationEnvironment:
-    def __init__(self, model_name_or_path, max_length=20):
-        self.tokenizer = GPT2Tokenizer.from_pretrained(model_name_or_path)
-        self.model = GPT2LMHeadModel.from_pretrained(model_name_or_path)
-        self.max_length = max_length
-        self.current_text = ""
-        self.current_length = 0
-
-    # def generate_text(self, input_text, max_length=None):
-    #     if max_length is None:
-    #         max_length = self.max_length
-
-    #     input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
-    #     output = self.model.generate(input_ids=input_ids, max_length=max_length)
-    #     generated_text = self.tokenizer.decode(output[0], skip_special_tokens=True)
-    #     return generated_text
-
-    # def get_tokenizer(self):
-    #     return self.tokenizer
-
-    def reset(self):
-        self.current_text = ""
-        self.current_length = 0
-        return ""
-
-    def step(self, action):
-        action_token = self.tokenizer.decode([action])
-        self.current_text += action_token
-
-        obs = self.current_text[-self.max_length :]
-        obs = obs if len(obs) > 0 else " "  # Ensure the observation is never empty
-
-        reward = self.reward_fn(self.current_text)
-        self.current_length += 1
-        done = self.current_length >= self.max_length
-
-        return obs, reward, done, {}
-
-
-class ModifiedGPT(nn.Module):
-    def __init__(self, model_name_or_path, num_actions=512):
-        super(ModifiedGPT, self).__init__()
-        config = GPT2Config.from_pretrained(model_name_or_path)
-        self.gpt = GPT2LMHeadModel.from_pretrained(model_name_or_path, config=config)
-        self.action_layer = nn.Linear(config.n_embd, num_actions)
-        self.softmax = nn.Softmax(dim=-1)
-
-    def forward(self, input_ids=None, attention_mask=None, labels=None):
-        gpt_outputs = self.gpt(input_ids=input_ids, attention_mask=attention_mask)
-        hidden_states = gpt_outputs[0]
-        # Calculate attention weights using the additional component
-        action = self.action_layer(hidden_states)
-        action_probs = self.softmax(action)
-
-        outputs = (action_probs,) + gpt_outputs[1:]
-
-        if labels is not None:
-            # Calculate the loss with the labels provided
-            loss_fct = nn.CrossEntropyLoss()
-            loss = loss_fct(
-                outputs[0].view(-1, self.config.vocab_size), labels.view(-1)
-            )
-            outputs = (loss,) + outputs
-
-        return outputs
+from utils import TunesFormer, Patchilizer, download, DEVICE
+from config import *
 
 
 class RewardFunction:
@@ -91,6 +27,120 @@ class RewardFunction:
         perplexity = torch.exp(loss)
         reward = -perplexity.item()
         return reward
+
+
+class AbcGenEnv:
+    def __init__(self, model_name_or_path: str, max_length: int):
+        patch_config = GPT2Config(
+            num_hidden_layers=PATCH_NUM_LAYERS,
+            max_length=max_length,
+            max_position_embeddings=max_length,
+            vocab_size=1,
+        )
+        char_config = GPT2Config(
+            num_hidden_layers=CHAR_NUM_LAYERS,
+            max_length=max_length,
+            max_position_embeddings=max_length,
+            vocab_size=128,
+        )
+        self.patchilizer = Patchilizer()
+        model = TunesFormer(patch_config, char_config, model_name_or_path)
+        if torch.cuda.device_count() > 1:
+            model = torch.nn.DataParallel(model)
+
+        # Move model to GPU if available
+        if not os.path.exists(WEIGHT_PATH):
+            download()
+
+        checkpoint = torch.load(WEIGHT_PATH)
+        if torch.cuda.device_count() > 1:
+            model.module.load_state_dict(checkpoint["model"])
+        else:
+            model.load_state_dict(checkpoint["model"])
+
+        self.model = model.to(DEVICE)
+        self.max_length = max_length
+        self.current_patch = ""
+        self.current_length = 0
+        self.reward_fn = RewardFunction(
+            reference_text="The quick brown fox jumps over the lazy dog",
+            model_name_or_path="gpt2",
+        )
+
+    def reset(self):
+        self.current_patch = ""
+        self.current_length = 0
+        return ""
+
+    def step(self, action):
+        action_token = self.patchilizer.decode([action])
+        self.current_patch += action_token
+
+        obs = self.current_patch[-self.max_length :]
+        obs = obs if len(obs) > 0 else " "  # Ensure the observation is never empty
+
+        reward = self.reward_fn(self.current_patch)
+        self.current_length += 1
+        done = self.current_length >= self.max_length
+
+        return obs, reward, done, {}
+
+
+class Tunedformer(nn.Module):
+    def __init__(self, model_name_or_path, num_actions=512):
+        super(Tunedformer, self).__init__()
+        patch_config = GPT2Config(
+            num_hidden_layers=PATCH_NUM_LAYERS,
+            max_length=PATCH_SIZE,
+            max_position_embeddings=PATCH_SIZE,
+            vocab_size=1,
+        )
+        char_config = GPT2Config(
+            num_hidden_layers=CHAR_NUM_LAYERS,
+            max_length=PATCH_SIZE,
+            max_position_embeddings=PATCH_SIZE,
+            vocab_size=128,
+        )
+        self.config = char_config  # TODO: patch_config or char_config ?
+        self.patchilizer = Patchilizer()
+        model = TunesFormer(patch_config, char_config, model_name_or_path)
+        if torch.cuda.device_count() > 1:
+            model = torch.nn.DataParallel(model)
+
+        # Move model to GPU if available
+        if not os.path.exists(WEIGHT_PATH):
+            download()
+
+        checkpoint = torch.load(WEIGHT_PATH)
+        if torch.cuda.device_count() > 1:
+            model.module.load_state_dict(checkpoint["model"])
+        else:
+            model.load_state_dict(checkpoint["model"])
+
+        self.tunesformer = model.to(DEVICE)
+        self.action_layer = nn.Linear(self.config.n_embd, num_actions)
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, input_ids=None, attention_mask=None, labels=None):
+        tunesformer_outputs = self.tunesformer(
+            input_ids=input_ids, attention_mask=attention_mask
+        )
+        hidden_states = tunesformer_outputs[0]
+        # Calculate attention weights using the additional component
+        action = self.action_layer(hidden_states)
+        action_probs = self.softmax(action)
+
+        outputs = (action_probs,) + tunesformer_outputs[1:]
+
+        if labels is not None:
+            # Calculate the loss with the labels provided
+            loss_fct = nn.CrossEntropyLoss()
+            loss = loss_fct(
+                outputs[0].view(-1, self.config.vocab_size), labels.view(-1)
+            )
+            outputs = (loss,) + outputs
+
+        return outputs
 
 
 class RolloutStorage:
@@ -119,24 +169,6 @@ class RolloutStorage:
         self.rewards = []
         self.dones = []
 
-    # def compute_returns(self, gamma):
-    #     returns = []
-    #     R = 0
-    #     for r, done in zip(reversed(self.rewards), reversed(self.dones)):
-    #         if done:
-    #             R = 0
-    #         R = r + gamma * R
-    #         returns.insert(0, R)
-
-    #     return returns
-
-    # def compute_advantages(self, returns):
-    #     advantages = []
-    #     for action_prob, return_ in zip(self.action_probs, returns):
-    #         advantages.append(return_ - action_prob)
-
-    #     return advantages
-
     def batch_by_indices(self, indices):
         obs_batch = [self.observations[i] for i in indices]
         action_batch = [self.actions[i] for i in indices]
@@ -152,9 +184,8 @@ class RolloutStorage:
 class PPOTrainer:
     def __init__(
         self,
-        env,
-        model,
-        reward_fn,
+        env: AbcGenEnv,
+        model: nn.Module,
         lr=1e-4,
         betas=(0.9, 0.999),
         eps=1e-5,
@@ -167,7 +198,6 @@ class PPOTrainer:
     ):
         self.env = env
         self.model = model
-        self.reward_fn = reward_fn
         self.gamma = gamma
         self.clip_param = clip_param
         self.value_loss_coef = value_loss_coef
@@ -190,7 +220,7 @@ class PPOTrainer:
 
             for _ in range(self.env.max_length):
                 obs_tensor = torch.tensor(
-                    self.env.tokenizer.encode(obs), dtype=torch.long
+                    self.env.patchilizer.encode(obs), dtype=torch.long
                 ).unsqueeze(0)
                 if obs_tensor.shape[-1] == 0:
                     continue
@@ -208,15 +238,12 @@ class PPOTrainer:
 
             if not done:
                 obs_tensor = torch.tensor(
-                    self.env.tokenizer.encode(obs), dtype=torch.long
+                    self.env.patchilizer.encode(obs), dtype=torch.long
                 ).unsqueeze(0)
                 _, value_tensor = self.model(obs_tensor)
                 storage.store_last_observation(value_tensor)
             else:
                 storage.store_last_observation(torch.tensor(0.0))
-
-            # returns = storage.compute_returns(self.gamma)
-            # advantages = storage.compute_advantages(returns)
 
             for _ in range(self.num_epochs):
                 indices = np.arange(len(storage))
@@ -244,16 +271,13 @@ class PPOTrainer:
 
 
 if __name__ == "__main__":
-    env = TextGenerationEnvironment(model_name_or_path="gpt2", max_length=20)
-    model = ModifiedGPT(model_name_or_path="gpt2", num_actions=512)
-    reward_fn = RewardFunction(
-        reference_text="The quick brown fox jumps over the lazy dog",
-        model_name_or_path="gpt2",
+    env = AbcGenEnv(SHARE_WEIGHTS, PATCH_SIZE)
+    model = Tunedformer(
+        model_name_or_path="./output/tuned_weights.pth", num_actions=512
     )
     trainer = PPOTrainer(
         env,
         model,
-        reward_fn,
         lr=1e-4,
         betas=(0.9, 0.999),
         eps=1e-5,
@@ -267,4 +291,4 @@ if __name__ == "__main__":
     trainer.train(num_steps)
 
     # Save the trained model
-    torch.save(model.state_dict(), "./output/modified_gpt_model.pth")
+    torch.save(model.state_dict(), "./output/tuned_weights.pth")

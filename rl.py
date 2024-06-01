@@ -2,23 +2,23 @@ import os
 import torch
 import numpy as np
 import torch.nn as nn
-from transformers import GPT2LMHeadModel, GPT2Tokenizer, GPT2Config
+from transformers import GPT2Config
 from utils import TunesFormer, Patchilizer, download, DEVICE
 from config import *
 
 
 class RewardFunction:
-    def __init__(self, reference_text, model_name_or_path):
-        self.reference_tokens = GPT2Tokenizer.from_pretrained(
-            model_name_or_path
-        ).encode(reference_text, return_tensors="pt")
-        self.model_name_or_path = model_name_or_path
-        self.model = GPT2LMHeadModel.from_pretrained(model_name_or_path)
+    def __init__(
+        self, reference_prompt: str, patchilizer: Patchilizer, model: TunesFormer
+    ):
+        self.reference_tokens = patchilizer.encode(
+            reference_prompt, return_tensors="pt"
+        )
+        self.patchilizer = patchilizer
+        self.model = model
 
-    def __call__(self, generated_text):
-        generated_tokens = GPT2Tokenizer.from_pretrained(
-            self.model_name_or_path
-        ).encode(generated_text, return_tensors="pt")
+    def __call__(self, generated_abc):
+        generated_tokens = self.patchilizer.encode(generated_abc, return_tensors="pt")
 
         with torch.no_grad():
             outputs = self.model(input_ids=generated_tokens, labels=generated_tokens)
@@ -63,8 +63,9 @@ class AbcGenEnv:
         self.current_patch = ""
         self.current_length = 0
         self.reward_fn = RewardFunction(
-            reference_text="The quick brown fox jumps over the lazy dog",
-            model_name_or_path="gpt2",
+            reference_prompt="A:Q1\n",
+            patchilizer=self.patchilizer,
+            model=self.model,
         )
 
     def reset(self):
@@ -169,7 +170,27 @@ class RolloutStorage:
         self.rewards = []
         self.dones = []
 
-    def batch_by_indices(self, indices):
+    def compute_returns(self, gamma):
+        returns = []
+        R = 0
+        for r, done in zip(reversed(self.rewards), reversed(self.dones)):
+            if done:
+                R = 0
+            R = r + gamma * R
+            returns.insert(0, R)
+
+        return returns
+
+    def compute_advantages(self, returns):
+        advantages = []
+        for action_prob, return_ in zip(self.action_probs, returns):
+            advantages.append(return_ - action_prob)
+
+        return advantages
+
+    def batch_by_indices(self, indices, gamma):
+        self.returns = self.compute_returns(gamma)
+        self.advantages = self.compute_advantages(self.returns)
         obs_batch = [self.observations[i] for i in indices]
         action_batch = [self.actions[i] for i in indices]
         action_prob_batch = [self.action_probs[i] for i in indices]
@@ -257,7 +278,7 @@ class PPOTrainer:
                         action_prob_batch,
                         advantage_batch,
                         return_batch,
-                    ) = storage.batch_by_indices(batch_indices)
+                    ) = storage.batch_by_indices(batch_indices, self.gamma)
 
                     self.update(
                         obs_batch,

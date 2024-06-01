@@ -30,7 +30,7 @@ class PPOTrainer:
         tensor = torch.tensor([float(char) for char in input_str])
         return tensor
 
-    def train(self, prompts, epochs=500):
+    def train(self, prompts: list, epochs=500):
         for epoch in range(epochs):
             for i, prompt in enumerate(prompts):
                 # Generate outputs

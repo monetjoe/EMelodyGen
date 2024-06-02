@@ -259,7 +259,7 @@ def infer_abc(prompt: str, patchilizer: Patchilizer, model: TunesFormer):
 
         tunes += f"{tune}\n\n"
 
-    return tunes
+    return tunes, input_patches
 
 
 if __name__ == "__main__":

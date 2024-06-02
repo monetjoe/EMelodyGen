@@ -4,6 +4,7 @@ import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
+from torch import Tensor
 from transformers import GPT2Config
 from torch.distributions import Categorical
 from modelscope.msdatasets import MsDataset
@@ -28,7 +29,7 @@ class MusicGenEnv:
 
         return list(prompt_set)
 
-    def reward_fn(self, action: str):
+    def reward_fn(self, action: str):  # action = generated_abc
         # 定义你的 reward 计算函数
         print(action)
         return np.random.rand()  # 示例：随机奖励
@@ -37,7 +38,7 @@ class MusicGenEnv:
         self.current_index = 0
         return self.prompts[self.current_index]
 
-    def step(self, action):
+    def step(self, action: str):
         reward = self.reward_fn(action)
         self.current_index += 1
         done = self.current_index >= len(self.prompts)
@@ -50,7 +51,7 @@ class PPOTrainer:
         self,
         env: MusicGenEnv,
         vf_coef=0.5,
-        kl_coef=0.5,
+        lamda_kl=0.5,
         clip_param=0.2,
         lr=1e-5,
     ):
@@ -59,10 +60,10 @@ class PPOTrainer:
         self.init_model = self.load_model(f"{OUTPUT_PATH}/ref_weights.pth").eval()
         self.tuned_model = self.load_model()
         self.vf_coef = vf_coef
-        self.kl_target = kl_coef
+        self.lamda_kl = lamda_kl
         self.clip_param = clip_param
         self.optimizer = optim.Adam(self.tuned_model.parameters(), lr=lr)
-        self.loss = nn.CrossEntropyLoss()
+        self.mse = nn.MSELoss()
 
     def load_model(self, weights_path=WEIGHT_PATH, weights_url=WEIGHT_URL_ZH):
         patch_config = GPT2Config(
@@ -95,31 +96,31 @@ class PPOTrainer:
     def compute_kl(self, old_logits, new_logits):
         old_dist = Categorical(logits=old_logits)
         new_dist = Categorical(logits=new_logits)
-        kl: torch.Tensor = torch.distributions.kl_divergence(old_dist, new_dist)
+        kl: Tensor = torch.distributions.kl_divergence(old_dist, new_dist)
         return kl.mean()
 
-    def update(self, states, actions, rewards, old_logits, old_values):
+    def update(self, states, actions, rewards, old_logits, old_values: Tensor):
         self.tuned_model.train()
 
-        new_logits: torch.Tensor = self.tuned_model(**states).logits
+        new_logits: Tensor = self.tuned_model(**states).logits
         new_dist = Categorical(logits=new_logits)
         old_dist = Categorical(logits=old_logits)
 
         ratios = torch.exp(new_dist.log_prob(actions) - old_dist.log_prob(actions))
         advantages = rewards - old_values.detach()
 
-        surr1 = ratios * advantages
-        surr2 = (
+        surr1: Tensor = ratios * advantages
+        surr2: Tensor = (
             torch.clamp(ratios, 1.0 - self.clip_param, 1.0 + self.clip_param)
             * advantages
         )
         policy_loss = -torch.min(surr1, surr2).mean()
 
         new_values = new_logits.mean(dim=-1)  # 假设新值是logits的均值
-        value_loss = self.loss(new_values, rewards)
+        value_loss = self.mse(new_values, rewards)
 
         kl_div = self.compute_kl(old_logits, new_logits)
-        loss = policy_loss + value_loss * self.vf_coef + kl_div * self.kl_target
+        loss = policy_loss + value_loss * self.vf_coef + kl_div * self.lamda_kl
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -155,7 +156,7 @@ class PPOTrainer:
 
             states = {key: torch.cat([s[key] for s in states]) for key in states[0]}
             actions = torch.cat(actions)
-            rewards = torch.tensor(rewards, dtype=torch.float32)
+            rewards = Tensor(rewards, dtype=torch.float32)
             old_logits = torch.cat(old_logits)
             old_values = torch.cat(old_values)
 

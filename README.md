@@ -3,9 +3,9 @@
 
 Emotionally Conditioned Music Generation in ABC Notation with Chord
 
-![Snipaste_2024-06-02_08-55-06](https://github.com/monet-joe/emo-abc-gen/assets/20459298/d5ccc44f-5390-4535-9844-2f58b5292a54)
+![image](https://github.com/monet-joe/emo-abc-gen/assets/20459298/9ee364d5-f80f-460d-9154-58b85ad59d15)
 
-Referring to the RLBH of InstructGPT, we introduce a PPO reinforcement learning fine-tuning optimization for tunesformer models as well.
+Referring to the RLBH of InstructGPT, we introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
 ## Requirements
 ```bash

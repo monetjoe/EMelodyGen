@@ -216,6 +216,7 @@ if __name__ == "__main__":
     model = model.to(DEVICE)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     os.makedirs(OUTPUT_PATH, exist_ok=True)
+    first_record = True
 
     for epoch in range(1, NUM_EPOCHS + 1 - pre_epoch):
         epoch += pre_epoch
@@ -266,6 +267,10 @@ if __name__ == "__main__":
                 }
 
             torch.save(checkpoint, WEIGHT_PATH)
+
+            if first_record:
+                torch.save(checkpoint, "./output/fst_weights.pth")
+                first_record = False
 
     print(f"Best Eval Epoch : {str(best_epoch)}")
     print(f"Min Eval Loss : {str(min_eval_loss)}")

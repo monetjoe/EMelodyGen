@@ -1,7 +1,7 @@
 # mids2abc_dataset
 [![Python application](https://github.com/monet-joe/mids2abc_dataset/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monet-joe/mids2abc_dataset/actions/workflows/python-app.yml)
 
-![绘图1](https://github.com/monet-joe/mids2abc_dataset/assets/20459298/d7bd9ac5-e84c-4497-a993-2a772cf2be17)
+Convert MIDI into abc jsonl dataset
 
 ## Maintenance
 ```bash

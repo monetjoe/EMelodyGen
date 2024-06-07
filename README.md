@@ -38,4 +38,4 @@ transpose abc scores to 15 tones:
 ```bash
 python app.py
 ```
-Then operate on <http://127.0.0.1:7860> or <http://localhost:7860>, check logs in terminal.
+Then operate on <http://127.0.0.1:7860> or http://localhost:7860, and check logs in the terminal.

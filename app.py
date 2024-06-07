@@ -3,7 +3,7 @@ import re
 import shutil
 import zipfile
 import gradio as gr
-from abc_transposition import transpose_an_abc_text, find_all_abc
+from lib.abc_transposition import transpose_an_abc_text, find_all_abc
 
 tone_choices = [
     "Cb",

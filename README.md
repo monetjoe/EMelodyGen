@@ -3,7 +3,7 @@
 
 Convert MIDI into abc jsonl dataset
 
-![绘图1](https://github.com/monet-joe/mids2abc_dataset/assets/20459298/9484c3a4-1c5b-4248-ad43-e52012dcddac)
+![绘图1](https://github.com/monet-joe/mids2abc_dataset/assets/20459298/0aaee260-d8e3-4162-a64f-f62c4789f74d)
 
 ## Maintenance
 ```bash

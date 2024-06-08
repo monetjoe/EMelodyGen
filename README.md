@@ -3,6 +3,8 @@
 
 Convert MIDI into abc jsonl dataset
 
+![绘图1](https://github.com/monet-joe/mids2abc_dataset/assets/20459298/9484c3a4-1c5b-4248-ad43-e52012dcddac)
+
 ## Maintenance
 ```bash
 git clone git@gitee.com:MuGeminorum/mids2abc_dataset.git

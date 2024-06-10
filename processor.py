@@ -268,7 +268,7 @@ def split_abc_to_xml(abc_path: str):
 
             except Exception as e:
                 add_to_log(
-                    f"[split_abc_to_xml]Invalid abc {outpath} is not created : {e}"
+                    f"[split_abc_to_xml]Cannot convert invalid abc to {outpath} : {e}"
                 )
 
 
@@ -365,8 +365,8 @@ if __name__ == "__main__":
     # multi_batch_midi2mxl()
     # multi_slice_xmls()
     # multi_batch_xml2abc()
-    # multi_split_abcs_to_xmls("./data/nottingham")
+    multi_split_abcs_to_xmls("./data/nottingham")
     # multi_batch_rename(XML_OUTPUT)
-    multi_batch_xml2abc()
-    multi_transpose_abcs()
-    create_dataset()
+    # multi_batch_xml2abc()
+    # multi_transpose_abcs()
+    # create_dataset()

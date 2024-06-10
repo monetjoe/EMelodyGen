@@ -27,7 +27,7 @@ TONE_CHOICES = [
     "C#",
 ]
 
-CPU_ALL_IN = True
+CPU_ALL_IN = False
 
 
 def add_to_log(err_msg: str):

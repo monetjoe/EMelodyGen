@@ -1,9 +1,7 @@
 import re
-import time
 import random
 import subprocess
 from unidecode import unidecode
-from multiprocessing import Pool
 from music21 import converter, stream
 from lib.add_control_codes import split_txt, run_filter, add_tokens
 from lib.abc_transposition import find_all_abc, transpose_an_abc_text
@@ -33,7 +31,7 @@ def midi2xml(input_midi_file: str, output_xml_file: str):
 
     if result.returncode != 0:
         add_to_log(
-            f"Failed to convert {input_midi_file} to {output_xml_file} : {result.returncode}"
+            f"[midi2xml]Failed to convert {input_midi_file} to {output_xml_file} : {result.returncode}"
         )
 
 
@@ -95,7 +93,9 @@ def slice_xml(input_file: str, output_folder: str, measures_per_part=20):
                 try:
                     xml_stream.write("musicxml", fp=export_path)
                 except Exception as e:
-                    add_to_log(f"Failed to slice {input_file} to {export_path} : {e}")
+                    add_to_log(
+                        f"[slice_xml]Failed to slice {input_file} to {export_path} : {e}"
+                    )
 
                 part_index += 1
                 # Reset for the next batch
@@ -110,7 +110,9 @@ def slice_xml(input_file: str, output_folder: str, measures_per_part=20):
         try:
             xml_stream.write("musicxml", fp=export_path)
         except Exception as e:
-            add_to_log(f"Failed to slice {input_file} to {export_path} : {e}")
+            add_to_log(
+                f"[slice_xml]Failed to slice {input_file} to {export_path} : {e}"
+            )
 
 
 def slice_xmls(xmls_files: list, output_slice_dir=XML_OUTPUT):
@@ -161,18 +163,23 @@ def xml2abc(input_xml_file: str, output_abc_file: str):
                 f.write(output)
 
         else:
-            add_to_log(f"Convert {input_xml_file} to an empty abc")
+            add_to_log(f"[xml2abc]Convert {input_xml_file} to an empty abc")
 
     else:
         add_to_log(
-            f"Failed to convert {input_xml_file} to {output_abc_file} : {result.returncode}"
+            f"[xml2abc]Failed to convert {input_xml_file} to {output_abc_file} : {result.returncode}"
         )
 
 
 def batch_xml2abc(xmls_to_abcs: dict, output_abc_dir=ABC_INPUT):
     os.makedirs(output_abc_dir, exist_ok=True)
     for xml in tqdm(xmls_to_abcs, desc="Converting xmls to abcs..."):
-        xml2abc(xml, xmls_to_abcs[xml])
+        try:
+            xml2abc(xml, xmls_to_abcs[xml])
+        except UnicodeDecodeError as e:
+            add_to_log(
+                f"[batch_xml2abc]Failed to convert {xml} into {output_abc_dir} : {e}"
+            )
 
 
 def multi_batch_xml2abc(input_xml_dir=XML_OUTPUT, output_abc_dir=ABC_INPUT, multi=True):
@@ -217,7 +224,7 @@ def transpose_abc(abc_path: str, transposed_abc_dir=ABC_OUTPUT):
                 file.write(transposed_abc_text)
 
         except Exception as e:
-            add_to_log(f"Failed to transpose {abc_path} to {tone} : {e}")
+            add_to_log(f"[transpose_abc]Failed to transpose {abc_path} to {tone} : {e}")
 
 
 def transpose_abcs(abc_files: list, transposed_abc_dir=ABC_OUTPUT):
@@ -254,13 +261,15 @@ def split_abc_to_xml(abc_path: str):
     for i, part in enumerate(text_parts):
         piece = part.strip()
         if piece:
-            outpath = f"{ABC_INPUT}/{filename}_{i}.musicxml"
+            outpath = f"{XML_OUTPUT}/{filename}_{i}.musicxml"
             try:
                 score = converter.parse(piece, format="abc")
-                score.write("musicxml", outpath)
+                score.write(fmt="musicxml", fp=outpath, encoding="utf-8")
 
             except Exception as e:
-                add_to_log(f"Invalid abc {outpath} is not created : {e}")
+                add_to_log(
+                    f"[split_abc_to_xml]Invalid abc {outpath} is not created : {e}"
+                )
 
 
 def split_abcs_to_xmls(abc_files: list):
@@ -274,7 +283,7 @@ def multi_split_abcs_to_xmls(input_abc_dir: str, multi=True):
         print(f"{input_abc_dir} does not exist!")
         exit()
 
-    clean_target_dir(ABC_INPUT)
+    clean_target_dir(XML_OUTPUT)
     abc_files = []
     for abc_path in find_all_abc(input_abc_dir):
         abc_files.append(abc_path)
@@ -302,7 +311,7 @@ def save_dataset(dataset: list, split_on: bool):
         write_jsonl(dataset, "./data/dataset.jsonl")
 
     print(f"{data_count} succeeded in total")
-    add_to_log(f"{data_count} succeeded in total")
+    add_to_log(f"[save_dataset]{data_count} succeeded in total")
 
 
 def create_dataset(transposed_abcs_dir=ABC_OUTPUT, split_on=False):
@@ -336,14 +345,18 @@ def create_dataset(transposed_abcs_dir=ABC_OUTPUT, split_on=False):
                         )
                     else:
                         fail_count += 1
-                        add_to_log(f"Failed to extract melody from {filename}")
+                        add_to_log(
+                            f"[create_dataset]Failed to extract melody from {filename}"
+                        )
 
                 else:
                     empty_count += 1
-                    add_to_log(f"Failed to parse content from {filename}")
+                    add_to_log(
+                        f"[create_dataset]Failed to parse content from {filename}"
+                    )
 
     results = f"{fail_count} failed in total\n{empty_count} empty V1 in total"
-    add_to_log(results)
+    add_to_log(f"[create_dataset]{results}")
     print(results)
     save_dataset(dataset, split_on)
 
@@ -352,7 +365,8 @@ if __name__ == "__main__":
     # multi_batch_midi2mxl()
     # multi_slice_xmls()
     # multi_batch_xml2abc()
-    multi_split_abcs_to_xmls("./data/nottingham", multi=True)
+    # multi_split_abcs_to_xmls("./data/nottingham")
+    # multi_batch_rename(XML_OUTPUT)
     multi_batch_xml2abc()
     multi_transpose_abcs()
     create_dataset()

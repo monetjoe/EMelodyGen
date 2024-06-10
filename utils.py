@@ -1,14 +1,16 @@
 import os
 from tqdm import tqdm
+from multiprocessing import Pool
 
 # utils
-MSCORE3 = "D:/Program Files/MuseScore 3/bin/MuseScore3.exe"
+CPU_ALL_IN = False
 MIDI_OUTPUT = "./data/mids"
 XML_INPUT = "./data/xmls"
 XML_OUTPUT = "./data/slices"
 ABC_INPUT = "./data/abcs"
 ABC_OUTPUT = "./data/trans"
 LOG_FILE = "./data/log.txt"
+MSCORE3 = "D:/Program Files/MuseScore 3/bin/MuseScore3.exe"
 TONE_CHOICES = [
     "Cb",
     "Gb",
@@ -27,12 +29,13 @@ TONE_CHOICES = [
     "C#",
 ]
 
-CPU_ALL_IN = False
-
 
 def add_to_log(err_msg: str):
+    import time
+
+    timestamp = time.strftime("[%Y-%m-%d_%H-%M-%S]", time.localtime(time.time()))
     with open(LOG_FILE, "a", encoding="utf-8") as file:
-        file.write(f"{err_msg}\n")
+        file.write(f"{timestamp}{err_msg}\n")
 
 
 def rm_ext(filename: str):
@@ -128,12 +131,10 @@ def rm_duplicates(folder_path: str):
     import hashlib
 
     file_hashes = {}
-
     # 遍历文件夹中的所有文件
     for root, _, files in os.walk(folder_path):
         for file_name in files:
             file_path = os.path.join(root, file_name)
-
             # 使用哈希算法计算文件内容的哈希值
             with open(file_path, "rb") as f:
                 file_content = f.read()
@@ -151,7 +152,6 @@ def rm_duplicates(folder_path: str):
 def determine_key_mode(score_path: str):
     from music21 import converter
 
-    # 读取MusicXML文件
     score = converter.parse(score_path)
     # 分析乐谱的调性
     key_signature = score.analyze("key")
@@ -170,14 +170,18 @@ def batch_rename(rename_list: list):
         try:
             mode = determine_key_mode(srcname)
             os.renames(srcname, f"{dirpath}/{mode}_{dstname}")
+
         except PermissionError as e:
             print(f"\nAdd {srcname} to retry list : {e}")
             fail_list.append(srcname)
 
         except Exception as e:
-            add_to_log(f"\nFailed to rename {srcname} : {e}")
+            add_to_log(f"\n[batch_rename]Failed to rename {srcname} : {e}")
 
     if fail_list:
+        import time
+
+        time.sleep(1)
         batch_rename(fail_list)
 
 
@@ -188,8 +192,6 @@ def multi_batch_rename(dirpath: str, multi=True):
             rename_list.append(os.path.join(root, file))
 
     if multi:
-        from multiprocessing import Pool
-
         batches, num_cpu = split_list_by_cpu(rename_list)
         pool = Pool(processes=num_cpu)
         pool.map(batch_rename, batches)

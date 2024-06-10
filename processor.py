@@ -225,7 +225,7 @@ def transpose_abcs(abc_files: list, transposed_abc_dir=ABC_OUTPUT):
         transpose_abc(abc)
 
 
-def multi_transpose_abcs(input_abc_dir=ABC_INPUT, multi=True):
+def multi_split_abcs(input_abc_dir=ABC_INPUT, multi=True):
     if not os.path.exists(input_abc_dir):
         print("Please convert xml slices to abcs before this!")
         exit()
@@ -255,6 +255,31 @@ def split_abc(abc_path: str):
         if piece:
             with open(f"{ABC_INPUT}/{filename}_{i}.abc", "w", encoding="utf-8") as file:
                 file.write(piece)
+
+
+def split_abcs(abc_files: list):
+    os.makedirs(ABC_INPUT, exist_ok=True)
+    for abc in tqdm(abc_files, desc="Splitting abcs..."):
+        split_abc(abc)
+
+
+def multi_split_abcs(input_abc_dir: str, multi=True):
+    if not os.path.exists(input_abc_dir):
+        print(f"{input_abc_dir} does not exist!")
+        exit()
+
+    clean_target_dir(ABC_INPUT)
+    abc_files = []
+    for abc_path in find_all_abc(input_abc_dir):
+        abc_files.append(abc_path)
+
+    if multi:
+        batches, num_cpu = split_list_by_cpu(abc_files)
+        pool = Pool(processes=num_cpu)
+        pool.map(split_abcs, batches)
+
+    else:
+        split_abcs(abc_files)
 
 
 # generate dataset
@@ -321,5 +346,5 @@ if __name__ == "__main__":
     multi_batch_midi2mxl()
     multi_slice_xmls()
     multi_batch_xml2abc()
-    multi_transpose_abcs()
+    multi_split_abcs()
     create_dataset()

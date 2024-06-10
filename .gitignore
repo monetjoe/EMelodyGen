@@ -4,3 +4,8 @@ rename.sh
 test.py
 data/*
 *__pycache__*
+*.abc
+*.mxl
+*.xml
+*.musicxml
+*.mid

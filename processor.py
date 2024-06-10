@@ -1,4 +1,5 @@
 import re
+import time
 import random
 import subprocess
 from unidecode import unidecode
@@ -225,7 +226,7 @@ def transpose_abcs(abc_files: list, transposed_abc_dir=ABC_OUTPUT):
         transpose_abc(abc)
 
 
-def multi_split_abcs(input_abc_dir=ABC_INPUT, multi=True):
+def multi_transpose_abcs(input_abc_dir=ABC_INPUT, multi=True):
     if not os.path.exists(input_abc_dir):
         print("Please convert xml slices to abcs before this!")
         exit()
@@ -244,7 +245,7 @@ def multi_split_abcs(input_abc_dir=ABC_INPUT, multi=True):
         transpose_abcs(abc_files)
 
 
-def split_abc(abc_path: str):
+def split_abc_to_xml(abc_path: str):
     with open(abc_path, "r", encoding="cp437") as file:
         text = file.read()
 
@@ -253,17 +254,22 @@ def split_abc(abc_path: str):
     for i, part in enumerate(text_parts):
         piece = part.strip()
         if piece:
-            with open(f"{ABC_INPUT}/{filename}_{i}.abc", "w", encoding="utf-8") as file:
-                file.write(piece)
+            outpath = f"{ABC_INPUT}/{filename}_{i}.musicxml"
+            try:
+                score = converter.parse(piece, format="abc")
+                score.write("musicxml", outpath)
+
+            except Exception as e:
+                add_to_log(f"Invalid abc {outpath} is not created : {e}")
 
 
-def split_abcs(abc_files: list):
-    os.makedirs(ABC_INPUT, exist_ok=True)
+def split_abcs_to_xmls(abc_files: list):
+    os.makedirs(XML_OUTPUT, exist_ok=True)
     for abc in tqdm(abc_files, desc="Splitting abcs..."):
-        split_abc(abc)
+        split_abc_to_xml(abc)
 
 
-def multi_split_abcs(input_abc_dir: str, multi=True):
+def multi_split_abcs_to_xmls(input_abc_dir: str, multi=True):
     if not os.path.exists(input_abc_dir):
         print(f"{input_abc_dir} does not exist!")
         exit()
@@ -276,10 +282,10 @@ def multi_split_abcs(input_abc_dir: str, multi=True):
     if multi:
         batches, num_cpu = split_list_by_cpu(abc_files)
         pool = Pool(processes=num_cpu)
-        pool.map(split_abcs, batches)
+        pool.map(split_abcs_to_xmls, batches)
 
     else:
-        split_abcs(abc_files)
+        split_abcs_to_xmls(abc_files)
 
 
 # generate dataset
@@ -343,8 +349,10 @@ def create_dataset(transposed_abcs_dir=ABC_OUTPUT, split_on=False):
 
 
 if __name__ == "__main__":
-    multi_batch_midi2mxl()
-    multi_slice_xmls()
+    # multi_batch_midi2mxl()
+    # multi_slice_xmls()
+    # multi_batch_xml2abc()
+    multi_split_abcs_to_xmls("./data/nottingham", multi=True)
     multi_batch_xml2abc()
-    multi_split_abcs()
+    multi_transpose_abcs()
     create_dataset()

@@ -50,7 +50,7 @@ def multi_batch_midi2mxl(
     else:
         rm_duplicates(input_midi_dir)
 
-    clean_target_dir(XML_INPUT)
+    clean_dir(XML_INPUT)
     mids_to_xmls = {}
     for rel_root, _, filenames in os.walk(input_midi_dir):
         for filename in tqdm(filenames, desc="Converting mids to xmls..."):
@@ -61,7 +61,7 @@ def multi_batch_midi2mxl(
                 mids_to_xmls[midi_file] = os.path.join(output_xml_dir, xml_file)
 
     if multi:
-        batches, num_cpu = split_dict_by_cpu(mids_to_xmls)
+        batches, num_cpu = split_by_cpu(mids_to_xmls)
         pool = Pool(processes=num_cpu)
         pool.map(batch_midi2mxl, batches)
 
@@ -70,7 +70,7 @@ def multi_batch_midi2mxl(
 
 
 # xml augumentation
-def slice_xml(input_file: str, output_folder: str, measures_per_part=20):
+def slice_xml(input_file: str, output_folder=XML_OUTPUT, measures_per_part=20):
     # Load the .musicxml file
     score = converter.parse(input_file)
 
@@ -126,7 +126,7 @@ def multi_slice_xmls(input_xml_dir=XML_INPUT, multi=True):
         print("Please convert mids to xmls before this!")
         exit()
 
-    clean_target_dir(XML_OUTPUT)
+    clean_dir(XML_OUTPUT)
     xmls_files = []
     for rel_root, _, filenames in os.walk(input_xml_dir):
         for filename in filenames:
@@ -138,7 +138,7 @@ def multi_slice_xmls(input_xml_dir=XML_INPUT, multi=True):
                 xmls_files.append(os.path.join(rel_root, filename))
 
     if multi:
-        batches, num_cpu = split_list_by_cpu(xmls_files)
+        batches, num_cpu = split_by_cpu(xmls_files)
         pool = Pool(processes=num_cpu)
         pool.map(slice_xmls, batches)
 
@@ -187,7 +187,7 @@ def multi_batch_xml2abc(input_xml_dir=XML_OUTPUT, output_abc_dir=ABC_INPUT, mult
         print("Please slice xmls before this!")
         exit()
 
-    clean_target_dir(output_abc_dir)
+    clean_dir(output_abc_dir)
     xmls_to_abcs = {}
     for rel_root, _, filenames in os.walk(input_xml_dir):
         for filename in filenames:
@@ -202,7 +202,7 @@ def multi_batch_xml2abc(input_xml_dir=XML_OUTPUT, output_abc_dir=ABC_INPUT, mult
                 )
 
     if multi:
-        batch, num_cpu = split_dict_by_cpu(xmls_to_abcs)
+        batch, num_cpu = split_by_cpu(xmls_to_abcs)
         pool = Pool(processes=num_cpu)
         pool.map(batch_xml2abc, batch)
 
@@ -238,13 +238,13 @@ def multi_transpose_abcs(input_abc_dir=ABC_INPUT, multi=True):
         print("Please convert xml slices to abcs before this!")
         exit()
 
-    clean_target_dir(ABC_OUTPUT)
+    clean_dir(ABC_OUTPUT)
     abc_files = []
     for abc_path in find_all_abc(input_abc_dir):
         abc_files.append(abc_path)
 
     if multi:
-        batches, num_cpu = split_list_by_cpu(abc_files)
+        batches, num_cpu = split_by_cpu(abc_files)
         pool = Pool(processes=num_cpu)
         pool.map(transpose_abcs, batches)
 
@@ -283,13 +283,13 @@ def multi_split_abcs_to_xmls(input_abc_dir: str, multi=True):
         print(f"{input_abc_dir} does not exist!")
         exit()
 
-    clean_target_dir(XML_OUTPUT)
+    clean_dir(XML_OUTPUT)
     abc_files = []
     for abc_path in find_all_abc(input_abc_dir):
         abc_files.append(abc_path)
 
     if multi:
-        batches, num_cpu = split_list_by_cpu(abc_files)
+        batches, num_cpu = split_by_cpu(abc_files)
         pool = Pool(processes=num_cpu)
         pool.map(split_abcs_to_xmls, batches)
 

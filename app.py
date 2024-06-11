@@ -25,7 +25,7 @@ tone_choices = [
 ]
 
 
-def single_infer_input(abc, tone_choice: str):
+def single_infer_input(abc: str, tone_choice: str):
     from_list = type(abc) == list
     abc_text_lines = abc if from_list else abc.splitlines()
     output = ""

@@ -166,7 +166,7 @@ def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel_split_b
         ext = "." + srcname.split(".")[-1]
         dstname = str2md5(srcname) + ext
         try:
-            if relabel_split_by and len(relabel_split_by) > 0:
+            if relabel_split_by:
                 label = os.path.basename(srcname).split(relabel_split_by)[0]
             else:
                 label = emo_label(srcname)

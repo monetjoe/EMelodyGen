@@ -184,7 +184,7 @@ def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel_split_b
         import time
 
         time.sleep(1)
-        batch_rename(fail_list, out_scores_dir)
+        batch_rename(fail_list, out_scores_dir, relabel_split_by)
 
 
 def multi_batch_rename(

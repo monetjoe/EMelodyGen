@@ -160,7 +160,7 @@ def emo_label(score_path: str):
         return "Q4"
 
 
-def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel_split_by: str):
+def batch_rename(in_score_paths, out_scores_dir: str, relabel_split_by: str):
     fail_list = []
     for srcname in tqdm(in_score_paths, desc=f"Renaming scores with labels..."):
         ext = "." + srcname.split(".")[-1]

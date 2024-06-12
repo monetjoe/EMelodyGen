@@ -138,17 +138,17 @@ def determine_key_mode(score_path: str):
     return str(converter.parse(score_path, encoding="utf-8").analyze("key").mode)
 
 
-def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel: bool):
+def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel_split_by: str):
     fail_list = []
     for srcname in tqdm(in_score_paths, desc=f"Renaming files with labels..."):
         ext = "." + srcname.split(".")[-1]
         dstname = str2md5(srcname) + ext
         try:
-            if relabel:
-                label = determine_key_mode(srcname)
+            if relabel_split_by and len(relabel_split_by) > 0:
+                label = os.path.basename(srcname).split(relabel_split_by)[0]
             else:
-                label = os.path.basename(srcname).split("_")[0]
-                # TODO: 确保原始 label 在文件名最左边且以下划线隔开
+                label = determine_key_mode(srcname)
+
             os.renames(srcname, f"{out_scores_dir}/{label}_{dstname}")
 
         except PermissionError as e:
@@ -166,7 +166,7 @@ def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel: bool):
 
 
 def multi_batch_rename(
-    in_scores_dir: str, out_scores_dir: str, relabel=False, multi=True
+    in_scores_dir: str, out_scores_dir: str, relabel_split_by="_", multi=True
 ):
     if not os.path.exists(in_scores_dir):
         print(f"Please put scores into {in_scores_dir} before this!")
@@ -181,7 +181,9 @@ def multi_batch_rename(
     if multi:
         batches, num_cpu = split_by_cpu(rename_list)
         fixed_batch_rename = partial(
-            batch_rename, out_scores_dir=out_scores_dir, relabel=relabel
+            batch_rename,
+            out_scores_dir=out_scores_dir,
+            relabel_split_by=relabel_split_by,
         )
         pool = Pool(processes=num_cpu)
         pool.map(fixed_batch_rename, batches)

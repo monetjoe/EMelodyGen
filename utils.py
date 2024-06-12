@@ -4,11 +4,6 @@ from multiprocessing import Pool
 
 # utils
 CPU_ALL_IN = False
-MIDI_OUTPUT = "./data/mids"
-XML_INPUT = "./data/xmls/inputs"
-XML_OUTPUT = "./data/xmls/slices"
-ABC_INPUT = "./data/abcs/inputs"
-ABC_OUTPUT = "./data/abcs/trans"
 LOG_FILE = "./data/log.txt"
 MSCORE3 = "D:/Program Files/MuseScore 3/bin/MuseScore3.exe"
 TONE_CHOICES = [
@@ -86,40 +81,40 @@ def split_by_cpu(items):
     return split_items, num_cpus
 
 
-def clean_dir(target_dir: str):
+def clean_dir(in_dir: str):
     import shutil
 
-    if os.path.exists(target_dir):
-        shutil.rmtree(target_dir)
+    if os.path.exists(in_dir):
+        shutil.rmtree(in_dir)
 
-    os.makedirs(target_dir)
+    os.makedirs(in_dir)
 
 
-def str2md5(original_string: str):
+def str2md5(origin_str: str):
     import hashlib
 
     md5_obj = hashlib.md5()
     # Update the md5 object with the original string encoded as bytes
-    md5_obj.update(original_string.encode("utf-8"))
+    md5_obj.update(origin_str.encode("utf-8"))
     # Retrieve the hexadecimal representation of the MD5 hash
     return md5_obj.hexdigest()
 
 
-def write_jsonl(data: list, output_file: str):
+def write_jsonl(data: list, out_jsonl: str):
     import json
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        for item in tqdm(data, desc=f"Saving to {output_file}..."):
+    with open(out_jsonl, "w", encoding="utf-8") as f:
+        for item in tqdm(data, desc=f"Saving to {out_jsonl}..."):
             json.dump(item, f)
             f.write("\n")
 
 
-def rm_duplicates(folder_path: str):
+def rm_duplicates(in_files_dir: str):
     import hashlib
 
     file_hashes = {}
     # 遍历文件夹中的所有文件
-    for root, _, files in os.walk(folder_path):
+    for root, _, files in os.walk(in_files_dir):
         for file_name in files:
             file_path = os.path.join(root, file_name)
             # 使用哈希算法计算文件内容的哈希值
@@ -142,14 +137,14 @@ def determine_key_mode(score_path: str):
     return str(converter.parse(score_path, encoding="utf-8").analyze("key").mode)
 
 
-def batch_rename(rename_list: list[str], outdir: str):
+def batch_rename(in_file_paths: list[str], out_files_dir: str):
     fail_list = []
-    for srcname in tqdm(rename_list, desc=f"Renaming files with mode label..."):
+    for srcname in tqdm(in_file_paths, desc=f"Renaming files with mode label..."):
         ext = "." + srcname.split(".")[-1]
         dstname = str2md5(srcname) + ext
         try:
             mode = determine_key_mode(srcname)
-            os.renames(srcname, f"{outdir}/{mode}_{dstname}")
+            os.renames(srcname, f"{out_files_dir}/{mode}_{dstname}")
 
         except PermissionError as e:
             print(f"Add {srcname} to retry list : {e}")
@@ -162,19 +157,19 @@ def batch_rename(rename_list: list[str], outdir: str):
         import time
 
         time.sleep(1)
-        batch_rename(fail_list, outdir)
+        batch_rename(fail_list, out_files_dir)
 
 
-def multi_batch_rename(dirpath: str, outdir=MIDI_OUTPUT, multi=True):
+def multi_batch_rename(in_files_dir: str, out_files_dir: str, multi=True):
     rename_list = []
-    for root, _, files in os.walk(dirpath):
+    for root, _, files in os.walk(in_files_dir):
         for file in tqdm(files, desc="Loading files..."):
             rename_list.append(os.path.join(root, file))
 
     if multi:
         batches, num_cpu = split_by_cpu(rename_list)
         pool = Pool(processes=num_cpu)
-        pool.map(lambda rename_list: batch_rename(rename_list, outdir), batches)
+        pool.map(lambda renames: batch_rename(renames, out_files_dir), batches)
 
     else:
-        batch_rename(rename_list, outdir)
+        batch_rename(rename_list, out_files_dir)

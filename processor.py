@@ -1,7 +1,5 @@
-import re
 import random
 import subprocess
-from unidecode import unidecode
 from music21 import converter, stream
 from lib.add_control_codes import split_txt, run_filter, add_tokens
 from lib.abc_transposition import find_all_abc, transpose_an_abc_text
@@ -9,92 +7,74 @@ from utils import *
 
 
 # midi to xml
-def fix_filename_for_mscore(filename: str):
-    output_name = re.sub(r'[\\/:*?"<>|]', "", unidecode(filename))
-    output_name = output_name.replace("[", "  ").replace("]", "  ")
-    return re.sub(r"\s+", " ", output_name).strip()
-
-
-def midi2xml(input_midi_file: str, output_xml_file: str):
-    filename = rm_ext(os.path.basename(input_midi_file))
-    fixed_name = fix_filename_for_mscore(filename)
-    fixed_mid_name = input_midi_file.replace(filename, fixed_name)
-    if input_midi_file != fixed_mid_name:
-        os.rename(input_midi_file, fixed_mid_name)
-
+def midi2xml(in_midi_path: str, out_xml_path: str):
     with open(LOG_FILE, "a", encoding="utf-8") as error_file:
         result = subprocess.run(
-            [MSCORE3, "-o", output_xml_file, fixed_mid_name],
+            [MSCORE3, "-o", out_xml_path, in_midi_path],
             stderr=error_file,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
 
     if result.returncode != 0:
         add_to_log(
-            f"[midi2xml]Failed to convert {input_midi_file} to {output_xml_file} : {result.returncode}"
+            f"[midi2xml]Failed to convert {in_midi_path} to {out_xml_path} : {result.returncode}"
         )
 
 
-def batch_midi2mxl(mids_to_xmls: dict, output_xml_dir=XML_INPUT):
-    os.makedirs(output_xml_dir, exist_ok=True)
+def batch_midi2xml(mids_to_xmls: dict):
     for midi in tqdm(mids_to_xmls, desc="Converting mids to xmls..."):
         midi2xml(midi, mids_to_xmls[midi])
 
 
-def multi_batch_midi2mxl(
-    input_midi_dir=MIDI_OUTPUT, output_xml_dir=XML_INPUT, multi=True
-):
-    if not os.path.exists(input_midi_dir):
-        print(f"Please extract mids into {input_midi_dir} before this!")
+def multi_batch_midi2mxl(in_mids_dir: str, out_xmls_dir: str, multi=True):
+    if not os.path.exists(in_mids_dir):
+        print(f"Please extract mids into {in_mids_dir} before this!")
         exit()
     else:
-        rm_duplicates(input_midi_dir)
+        rm_duplicates(in_mids_dir)
 
-    clean_dir(XML_INPUT)
+    clean_dir(out_xmls_dir)
     mids_to_xmls = {}
-    for rel_root, _, filenames in os.walk(input_midi_dir):
+    for rel_root, _, filenames in os.walk(in_mids_dir):
         for filename in tqdm(filenames, desc="Converting mids to xmls..."):
             if filename.endswith(".mid"):
                 midi_file = os.path.join(rel_root, filename)
                 label = filename.split("_")[0] + "_"
                 xml_file = label + str2md5(rm_ext(filename)) + ".musicxml"
-                mids_to_xmls[midi_file] = os.path.join(output_xml_dir, xml_file)
+                mids_to_xmls[midi_file] = os.path.join(out_xmls_dir, xml_file)
 
     if multi:
         batches, num_cpu = split_by_cpu(mids_to_xmls)
         pool = Pool(processes=num_cpu)
-        pool.map(batch_midi2mxl, batches)
+        pool.map(batch_midi2xml, batches)
 
     else:
-        batch_midi2mxl(mids_to_xmls, output_xml_dir)
+        batch_midi2xml(mids_to_xmls)
 
 
 # xml augumentation
-def slice_xml(input_file: str, output_folder=XML_OUTPUT, measures_per_part=20):
-    # Load the .musicxml file
-    score = converter.parse(input_file)
-
+def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_part=20):
+    score = converter.parse(in_xml_path)
     # Initialize variables
     current_measures = stream.Part()
     current_measure_count = 0
     part_index = 1
-    filename_no_ext = rm_ext(os.path.basename(input_file))
+    filename_no_ext = rm_ext(os.path.basename(in_xml_path))
 
     for part in score.parts:
         for element in part.getElementsByClass(stream.Measure):
             current_measures.append(element)
             current_measure_count += 1
-
             # Check if we've reached the desired number of measures
             if current_measure_count == measures_per_part:
                 # Export the current set of measures
                 xml_stream = stream.Score([current_measures])
-                export_path = f"{output_folder}/{filename_no_ext}_{part_index}.musicxml"
+                export_path = f"{out_xmls_dir}/{filename_no_ext}_{part_index}.musicxml"
                 try:
                     xml_stream.write("musicxml", fp=export_path)
                 except Exception as e:
                     add_to_log(
-                        f"[slice_xml]Failed to slice {input_file} to {export_path} : {e}"
+                        f"[slice_xml]Failed to slice {in_xml_path} to {export_path} : {e}"
                     )
 
                 part_index += 1
@@ -106,29 +86,28 @@ def slice_xml(input_file: str, output_folder=XML_OUTPUT, measures_per_part=20):
     if current_measure_count > 0:
         # Export the remaining measures
         xml_stream = stream.Score([current_measures])
-        export_path = f"{output_folder}/{filename_no_ext}_{part_index}.musicxml"
+        export_path = f"{out_xmls_dir}/{filename_no_ext}_{part_index}.musicxml"
         try:
             xml_stream.write("musicxml", fp=export_path)
         except Exception as e:
             add_to_log(
-                f"[slice_xml]Failed to slice {input_file} to {export_path} : {e}"
+                f"[slice_xml]Failed to slice {in_xml_path} to {export_path} : {e}"
             )
 
 
-def slice_xmls(xmls_files: list, output_slice_dir=XML_OUTPUT):
-    os.makedirs(output_slice_dir, exist_ok=True)
-    for xml_file in tqdm(xmls_files, desc="Slicing xmls..."):
-        slice_xml(xml_file, output_slice_dir)
+def slice_xmls(in_xml_paths: list, out_xmls_dir: str):
+    for xml_file in tqdm(in_xml_paths, desc="Slicing xmls..."):
+        slice_xml(xml_file, out_xmls_dir)
 
 
-def multi_slice_xmls(input_xml_dir=XML_INPUT, multi=True):
-    if not os.path.exists(input_xml_dir):
+def multi_slice_xmls(in_xmls_dir: str, out_xmls_dir: str, multi=True):
+    if not os.path.exists(in_xmls_dir):
         print("Please convert mids to xmls before this!")
         exit()
 
-    clean_dir(XML_OUTPUT)
+    clean_dir(out_xmls_dir)
     xmls_files = []
-    for rel_root, _, filenames in os.walk(input_xml_dir):
+    for rel_root, _, filenames in os.walk(in_xmls_dir):
         for filename in filenames:
             if (
                 filename.endswith(".xml")
@@ -140,17 +119,17 @@ def multi_slice_xmls(input_xml_dir=XML_INPUT, multi=True):
     if multi:
         batches, num_cpu = split_by_cpu(xmls_files)
         pool = Pool(processes=num_cpu)
-        pool.map(slice_xmls, batches)
+        pool.map(lambda xmls: slice_xmls(xmls, out_xmls_dir), batches)
 
     else:
-        slice_xmls(xmls_files)
+        slice_xmls(xmls_files, out_xmls_dir)
 
 
 # xml to abc
-def xml2abc(input_xml_file: str, output_abc_file: str):
+def xml2abc(in_xml_path: str, out_abc_path: str):
     with open(LOG_FILE, "a", encoding="utf-8") as error_file:
         result = subprocess.run(
-            f"python -Xfrozen_modules=off ./lib/xml2abc.py {input_xml_file}",
+            f"python -Xfrozen_modules=off ./lib/xml2abc.py {in_xml_path}",
             stdout=subprocess.PIPE,
             stderr=error_file,
             text=True,
@@ -159,37 +138,35 @@ def xml2abc(input_xml_file: str, output_abc_file: str):
     if result.returncode == 0:
         output = str(result.stdout).strip()
         if output:
-            with open(output_abc_file, "w", encoding="utf-8") as f:
+            with open(out_abc_path, "w", encoding="utf-8") as f:
                 f.write(output)
 
         else:
-            add_to_log(f"[xml2abc]Convert {input_xml_file} to an empty abc")
+            add_to_log(f"[xml2abc]Convert {in_xml_path} to an empty abc")
 
     else:
         add_to_log(
-            f"[xml2abc]Failed to convert {input_xml_file} to {output_abc_file} : {result.returncode}"
+            f"[xml2abc]Failed to convert {in_xml_path} to {out_abc_path} : {result.returncode}"
         )
 
 
-def batch_xml2abc(xmls_to_abcs: dict, output_abc_dir=ABC_INPUT):
-    os.makedirs(output_abc_dir, exist_ok=True)
+def batch_xml2abc(xmls_to_abcs: dict):
     for xml in tqdm(xmls_to_abcs, desc="Converting xmls to abcs..."):
         try:
             xml2abc(xml, xmls_to_abcs[xml])
+
         except UnicodeDecodeError as e:
-            add_to_log(
-                f"[batch_xml2abc]Failed to convert {xml} into {output_abc_dir} : {e}"
-            )
+            add_to_log(f"[batch_xml2abc]Failed to convert {xml} into abc : {e}")
 
 
-def multi_batch_xml2abc(input_xml_dir=XML_OUTPUT, output_abc_dir=ABC_INPUT, multi=True):
-    if not os.path.exists(input_xml_dir):
+def multi_batch_xml2abc(in_xmls_dir: str, out_abcs_dir: str, multi=True):
+    if not os.path.exists(in_xmls_dir):
         print("Please slice xmls before this!")
         exit()
 
-    clean_dir(output_abc_dir)
+    clean_dir(out_abcs_dir)
     xmls_to_abcs = {}
-    for rel_root, _, filenames in os.walk(input_xml_dir):
+    for rel_root, _, filenames in os.walk(in_xmls_dir):
         for filename in filenames:
             if (
                 filename.endswith(".xml")
@@ -198,7 +175,7 @@ def multi_batch_xml2abc(input_xml_dir=XML_OUTPUT, output_abc_dir=ABC_INPUT, mult
             ):
                 xml_file = os.path.join(rel_root, filename)
                 xmls_to_abcs[xml_file] = os.path.join(
-                    output_abc_dir, change_ext(filename, ".abc")
+                    out_abcs_dir, change_ext(filename, ".abc")
                 )
 
     if multi:
@@ -207,40 +184,41 @@ def multi_batch_xml2abc(input_xml_dir=XML_OUTPUT, output_abc_dir=ABC_INPUT, mult
         pool.map(batch_xml2abc, batch)
 
     else:
-        batch_xml2abc(xmls_to_abcs, output_abc_dir)
+        batch_xml2abc(xmls_to_abcs)
 
 
 # abc augumentation
-def transpose_abc(abc_path: str, transposed_abc_dir=ABC_OUTPUT):
+def transpose_abc(in_abc_path: str, out_abcs_dir: str):
     for tone in TONE_CHOICES:
-        with open(abc_path, "r", encoding="utf-8") as f:
+        with open(in_abc_path, "r", encoding="utf-8") as f:
             abc_text_lines = f.readlines()
 
         try:
-            transposed_abc_text, _, _ = transpose_an_abc_text(abc_text_lines, tone)
-            abc_name = rm_ext(os.path.basename(abc_path))
-            output_path = f"{transposed_abc_dir}/{abc_name}_{tone}.abc"
+            transposed_abc, _, _ = transpose_an_abc_text(abc_text_lines, tone)
+            abc_name = rm_ext(os.path.basename(in_abc_path))
+            output_path = f"{out_abcs_dir}/{abc_name}_{tone}.abc"
             with open(output_path, "w", encoding="utf-8") as file:
-                file.write(transposed_abc_text)
+                file.write(transposed_abc)
 
         except Exception as e:
-            add_to_log(f"[transpose_abc]Failed to transpose {abc_path} to {tone} : {e}")
+            add_to_log(
+                f"[transpose_abc]Failed to transpose {in_abc_path} to {tone} : {e}"
+            )
 
 
-def transpose_abcs(abc_files: list, transposed_abc_dir=ABC_OUTPUT):
-    os.makedirs(transposed_abc_dir, exist_ok=True)
-    for abc in tqdm(abc_files, desc="Transposing abcs..."):
+def transpose_abcs(in_abc_paths: list):
+    for abc in tqdm(in_abc_paths, desc="Transposing abcs..."):
         transpose_abc(abc)
 
 
-def multi_transpose_abcs(input_abc_dir=ABC_INPUT, multi=True):
-    if not os.path.exists(input_abc_dir):
+def multi_transpose_abcs(in_abcs_dir: str, out_abcs_dir: str, multi=True):
+    if not os.path.exists(in_abcs_dir):
         print("Please convert xml slices to abcs before this!")
         exit()
 
-    clean_dir(ABC_OUTPUT)
+    clean_dir(out_abcs_dir)
     abc_files = []
-    for abc_path in find_all_abc(input_abc_dir):
+    for abc_path in find_all_abc(in_abcs_dir):
         abc_files.append(abc_path)
 
     if multi:
@@ -252,16 +230,16 @@ def multi_transpose_abcs(input_abc_dir=ABC_INPUT, multi=True):
         transpose_abcs(abc_files)
 
 
-def split_abc_to_xml(abc_path: str):
-    with open(abc_path, "r", encoding="cp437") as file:
+def split_abc_to_xml(in_abc_path: str, out_xmls_dir: str):
+    with open(in_abc_path, "r", encoding="cp437") as file:
         text = file.read()
 
     text_parts = text.split("\n\n")
-    filename = rm_ext(os.path.basename(abc_path))
+    filename = rm_ext(os.path.basename(in_abc_path))
     for i, part in enumerate(text_parts):
         piece = part.strip()
         if piece:
-            outpath = f"{XML_OUTPUT}/{filename}_{i}.musicxml"
+            outpath = f"{out_xmls_dir}/{filename}_{i}.musicxml"
             try:
                 score = converter.parse(piece, format="abc")
                 score.write(fmt="musicxml", fp=outpath, encoding="utf-8")
@@ -272,29 +250,28 @@ def split_abc_to_xml(abc_path: str):
                 )
 
 
-def split_abcs_to_xmls(abc_files: list):
-    os.makedirs(XML_OUTPUT, exist_ok=True)
-    for abc in tqdm(abc_files, desc="Splitting abcs..."):
-        split_abc_to_xml(abc)
+def split_abcs_to_xmls(in_abc_paths: list, out_xmls_dir: str):
+    for abc in tqdm(in_abc_paths, desc="Splitting abcs..."):
+        split_abc_to_xml(abc, out_xmls_dir)
 
 
-def multi_split_abcs_to_xmls(input_abc_dir: str, multi=True):
-    if not os.path.exists(input_abc_dir):
-        print(f"{input_abc_dir} does not exist!")
+def multi_split_abcs_to_xmls(in_abcs_dir: str, out_xmls_dir: str, multi=True):
+    if not os.path.exists(in_abcs_dir):
+        print(f"{in_abcs_dir} does not exist!")
         exit()
 
-    clean_dir(XML_OUTPUT)
+    clean_dir(out_xmls_dir)
     abc_files = []
-    for abc_path in find_all_abc(input_abc_dir):
+    for abc_path in find_all_abc(in_abcs_dir):
         abc_files.append(abc_path)
 
     if multi:
         batches, num_cpu = split_by_cpu(abc_files)
         pool = Pool(processes=num_cpu)
-        pool.map(split_abcs_to_xmls, batches)
+        pool.map(lambda abcs: split_abcs_to_xmls(abcs, out_xmls_dir), batches)
 
     else:
-        split_abcs_to_xmls(abc_files)
+        split_abcs_to_xmls(abc_files, out_xmls_dir)
 
 
 # generate dataset
@@ -314,17 +291,17 @@ def save_dataset(dataset: list, split_on: bool):
     add_to_log(f"[save_dataset]{data_count} succeeded in total")
 
 
-def create_dataset(transposed_abcs_dir=ABC_OUTPUT, split_on=False):
-    if not os.path.exists(transposed_abcs_dir):
+def create_dataset(in_abcs_dir: str, split_on=False):
+    if not os.path.exists(in_abcs_dir):
         print("Please transpose abcs before this!")
         exit()
     else:
-        rm_duplicates(transposed_abcs_dir)
+        rm_duplicates(in_abcs_dir)
 
     dataset = []
     empty_count, fail_count = 0, 0
     # Traverse the path
-    for dirpath, _, filelist in os.walk(transposed_abcs_dir):
+    for dirpath, _, filelist in os.walk(in_abcs_dir):
         # Traverse the list of files
         for this_file in tqdm(filelist, desc="Generating dataset..."):
             if this_file.endswith(".abc"):
@@ -359,14 +336,3 @@ def create_dataset(transposed_abcs_dir=ABC_OUTPUT, split_on=False):
     add_to_log(f"[create_dataset]{results}")
     print(results)
     save_dataset(dataset, split_on)
-
-
-if __name__ == "__main__":
-    # multi_batch_midi2mxl()
-    # multi_slice_xmls()
-    # multi_batch_xml2abc()
-    multi_split_abcs_to_xmls("./data/nottingham")
-    # multi_batch_rename(XML_OUTPUT)
-    # multi_batch_xml2abc()
-    # multi_transpose_abcs()
-    # create_dataset()

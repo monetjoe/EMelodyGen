@@ -36,6 +36,8 @@ def xmls2dataset():
 
 
 def emopia2dataset():
+    multi_batch_midi2xml("./data/mids/outputs", "./data/xmls/inputs")
+    multi_slice_xmls("./data/xmls/inputs", "./data/xmls/outputs")
     multi_batch_xml2abc("./data/xmls/outputs", "./data/abcs/inputs")
     multi_transpose_abcs("./data/abcs/inputs", "./data/abcs/outputs")
     rm_duplicates("./data/abcs/outputs")

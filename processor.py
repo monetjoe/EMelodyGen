@@ -116,8 +116,9 @@ def multi_slice_xmls(in_xmls_dir: str, out_xmls_dir: str, multi=True):
 
     if multi:
         batches, num_cpu = split_by_cpu(xmls_files)
+        fixed_slice_xmls = partial(slice_xmls, out_xmls_dir=out_xmls_dir)
         pool = Pool(processes=num_cpu)
-        pool.map(lambda xmls: slice_xmls(xmls, out_xmls_dir), batches)
+        pool.map(fixed_slice_xmls, batches)
 
     else:
         slice_xmls(xmls_files, out_xmls_dir)
@@ -265,8 +266,9 @@ def multi_split_abcs2xmls(in_abcs_dir: str, out_xmls_dir: str, multi=True):
 
     if multi:
         batches, num_cpu = split_by_cpu(abc_files)
+        fixed_split_abcs2xmls = partial(split_abcs2xmls, out_xmls_dir=out_xmls_dir)
         pool = Pool(processes=num_cpu)
-        pool.map(lambda abcs: split_abcs2xmls(abcs, out_xmls_dir), batches)
+        pool.map(fixed_split_abcs2xmls, batches)
 
     else:
         split_abcs2xmls(abc_files, out_xmls_dir)

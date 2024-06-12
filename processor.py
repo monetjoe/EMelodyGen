@@ -132,7 +132,7 @@ def multi_slice_xmls(in_xmls_dir: str, out_xmls_dir: str, multi=True):
 def xml2abc(in_xml_path: str, out_abc_path: str):
     with open(LOG_FILE, "a", encoding="utf-8") as error_file:
         result = subprocess.run(
-            f"python -Xfrozen_modules=off ./lib/xml2abc.py {in_xml_path}",
+            ["python", "-Xfrozen_modules=off", "./lib/xml2abc.py", in_xml_path],
             stdout=subprocess.PIPE,
             stderr=error_file,
             text=True,

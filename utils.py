@@ -168,6 +168,11 @@ def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel: bool):
 def multi_batch_rename(
     in_scores_dir: str, out_scores_dir: str, relabel=False, multi=True
 ):
+    if not os.path.exists(in_scores_dir):
+        print(f"Please put scores into {in_scores_dir} before this!")
+        exit()
+
+    clean_dir(out_scores_dir)
     rename_list = []
     for root, _, files in os.walk(in_scores_dir):
         for file in tqdm(files, desc="Loading files..."):

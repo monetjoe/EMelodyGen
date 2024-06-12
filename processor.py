@@ -246,6 +246,9 @@ def split_abc2xml(in_abc_path: str, out_xmls_dir: str):
             outpath = f"{out_xmls_dir}/{filename}_{i}.musicxml"
             try:
                 score = converter.parse(piece, format="abc")
+                score.parts[0].getElementsByClass(stream.Measure)[
+                    -1
+                ].rightBarline = "final"
                 score.write(fmt="musicxml", fp=outpath, encoding="utf-8")
 
             except Exception as e:

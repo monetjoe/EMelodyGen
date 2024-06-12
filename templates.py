@@ -28,7 +28,9 @@ def joint_abcs2dataset():
 
 def xmls2dataset():
     rm_duplicates("./data/xmls/inputs")
-    multi_batch_rename("./data/xmls/inputs", "./data/xmls/outputs")
+    multi_batch_rename(
+        "./data/xmls/inputs", "./data/xmls/outputs", relabel_split_by=None
+    )
     multi_batch_xml2abc("./data/xmls/outputs", "./data/abcs/inputs")
     multi_transpose_abcs("./data/abcs/inputs", "./data/abcs/outputs")
     rm_duplicates("./data/abcs/outputs")

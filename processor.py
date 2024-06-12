@@ -43,8 +43,8 @@ def multi_batch_midi2xml(in_mids_dir: str, out_xmls_dir: str, multi=True):
 
     if multi:
         batches, num_cpu = split_by_cpu(mids_to_xmls)
-        pool = Pool(processes=num_cpu)
-        pool.map(batch_midi2xml, batches)
+        with Pool(processes=num_cpu) as pool:
+            pool.map(batch_midi2xml, batches)
 
     else:
         batch_midi2xml(mids_to_xmls)
@@ -121,8 +121,8 @@ def multi_slice_xmls(in_xmls_dir: str, out_xmls_dir: str, multi=True):
     if multi:
         batches, num_cpu = split_by_cpu(xmls_files)
         fixed_slice_xmls = partial(slice_xmls, out_xmls_dir=out_xmls_dir)
-        pool = Pool(processes=num_cpu)
-        pool.map(fixed_slice_xmls, batches)
+        with Pool(processes=num_cpu) as pool:
+            pool.map(fixed_slice_xmls, batches)
 
     else:
         slice_xmls(xmls_files, out_xmls_dir)
@@ -183,8 +183,8 @@ def multi_batch_xml2abc(in_xmls_dir: str, out_abcs_dir: str, multi=True):
 
     if multi:
         batch, num_cpu = split_by_cpu(xmls_to_abcs)
-        pool = Pool(processes=num_cpu)
-        pool.map(batch_xml2abc, batch)
+        with Pool(processes=num_cpu) as pool:
+            pool.map(batch_xml2abc, batch)
 
     else:
         batch_xml2abc(xmls_to_abcs)
@@ -227,8 +227,8 @@ def multi_transpose_abcs(in_abcs_dir: str, out_abcs_dir: str, multi=True):
     if multi:
         batches, num_cpu = split_by_cpu(abc_files)
         fixed_transpose_abcs = partial(transpose_abcs, out_abcs_dir=out_abcs_dir)
-        pool = Pool(processes=num_cpu)
-        pool.map(fixed_transpose_abcs, batches)
+        with Pool(processes=num_cpu) as pool:
+            pool.map(fixed_transpose_abcs, batches)
 
     else:
         transpose_abcs(abc_files, out_abcs_dir)
@@ -275,8 +275,8 @@ def multi_split_abcs2xmls(in_abcs_dir: str, out_xmls_dir: str, multi=True):
     if multi:
         batches, num_cpu = split_by_cpu(abc_files)
         fixed_split_abcs2xmls = partial(split_abcs2xmls, out_xmls_dir=out_xmls_dir)
-        pool = Pool(processes=num_cpu)
-        pool.map(fixed_split_abcs2xmls, batches)
+        with Pool(processes=num_cpu) as pool:
+            pool.map(fixed_split_abcs2xmls, batches)
 
     else:
         split_abcs2xmls(abc_files, out_xmls_dir)

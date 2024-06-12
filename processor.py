@@ -70,7 +70,7 @@ def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_part=20):
                 xml_stream = stream.Score([current_measures])
                 export_path = f"{out_xmls_dir}/{filename_no_ext}_{part_index}.musicxml"
                 try:
-                    xml_stream.write("musicxml", fp=export_path)
+                    xml_stream.write("musicxml", fp=export_path, encoding="utf-8")
 
                 except Exception as e:
                     add_to_log(
@@ -89,7 +89,7 @@ def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_part=20):
         xml_stream = stream.Score([current_measures])
         export_path = f"{out_xmls_dir}/{filename_no_ext}_{part_index}.musicxml"
         try:
-            xml_stream.write("musicxml", fp=export_path)
+            xml_stream.write("musicxml", fp=export_path, encoding="utf-8")
 
         except Exception as e:
             add_to_log(

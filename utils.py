@@ -161,6 +161,8 @@ def emo_label(score_path: str):
 
 
 def batch_rename(in_score_paths, out_scores_dir: str, relabel_split_by: str):
+    import shutil
+
     fail_list = []
     for srcname in tqdm(in_score_paths, desc=f"Renaming scores with labels..."):
         ext = "." + srcname.split(".")[-1]
@@ -171,7 +173,7 @@ def batch_rename(in_score_paths, out_scores_dir: str, relabel_split_by: str):
             else:
                 label = emo_label(srcname)
 
-            os.renames(srcname, f"{out_scores_dir}/{label}_{dstname}")
+            shutil.copy2(srcname, f"{out_scores_dir}/{label}_{dstname}")
 
         except PermissionError as e:
             print(f"Add {srcname} to retry list : {e}")

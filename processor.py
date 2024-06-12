@@ -205,9 +205,9 @@ def transpose_abc(in_abc_path: str, out_abcs_dir: str):
             )
 
 
-def transpose_abcs(in_abc_paths: list):
+def transpose_abcs(in_abc_paths: list, out_abcs_dir: str):
     for abc in tqdm(in_abc_paths, desc="Transposing abcs..."):
-        transpose_abc(abc)
+        transpose_abc(abc, out_abcs_dir)
 
 
 def multi_transpose_abcs(in_abcs_dir: str, out_abcs_dir: str, multi=True):
@@ -222,8 +222,9 @@ def multi_transpose_abcs(in_abcs_dir: str, out_abcs_dir: str, multi=True):
 
     if multi:
         batches, num_cpu = split_by_cpu(abc_files)
+        fixed_transpose_abcs = partial(transpose_abcs, out_abcs_dir=out_abcs_dir)
         pool = Pool(processes=num_cpu)
-        pool.map(transpose_abcs, batches)
+        pool.map(fixed_transpose_abcs, batches)
 
     else:
         transpose_abcs(abc_files)

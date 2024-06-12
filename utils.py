@@ -176,7 +176,7 @@ def multi_batch_rename(
     if multi:
         batches, num_cpu = split_by_cpu(rename_list)
         fixed_batch_rename = partial(
-            batch_rename, out_files_dir=out_scores_dir, relabel=relabel
+            batch_rename, out_scores_dir=out_scores_dir, relabel=relabel
         )
         pool = Pool(processes=num_cpu)
         pool.map(fixed_batch_rename, batches)

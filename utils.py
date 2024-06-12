@@ -211,4 +211,4 @@ def multi_batch_rename(
         pool.map(fixed_batch_rename, batches)
 
     else:
-        batch_rename(rename_list, out_scores_dir)
+        batch_rename(rename_list, out_scores_dir, relabel_split_by)

@@ -1,5 +1,6 @@
 import os
 from tqdm import tqdm
+from music21 import converter
 from functools import partial
 from multiprocessing import Pool
 
@@ -132,10 +133,31 @@ def rm_duplicates(in_files_dir: str):
                 file_hashes[file_hash] = file_path
 
 
-def determine_key_mode(score_path: str):
-    from music21 import converter
+def emo_label(score_path: str):
+    score = converter.parse(score_path, encoding="utf-8")
+    mode: str = score.analyze("key").mode
+    # 获取所有小节的 tempo 值
+    tempos = []
+    for part in score.parts:
+        for measure in part.getElementsByClass("Measure"):
+            measure_tempos = measure.getElementsByClass("MetronomeMark")
+            for tempo in measure_tempos:
+                tempos.append(tempo.getQuarterBPM())
 
-    return str(converter.parse(score_path, encoding="utf-8").analyze("key").mode)
+    tempo = 120
+    # 计算平均 tempo
+    if tempos:
+        average_tempo = sum(tempos) / len(tempos)
+        tempo = average_tempo
+
+    if mode == "major" and tempo >= 120:
+        return "Q1"
+    elif mode == "minor" and tempo >= 120:
+        return "Q2"
+    elif mode == "minor" and tempo < 120:
+        return "Q3"
+    else:
+        return "Q4"
 
 
 def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel_split_by: str):
@@ -147,7 +169,7 @@ def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel_split_b
             if relabel_split_by and len(relabel_split_by) > 0:
                 label = os.path.basename(srcname).split(relabel_split_by)[0]
             else:
-                label = determine_key_mode(srcname)
+                label = emo_label(srcname)
 
             os.renames(srcname, f"{out_scores_dir}/{label}_{dstname}")
 

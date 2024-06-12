@@ -26,7 +26,7 @@ def batch_midi2xml(mids_to_xmls: dict):
         midi2xml(midi, mids_to_xmls[midi])
 
 
-def multi_batch_midi2mxl(in_mids_dir: str, out_xmls_dir: str, multi=True):
+def multi_batch_midi2xml(in_mids_dir: str, out_xmls_dir: str, multi=True):
     if not os.path.exists(in_mids_dir):
         print(f"Please extract mids into {in_mids_dir} before this!")
         exit()
@@ -230,7 +230,7 @@ def multi_transpose_abcs(in_abcs_dir: str, out_abcs_dir: str, multi=True):
         transpose_abcs(abc_files)
 
 
-def split_abc_to_xml(in_abc_path: str, out_xmls_dir: str):
+def split_abc2xml(in_abc_path: str, out_xmls_dir: str):
     with open(in_abc_path, "r", encoding="cp437") as file:
         text = file.read()
 
@@ -250,12 +250,12 @@ def split_abc_to_xml(in_abc_path: str, out_xmls_dir: str):
                 )
 
 
-def split_abcs_to_xmls(in_abc_paths: list, out_xmls_dir: str):
+def split_abcs2xmls(in_abc_paths: list, out_xmls_dir: str):
     for abc in tqdm(in_abc_paths, desc="Splitting abcs..."):
-        split_abc_to_xml(abc, out_xmls_dir)
+        split_abc2xml(abc, out_xmls_dir)
 
 
-def multi_split_abcs_to_xmls(in_abcs_dir: str, out_xmls_dir: str, multi=True):
+def multi_split_abcs2xmls(in_abcs_dir: str, out_xmls_dir: str, multi=True):
     if not os.path.exists(in_abcs_dir):
         print(f"{in_abcs_dir} does not exist!")
         exit()
@@ -268,10 +268,10 @@ def multi_split_abcs_to_xmls(in_abcs_dir: str, out_xmls_dir: str, multi=True):
     if multi:
         batches, num_cpu = split_by_cpu(abc_files)
         pool = Pool(processes=num_cpu)
-        pool.map(lambda abcs: split_abcs_to_xmls(abcs, out_xmls_dir), batches)
+        pool.map(lambda abcs: split_abcs2xmls(abcs, out_xmls_dir), batches)
 
     else:
-        split_abcs_to_xmls(abc_files, out_xmls_dir)
+        split_abcs2xmls(abc_files, out_xmls_dir)
 
 
 # generate dataset

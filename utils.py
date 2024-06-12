@@ -140,7 +140,7 @@ def determine_key_mode(score_path: str):
 
 def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel_split_by: str):
     fail_list = []
-    for srcname in tqdm(in_score_paths, desc=f"Renaming files with labels..."):
+    for srcname in tqdm(in_score_paths, desc=f"Renaming scores with labels..."):
         ext = "." + srcname.split(".")[-1]
         dstname = str2md5(srcname) + ext
         try:

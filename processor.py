@@ -65,11 +65,13 @@ def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_part=20):
             current_measure_count += 1
             # Check if we've reached the desired number of measures
             if current_measure_count == measures_per_part:
+                current_measures[-1].rightBarline = "final"
                 # Export the current set of measures
                 xml_stream = stream.Score([current_measures])
                 export_path = f"{out_xmls_dir}/{filename_no_ext}_{part_index}.musicxml"
                 try:
                     xml_stream.write("musicxml", fp=export_path)
+
                 except Exception as e:
                     add_to_log(
                         f"[slice_xml]Failed to slice {in_xml_path} to {export_path} : {e}"
@@ -82,11 +84,13 @@ def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_part=20):
 
     # Check if there are any remaining measures to be saved
     if current_measure_count > 0:
+        current_measures[-1].rightBarline = "final"
         # Export the remaining measures
         xml_stream = stream.Score([current_measures])
         export_path = f"{out_xmls_dir}/{filename_no_ext}_{part_index}.musicxml"
         try:
             xml_stream.write("musicxml", fp=export_path)
+
         except Exception as e:
             add_to_log(
                 f"[slice_xml]Failed to slice {in_xml_path} to {export_path} : {e}"

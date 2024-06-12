@@ -1,5 +1,6 @@
 import os
 from tqdm import tqdm
+from functools import partial
 from multiprocessing import Pool
 
 # utils
@@ -168,8 +169,9 @@ def multi_batch_rename(in_files_dir: str, out_files_dir: str, multi=True):
 
     if multi:
         batches, num_cpu = split_by_cpu(rename_list)
+        fixed_batch_rename = partial(batch_rename, out_files_dir=out_files_dir)
         pool = Pool(processes=num_cpu)
-        pool.map(lambda renames: batch_rename(renames, out_files_dir), batches)
+        pool.map(fixed_batch_rename, batches)
 
     else:
         batch_rename(rename_list, out_files_dir)

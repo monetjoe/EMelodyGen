@@ -283,23 +283,25 @@ def multi_split_abcs2xmls(in_abcs_dir: str, out_xmls_dir: str, multi=True):
 
 
 # generate dataset
-def save_dataset(dataset: list, split_on: bool):
+def save_dataset(dataset: list, jsonl_name: str, split_on: bool):
     random.shuffle(dataset)
     data_count = len(dataset)
+    if ".jsonl" in jsonl_name:
+        jsonl_name = jsonl_name.split(".json")[0]
 
     if split_on:
         p90 = int(data_count * 0.9)
-        write_jsonl(dataset[:p90], "./data/train.jsonl")
-        write_jsonl(dataset[p90:], "./data/test.jsonl")
+        write_jsonl(dataset[:p90], f"./data/{jsonl_name}-train.jsonl")
+        write_jsonl(dataset[p90:], f"./data/{jsonl_name}-test.jsonl")
 
     else:
-        write_jsonl(dataset, "./data/dataset.jsonl")
+        write_jsonl(dataset, f"./data/{jsonl_name}.jsonl")
 
     print(f"{data_count} succeeded in total")
     add_to_log(f"[save_dataset]{data_count} succeeded in total")
 
 
-def create_dataset(in_abcs_dir: str, split_on=False):
+def create_dataset(in_abcs_dir: str, jsonl_name="dataset", split_on=False):
     if not os.path.exists(in_abcs_dir):
         print("Please transpose abcs before this!")
         exit()
@@ -341,4 +343,4 @@ def create_dataset(in_abcs_dir: str, split_on=False):
     results = f"{fail_count} failed in total\n{empty_count} empty V1 in total"
     add_to_log(f"[create_dataset]{results}")
     print(results)
-    save_dataset(dataset, split_on)
+    save_dataset(dataset, jsonl_name, split_on)

@@ -138,14 +138,18 @@ def determine_key_mode(score_path: str):
     return str(converter.parse(score_path, encoding="utf-8").analyze("key").mode)
 
 
-def batch_rename(in_file_paths: list[str], out_files_dir: str):
+def batch_rename(in_score_paths: list[str], out_scores_dir: str, relabel: bool):
     fail_list = []
-    for srcname in tqdm(in_file_paths, desc=f"Renaming files with mode label..."):
+    for srcname in tqdm(in_score_paths, desc=f"Renaming files with labels..."):
         ext = "." + srcname.split(".")[-1]
         dstname = str2md5(srcname) + ext
         try:
-            mode = determine_key_mode(srcname)
-            os.renames(srcname, f"{out_files_dir}/{mode}_{dstname}")
+            if relabel:
+                label = determine_key_mode(srcname)
+            else:
+                label = os.path.basename(srcname).split("_")[0]
+                # TODO: 确保原始 label 在文件名最左边且以下划线隔开
+            os.renames(srcname, f"{out_scores_dir}/{label}_{dstname}")
 
         except PermissionError as e:
             print(f"Add {srcname} to retry list : {e}")
@@ -158,20 +162,24 @@ def batch_rename(in_file_paths: list[str], out_files_dir: str):
         import time
 
         time.sleep(1)
-        batch_rename(fail_list, out_files_dir)
+        batch_rename(fail_list, out_scores_dir)
 
 
-def multi_batch_rename(in_files_dir: str, out_files_dir: str, multi=True):
+def multi_batch_rename(
+    in_scores_dir: str, out_scores_dir: str, relabel=False, multi=True
+):
     rename_list = []
-    for root, _, files in os.walk(in_files_dir):
+    for root, _, files in os.walk(in_scores_dir):
         for file in tqdm(files, desc="Loading files..."):
             rename_list.append(os.path.join(root, file))
 
     if multi:
         batches, num_cpu = split_by_cpu(rename_list)
-        fixed_batch_rename = partial(batch_rename, out_files_dir=out_files_dir)
+        fixed_batch_rename = partial(
+            batch_rename, out_files_dir=out_scores_dir, relabel=relabel
+        )
         pool = Pool(processes=num_cpu)
         pool.map(fixed_batch_rename, batches)
 
     else:
-        batch_rename(rename_list, out_files_dir)
+        batch_rename(rename_list, out_scores_dir)

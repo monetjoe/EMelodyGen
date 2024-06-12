@@ -30,8 +30,6 @@ def multi_batch_midi2xml(in_mids_dir: str, out_xmls_dir: str, multi=True):
     if not os.path.exists(in_mids_dir):
         print(f"Please extract mids into {in_mids_dir} before this!")
         exit()
-    else:
-        rm_duplicates(in_mids_dir)
 
     clean_dir(out_xmls_dir)
     mids_to_xmls = {}
@@ -295,8 +293,6 @@ def create_dataset(in_abcs_dir: str, split_on=False):
     if not os.path.exists(in_abcs_dir):
         print("Please transpose abcs before this!")
         exit()
-    else:
-        rm_duplicates(in_abcs_dir)
 
     dataset = []
     empty_count, fail_count = 0, 0

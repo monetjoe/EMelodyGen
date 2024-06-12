@@ -227,7 +227,7 @@ def multi_transpose_abcs(in_abcs_dir: str, out_abcs_dir: str, multi=True):
         pool.map(fixed_transpose_abcs, batches)
 
     else:
-        transpose_abcs(abc_files)
+        transpose_abcs(abc_files, out_abcs_dir)
 
 
 def split_abc2xml(in_abc_path: str, out_xmls_dir: str):

@@ -21,7 +21,7 @@ pip install -r requirements.txt
 ## Usage
 Put midis into `./data/mids` and run:
 ```bash
-python processor.py
+python templates.py
 ```
 
 ## XML Slicer

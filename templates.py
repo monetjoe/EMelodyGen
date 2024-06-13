@@ -43,7 +43,7 @@ def emopia2dataset():
     multi_batch_xml2abc("./data/xmls/outputs", "./data/abcs/inputs")
     multi_transpose_abcs("./data/abcs/inputs", "./data/abcs/outputs")
     rm_duplicates("./data/abcs/outputs")
-    create_dataset("./data/abcs/outputs")
+    create_dataset("./data/abcs/outputs", jsonl_name="emopia")
 
 
 if __name__ == "__main__":

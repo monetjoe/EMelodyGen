@@ -1,5 +1,6 @@
 import random
 import subprocess
+from copy import deepcopy
 from music21 import converter, stream
 from lib.add_control_codes import split_txt, run_filter, add_tokens
 from lib.abc_transposition import find_all_abc, transpose_an_abc_text
@@ -55,15 +56,15 @@ def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_slice=20):
     slices = []
     current_measures = stream.Part()
     v1 = converter.parse(in_xml_path).parts[0]
-    measures = v1.getElementsByClass(stream.Measure)
+    measures = v1.getElementsByClass(stream.Measure)[0:]
     for measure_id, element in enumerate(measures):
-        current_measures.append(element)
+        current_measures.append(deepcopy(element))
         # Check if we've reached the desired number of measures
-        if measure_id % measures_per_slice == 0:
+        if (measure_id + 1) % measures_per_slice == 0:
             slices.append(current_measures)
             current_measures = stream.Part()
 
-        elif measure_id == len(measures) - 1:
+        elif measure_id + 1 == len(measures):
             slices.append(current_measures)
 
     if slices and len(slices) > 1 and len(slices[-1]) < measures_per_slice * 0.5:
@@ -74,7 +75,7 @@ def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_slice=20):
     for slice_id, piece in enumerate(slices):
         piece[-1].rightBarline = "final"
         xml_stream = stream.Score([piece])
-        export_path = f"{out_xmls_dir}/{filename_no_ext}_{slice_id}.musicxml"
+        export_path = f"{out_xmls_dir}/{filename_no_ext}_{slice_id + 1}.musicxml"
         try:
             xml_stream.write("musicxml", fp=export_path, encoding="utf-8")
 

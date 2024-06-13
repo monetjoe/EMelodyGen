@@ -190,7 +190,11 @@ def batch_rename(in_score_paths, out_scores_dir: str, relabel_split_by: str):
 
 
 def multi_batch_rename(
-    in_scores_dir: str, out_scores_dir: str, relabel_split_by="_", multi=True
+    in_scores_dir: str,
+    out_scores_dir: str,
+    exts=[".mid", ".xml", ".musicxml", ".mxl", ".abc"],
+    relabel_split_by="_",
+    multi=True,
 ):
     if not os.path.exists(in_scores_dir):
         print(f"Please put scores into {in_scores_dir} before this!")
@@ -200,7 +204,12 @@ def multi_batch_rename(
     rename_list = []
     for root, _, files in os.walk(in_scores_dir):
         for file in tqdm(files, desc="Loading files..."):
-            rename_list.append(os.path.join(root, file))
+            keep = False
+            for ext in exts:
+                keep = keep or file.endswith(ext)
+
+            if keep:
+                rename_list.append(os.path.join(root, file))
 
     if multi:
         batches, num_cpu = split_by_cpu(rename_list)

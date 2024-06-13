@@ -68,7 +68,9 @@ def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_slice=20):
             slices.append(current_measures)
 
     if slices and len(slices) > 1 and len(slices[-1]) < measures_per_slice * 0.5:
-        slices[-2] = slices[-2] + slices[-1]
+        for measure in slices[-1]:
+            slices[-2].append(measure)
+
         slices = slices[:-1]
 
     filename_no_ext = rm_ext(os.path.basename(in_xml_path))

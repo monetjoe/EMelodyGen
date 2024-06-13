@@ -14,7 +14,7 @@ from samplings import top_p_sampling, top_k_sampling, temperature_sampling
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def download(url=WEIGHT_URL, filename=WEIGHT_PATH):
+def download(url=WEIGHT_URL_ZH, filename=WEIGHT_PATH):
     os.makedirs(OUTPUT_PATH, exist_ok=True)
     try:
         response = requests.get(url, stream=True)
@@ -35,7 +35,7 @@ def download(url=WEIGHT_URL, filename=WEIGHT_PATH):
     except Exception as e:
         print(f"Error: {e}")
         time.sleep(3)
-        download(WEIGHT_URL_ZH, filename)
+        download(WEIGHT_URL, filename)
 
 
 class Patchilizer:

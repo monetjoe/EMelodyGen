@@ -51,43 +51,30 @@ def multi_batch_midi2xml(in_mids_dir: str, out_xmls_dir: str, multi=True):
 
 
 # xml augumentation
-def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_part=20):
-    score = converter.parse(in_xml_path)
-    # Initialize variables
+def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_slice=20):
+    slices = []
     current_measures = stream.Part()
-    current_measure_count = 0
-    part_index = 1
+    v1 = converter.parse(in_xml_path).parts[0]
+    measures = v1.getElementsByClass(stream.Measure)
+    for measure_id, element in enumerate(measures):
+        current_measures.append(element)
+        # Check if we've reached the desired number of measures
+        if measure_id % measures_per_slice == 0:
+            slices.append(current_measures)
+            current_measures = stream.Part()
+
+        elif measure_id == len(measures) - 1:
+            slices.append(current_measures)
+
+    if slices and len(slices) > 1 and len(slices[-1]) < measures_per_slice * 0.5:
+        slices[-2] = slices[-2] + slices[-1]
+        slices = slices[:-1]
+
     filename_no_ext = rm_ext(os.path.basename(in_xml_path))
-
-    for part in score.parts:
-        for element in part.getElementsByClass(stream.Measure):
-            current_measures.append(element)
-            current_measure_count += 1
-            # Check if we've reached the desired number of measures
-            if current_measure_count == measures_per_part:
-                current_measures[-1].rightBarline = "final"
-                # Export the current set of measures
-                xml_stream = stream.Score([current_measures])
-                export_path = f"{out_xmls_dir}/{filename_no_ext}_{part_index}.musicxml"
-                try:
-                    xml_stream.write("musicxml", fp=export_path, encoding="utf-8")
-
-                except Exception as e:
-                    add_to_log(
-                        f"[slice_xml]Failed to slice {in_xml_path} to {export_path} : {e}"
-                    )
-
-                part_index += 1
-                # Reset for the next batch
-                current_measures = stream.Part()
-                current_measure_count = 0
-
-    # Check if there are any remaining measures to be saved
-    if current_measure_count > 0:
-        current_measures[-1].rightBarline = "final"
-        # Export the remaining measures
-        xml_stream = stream.Score([current_measures])
-        export_path = f"{out_xmls_dir}/{filename_no_ext}_{part_index}.musicxml"
+    for slice_id, piece in enumerate(slices):
+        piece[-1].rightBarline = "final"
+        xml_stream = stream.Score([piece])
+        export_path = f"{out_xmls_dir}/{filename_no_ext}_{slice_id}.musicxml"
         try:
             xml_stream.write("musicxml", fp=export_path, encoding="utf-8")
 

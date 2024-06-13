@@ -53,38 +53,36 @@ def multi_batch_midi2xml(in_mids_dir: str, out_xmls_dir: str, multi=True):
 
 # xml augumentation
 def slice_xml(in_xml_path: str, out_xmls_dir: str, measures_per_slice=20):
-    slices = []
-    current_measures = stream.Part()
-    v1 = converter.parse(in_xml_path).parts[0]
-    measures = v1.getElementsByClass(stream.Measure)[0:]
-    for measure_id, element in enumerate(measures):
-        current_measures.append(deepcopy(element))
-        # Check if we've reached the desired number of measures
-        if (measure_id + 1) % measures_per_slice == 0:
-            slices.append(current_measures)
-            current_measures = stream.Part()
+    try:
+        slices = []
+        current_measures = stream.Part()
+        v1 = converter.parse(in_xml_path).parts[0]
+        measures = v1.getElementsByClass(stream.Measure)[0:]
+        for measure_id, element in enumerate(measures):
+            current_measures.append(deepcopy(element))
+            # Check if we've reached the desired number of measures
+            if (measure_id + 1) % measures_per_slice == 0:
+                slices.append(current_measures)
+                current_measures = stream.Part()
 
-        elif measure_id + 1 == len(measures):
-            slices.append(current_measures)
+            elif measure_id + 1 == len(measures):
+                slices.append(current_measures)
 
-    if slices and len(slices) > 1 and len(slices[-1]) < measures_per_slice * 0.5:
-        for measure in slices[-1]:
-            slices[-2].append(measure)
+        if slices and len(slices) > 1 and len(slices[-1]) < measures_per_slice * 0.5:
+            for measure in slices[-1]:
+                slices[-2].append(measure)
 
-        slices = slices[:-1]
+            slices = slices[:-1]
 
-    filename_no_ext = rm_ext(os.path.basename(in_xml_path))
-    for slice_id, piece in enumerate(slices):
-        piece[-1].rightBarline = "final"
-        xml_stream = stream.Score([piece])
-        export_path = f"{out_xmls_dir}/{filename_no_ext}_{slice_id + 1}.musicxml"
-        try:
+        filename_no_ext = rm_ext(os.path.basename(in_xml_path))
+        for slice_id, piece in enumerate(slices):
+            piece[-1].rightBarline = "final"
+            xml_stream = stream.Score([piece])
+            export_path = f"{out_xmls_dir}/{filename_no_ext}_{slice_id + 1}.musicxml"
             xml_stream.write("musicxml", fp=export_path, encoding="utf-8")
 
-        except Exception as e:
-            add_to_log(
-                f"[slice_xml]Failed to slice {in_xml_path} to {export_path} : {e}"
-            )
+    except Exception as e:
+        add_to_log(f"[slice_xml]Failed to slice {in_xml_path} to {export_path} : {e}")
 
 
 def slice_xmls(in_xml_paths: list, out_xmls_dir: str):

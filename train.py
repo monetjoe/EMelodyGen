@@ -265,5 +265,4 @@ if __name__ == "__main__":
             torch.save(checkpoint, WEIGHT_PATH)
             break
 
-    print(f"Best Eval Epoch : {str(best_epoch)}")
-    print(f"Min Eval Loss : {str(min_eval_loss)}")
+    print(f"Best Eval Epoch : {str(best_epoch)}\nMin Eval Loss : {str(min_eval_loss)}")

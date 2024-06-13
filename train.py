@@ -31,7 +31,7 @@ def init():
 
     # print parameter number
     print(
-        f"Parameter Number: {str(sum(p.numel() for p in model.parameters() if p.requires_grad))}"
+        f"Parameter Number: {sum(p.numel() for p in model.parameters() if p.requires_grad)}"
     )
 
     if torch.cuda.device_count() > 1:

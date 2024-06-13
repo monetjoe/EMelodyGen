@@ -147,20 +147,18 @@ if __name__ == "__main__":
 
     api = HubApi()
     api.login(os.getenv("ms_app_key"))
-
-    trainset = MsDataset.load(f"monetjoe/{DATASET}", split="train")
-    evalset = MsDataset.load(f"monetjoe/{DATASET}", split="test")
-    train_set, eval_set = [], []
-    for song in trainset:
-        train_set.append(
+    dataset = MsDataset.load(f"monetjoe/{DATASET}", subset_name=SUBSET)
+    trainset, evalset = [], []
+    for song in dataset["train"]:
+        trainset.append(
             {
                 "control code": "A:" + song["label"] + "\n" + song["prompt"],
                 "abc notation": song["data"],
             }
         )
 
-    for song in evalset:
-        eval_set.append(
+    for song in dataset["test"]:
+        evalset.append(
             {
                 "control code": "A:" + song["label"] + "\n" + song["prompt"],
                 "abc notation": song["data"],
@@ -169,15 +167,15 @@ if __name__ == "__main__":
 
     batch_size, patchilizer, model, scaler, is_autocast, optimizer = init()
 
-    train_set = DataLoader(
-        PatchilizedData(train_set, patchilizer),
+    trainset = DataLoader(
+        PatchilizedData(trainset, patchilizer),
         batch_size=batch_size,
         collate_fn=collate_batch,
         shuffle=True,
     )
 
-    eval_set = DataLoader(
-        PatchilizedData(eval_set, patchilizer),
+    evalset = DataLoader(
+        PatchilizedData(evalset, patchilizer),
         batch_size=batch_size,
         collate_fn=collate_batch,
         shuffle=True,
@@ -186,8 +184,8 @@ if __name__ == "__main__":
     lr_scheduler = get_scheduler(
         name="cosine",
         optimizer=optimizer,
-        num_warmup_steps=NUM_EPOCHS * len(train_set) / 10,
-        num_training_steps=NUM_EPOCHS * len(train_set),
+        num_warmup_steps=NUM_EPOCHS * len(trainset) / 10,
+        num_training_steps=NUM_EPOCHS * len(trainset),
     )
 
     if LOAD_FROM_CHECKPOINT:
@@ -216,16 +214,14 @@ if __name__ == "__main__":
     model = model.to(DEVICE)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     os.makedirs(OUTPUT_PATH, exist_ok=True)
-    first_record = True
 
     for epoch in range(1, NUM_EPOCHS + 1 - pre_epoch):
         epoch += pre_epoch
         print(f"{'-' * 21}Epoch {str(epoch)}{'-' * 21}")
         train_loss = train_epoch(
-            model, optimizer, lr_scheduler, is_autocast, scaler, train_set
+            model, optimizer, lr_scheduler, is_autocast, scaler, trainset
         )
-        eval_loss = eval_epoch(model, eval_set)
-
+        eval_loss = eval_epoch(model, evalset)
         with open(LOG_PATH, "a", encoding="utf-8") as jsonl_file:
             json_str = json.dumps(
                 {
@@ -267,10 +263,7 @@ if __name__ == "__main__":
                 }
 
             torch.save(checkpoint, WEIGHT_PATH)
-
-            if first_record:
-                torch.save(checkpoint, "./output/fst_weights.pth")
-                first_record = False
+            break
 
     print(f"Best Eval Epoch : {str(best_epoch)}")
     print(f"Min Eval Loss : {str(min_eval_loss)}")

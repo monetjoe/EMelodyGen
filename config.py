@@ -18,4 +18,5 @@ OUTPUT_PATH = "./output"
 WEIGHT_PATH = f"{OUTPUT_PATH}/weights.pth"
 LOG_PATH = f"{OUTPUT_PATH}/logs.jsonl"
 PROMPT_PATH = "prompt.txt"
-DATASET = "EMOPIA_abc"  # maj_min_abc
+DATASET = "emo_abc"
+SUBSET = "EMOPIA"

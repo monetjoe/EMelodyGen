@@ -65,8 +65,8 @@ def split_by_cpu(items):
     if not CPU_ALL_IN:
         num_cpus -= 1
 
-    if num_cpus is None:
-        num_cpus = 1  # 如果无法获取CPU数量，则默认为1
+    if num_cpus is None or num_cpus < 1:
+        num_cpus = 1
 
     index = 0
     if type(items) == dict:

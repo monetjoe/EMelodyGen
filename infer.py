@@ -322,7 +322,7 @@ def infers(
 def add_to_log(message: str, log_file_path="./exps/success_rates.log"):
     print(message)
     with open(log_file_path, "a", encoding="utf-8") as file:
-        file.write(message)
+        file.write(message + "\n")
 
 
 def generate_exps(

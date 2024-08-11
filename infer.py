@@ -127,7 +127,15 @@ def transpose_octaves_abc(abc_notation: str, out_xml_file: str, offset=-12):
     return xml2abc(out_xml_file), out_xml_file
 
 
-def generate_music(args, emo: str, weights: str, fix_t=True, fix_m=True, fix_p=True):
+def generate_music(
+    args,
+    emo: str,
+    weights: str,
+    outdir=TEMP_DIR,
+    fix_t=True,
+    fix_m=True,
+    fix_p=True,
+):
     patchilizer = Patchilizer()
     patch_config = GPT2Config(
         num_hidden_layers=PATCH_NUM_LAYERS,
@@ -266,45 +274,112 @@ def generate_music(args, emo: str, weights: str, fix_t=True, fix_m=True, fix_p=T
                 offset -= 12
 
             tunes, xml = transpose_octaves_abc(
-                tunes, f"{TEMP_DIR}/{timestamp}.musicxml", offset
+                tunes, f"{outdir}/{timestamp}.musicxml", offset
             )
             tunes = tunes.replace(title + title, title)
-            os.rename(xml, f"{TEMP_DIR}/[{emo}]{timestamp}.musicxml")
-            xml = f"{TEMP_DIR}/[{emo}]{timestamp}.musicxml"
+            os.rename(xml, f"{outdir}/[{emo}]{timestamp}.musicxml")
+            xml = f"{outdir}/[{emo}]{timestamp}.musicxml"
 
         else:
-            xml = abc2xml(tunes, f"{TEMP_DIR}/[{emo}]{timestamp}.musicxml")
+            xml = abc2xml(tunes, f"{outdir}/[{emo}]{timestamp}.musicxml")
 
         audio = xml2(xml, "wav")
-        return audio, xml, tunes
+        if os.path.exists(xml):
+            os.remove(xml)
+
+        if os.path.exists(audio):
+            return audio
+        else:
+            return ""
 
     except Exception as e:
         print(f"{e}")
+        return ""
 
 
 def infers(
     dataset: str,
     emotion: str,
+    outdir=TEMP_DIR,
     fix_tempo=True,
     fix_mode=True,
     fix_pitch=True,
 ):
-    if os.path.exists(TEMP_DIR):
-        shutil.rmtree(TEMP_DIR)
-
-    os.makedirs(TEMP_DIR, exist_ok=True)
+    os.makedirs(outdir, exist_ok=True)
     parser = argparse.ArgumentParser()
     args = get_args(parser)
     return generate_music(
         args,
         emo=emotion,
         weights=f"{WEIGHTS_DIR}/{dataset.lower()}/weights.pth",
+        outdir=outdir,
         fix_t=fix_tempo,
         fix_m=fix_mode,
         fix_p=fix_pitch,
     )
 
 
+def add_to_log(message: str, log_file_path="./exps/success_rates.log"):
+    print(message)
+    with open(log_file_path, "a", encoding="utf-8") as file:
+        file.write(message)
+
+
+def generate_exps(
+    fix_t=False,
+    fix_m=False,
+    fix_p=False,
+    total=100,
+    labels=["Q1", "Q2", "Q3", "Q4"],
+):
+    outdir = "./exps/"
+    if fix_t and fix_m and fix_p:
+        outdir += "all"
+    elif fix_t:
+        outdir += "tempo"
+    elif fix_m:
+        outdir += "mode"
+    elif fix_p:
+        outdir += "pitch"
+    else:
+        outdir += "none"
+
+    hit_rate = []
+    for emo in labels:
+        success, fail = 0, 0
+        while success < total // len(labels):
+            if infers("Rough4Q", emo, outdir):
+                success += 1
+            else:
+                fail += 1
+
+        hit_rate.append(success / (success + fail))
+
+    add_to_log(f"{outdir}: {sum(hit_rate) / len(hit_rate)}")
+
+
+def success_rate(total=100, outdir="./exps/emopia", labels=["Q1", "Q2", "Q3", "Q4"]):
+    hit_rate = []
+    for emo in labels:
+        success, fail = 0, 0
+        while success + fail < total // len(labels):
+            if infers("emopia", emo, outdir):
+                success += 1
+            else:
+                fail += 1
+
+        hit_rate.append(success / (success + fail))
+
+    add_to_log(f"emopia: {sum(hit_rate) / len(hit_rate)}")
+
+
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
-    infers("Rough4Q", "Q2")
+    if os.path.exists("./exps"):
+        shutil.rmtree("./exps")
+
+    generate_exps(fix_t=True)
+    generate_exps(fix_m=True)
+    generate_exps(fix_p=True)
+    generate_exps(fix_t=True, fix_m=True, fix_p=True)
+    success_rate()

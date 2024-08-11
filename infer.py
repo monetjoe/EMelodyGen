@@ -20,7 +20,12 @@ from utils import (
     SHARE_WEIGHTS,
 )
 
-WEIGHTS_DIR = snapshot_download("monetjoe/emo2music")
+from modelscope.hub.api import HubApi
+
+api = HubApi()
+api.login(os.getenv("ms_app_key"))
+
+WEIGHTS_DIR = snapshot_download("monetjoe/emo2music", cache_dir="F://")
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MSCORE = "D:/Program Files/MuseScore 3/bin/MuseScore3.exe"
 TEMP_DIR = "./__pycache__"
@@ -122,7 +127,7 @@ def transpose_octaves_abc(abc_notation: str, out_xml_file: str, offset=-12):
     return xml2abc(out_xml_file), out_xml_file
 
 
-def generate_music(args, emo: str, weights: str, fix_m: bool, fix_p: bool):
+def generate_music(args, emo: str, weights: str, fix_t=True, fix_m=True, fix_p=True):
     patchilizer = Patchilizer()
     patch_config = GPT2Config(
         num_hidden_layers=PATCH_NUM_LAYERS,
@@ -223,37 +228,39 @@ def generate_music(args, emo: str, weights: str, fix_m: bool, fix_p: bool):
         tunes += f"{tune}\n\n"
         print("\n")
 
-    # replace A: with Q:
-    key = "major"
-    tempo = f"Q:{random.randint(88, 132)}\n"
-    Q_val = get_abc_key_val(tunes, "Q")
-    if Q_val:
-        tunes = tunes.replace(f"Q:{Q_val}\n", "")
-    if emo == "Q1":
-        key = "major"
-        tempo = f"Q:{random.randint(160, 184)}\n"
-    elif emo == "Q2":
-        key = "minor"
-        tempo = f"Q:{random.randint(184, 228)}\n"
-    elif emo == "Q3":
-        key = "minor"
-        tempo = f"Q:{random.randint(40, 69)}\n"
-    elif emo == "Q4":
-        tempo = f"Q:{random.randint(40, 69)}\n"
+    # fix tempo
+    tempo = ""
+    if fix_t:
+        tempo = f"Q:{random.randint(88, 132)}\n"
+        if emo == "Q1":
+            tempo = f"Q:{random.randint(160, 184)}\n"
+        elif emo == "Q2":
+            tempo = f"Q:{random.randint(184, 228)}\n"
+        elif emo == "Q3":
+            tempo = f"Q:{random.randint(40, 69)}\n"
+        elif emo == "Q4":
+            tempo = f"Q:{random.randint(40, 69)}\n"
+
+        Q_val = get_abc_key_val(tunes, "Q")
+        if Q_val:
+            tunes = tunes.replace(f"Q:{Q_val}\n", "")
 
     tunes = tunes.replace(f"A:{emo}\n", tempo)
-    # fix major minor
-    K_val = get_abc_key_val(tunes)
-    if key == "major" and K_val and "m" in K_val:
-        tunes = tunes.replace(f"\nK:{K_val}\n", f"\nK:{K_val.split('m')[0]}\n")
 
-    elif key == "minor" and K_val and not "m" in K_val:
-        tunes = tunes.replace(f"\nK:{K_val}\n", f"\nK:{K_val.lower()}min\n")
+    # fix major minor
+    key = "major" if emo == "Q1" or emo == "Q4" else "minor"
+    if fix_m:
+        K_val = get_abc_key_val(tunes)
+        if key == "major" and K_val and "m" in K_val:
+            tunes = tunes.replace(f"\nK:{K_val}\n", f"\nK:{K_val.split('m')[0]}\n")
+
+        elif key == "minor" and K_val and not "m" in K_val:
+            tunes = tunes.replace(f"\nK:{K_val}\n", f"\nK:{K_val.lower()}min\n")
 
     print("Generation time: {:.2f} seconds".format(time.time() - start_time))
     timestamp = time.strftime("%a_%d_%b_%Y_%H_%M_%S", time.localtime())
     try:
-        if key == "minor":
+        if key == "minor" and fix_p:
             offset = -12
             if emo == "Q2":
                 offset -= 12
@@ -275,7 +282,13 @@ def generate_music(args, emo: str, weights: str, fix_m: bool, fix_p: bool):
         print(f"{e}")
 
 
-def infers(dataset: str, emotion: str, fix_mode: bool, fix_pitch: bool):
+def infers(
+    dataset: str,
+    emotion: str,
+    fix_tempo=True,
+    fix_mode=True,
+    fix_pitch=True,
+):
     if os.path.exists(TEMP_DIR):
         shutil.rmtree(TEMP_DIR)
 
@@ -286,6 +299,7 @@ def infers(dataset: str, emotion: str, fix_mode: bool, fix_pitch: bool):
         args,
         emo=emotion,
         weights=f"{WEIGHTS_DIR}/{dataset.lower()}/weights.pth",
+        fix_t=fix_tempo,
         fix_m=fix_mode,
         fix_p=fix_pitch,
     )
@@ -293,3 +307,4 @@ def infers(dataset: str, emotion: str, fix_mode: bool, fix_pitch: bool):
 
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
+    infers("Rough4Q", "Q2")

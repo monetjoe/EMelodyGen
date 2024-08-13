@@ -6,3 +6,5 @@ gpt2-abcmusic/*
 key.txt
 exps/*
 *.7z
+*.log
+*.wav

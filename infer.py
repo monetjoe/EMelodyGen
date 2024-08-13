@@ -254,8 +254,7 @@ def generate_music(
             tunes = tunes.replace(f"Q:{Q_val}\n", "")
 
     tunes = tunes.replace(f"A:{emo}\n", tempo)
-
-    # fix major minor
+    # fix mode:major/minor
     key = "major" if emo == "Q1" or emo == "Q4" else "minor"
     if fix_m:
         K_val = get_abc_key_val(tunes)
@@ -329,7 +328,7 @@ def generate_exps(
     fix_t=False,
     fix_m=False,
     fix_p=False,
-    total=100,
+    total=200,
     labels=["Q1", "Q2", "Q3", "Q4"],
 ):
     outdir = "./exps/"
@@ -355,10 +354,10 @@ def generate_exps(
 
         hit_rate.append(success / (success + fail))
 
-    add_to_log(f"{outdir}: {sum(hit_rate) / len(hit_rate)}")
+    add_to_log(f"Rough4Q-{outdir.split('/')[-1]}: {sum(hit_rate) / len(hit_rate)}")
 
 
-def success_rate(total=100, outdir="./exps/emopia", labels=["Q1", "Q2", "Q3", "Q4"]):
+def success_rate(total=200, outdir="./exps/emopia", labels=["Q1", "Q2", "Q3", "Q4"]):
     hit_rate = []
     for emo in labels:
         success, fail = 0, 0
@@ -370,7 +369,7 @@ def success_rate(total=100, outdir="./exps/emopia", labels=["Q1", "Q2", "Q3", "Q
 
         hit_rate.append(success / (success + fail))
 
-    add_to_log(f"emopia: {sum(hit_rate) / len(hit_rate)}")
+    add_to_log(f"EMOPIA: {sum(hit_rate) / len(hit_rate)}")
 
 
 if __name__ == "__main__":

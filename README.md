@@ -19,3 +19,9 @@ pip install -r requirements.txt
 git clone git@gitee.com:MuGeminorum/emo-abc-gen.git
 cd emo-abc-gen
 ```
+
+## Success rate
+| Dataset |   %   |
+| :-----: | :---: |
+| Rough4Q |  100  |
+| EMOPIA  |  24   |

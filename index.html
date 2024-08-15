@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>音乐情感主观实验</title>
+    <style>
+        #audio-container {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
+
+        #audio-container th,
+        #audio-container td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+            font-size: xx-large;
+        }
+
+        #audio-container audio {
+            height: 62px;
+        }
+
+        #submit-button {
+            display: block;
+            width: fit-content;
+            margin: 61.8px auto;
+            font-size: xxx-large;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+    <table id="audio-container"></table>
+    <button id="submit-button" type="button">提交</button>
+
+    <script>
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // ES6 的数组解构赋值来交换元素
+            }
+        }
+
+        $(document).ready(function () {
+            $.ajax({
+                url: 'get.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function (wavFiles) {
+                    let audioContainer = $('#audio-container');
+                    shuffleArray(wavFiles);
+                    wavFiles.forEach((file, index) => {
+                        let audioHtml = `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td><audio controls src="${file.url}"></audio></td>
+                                <td>
+                                    <input id="${index + 1}_Q1" name="${index + 1}" type="radio" src="${file.url}" value="Q1">
+                                    <label for="${index + 1}_Q1">欢快</label>
+                                    <input id="${index + 1}_Q2" name="${index + 1}" type="radio" src="${file.url}" value="Q2">
+                                    <label for="${index + 1}_Q2">紧张</label>
+                                    <input id="${index + 1}_Q3" name="${index + 1}" type="radio" src="${file.url}" value="Q3">
+                                    <label for="${index + 1}_Q3">哀伤</label>
+                                    <input id="${index + 1}_Q4" name="${index + 1}" type="radio" src="${file.url}" value="Q4">
+                                    <label for="${index + 1}_Q4">放松</label>
+                                </td>
+                            </tr>
+                        `;
+                        audioContainer.append(audioHtml);
+                    });
+                    // 为提交按钮添加点击事件
+                    $('#submit-button').click(function () {
+                        let missedQuestions = [];
+                        $('tr').each(function () {
+                            if ($(this).find('td').eq(3).find('input[type="radio"]:checked').length == 0) {
+                                missedQuestions.push($(this).find('td').eq(0).text());
+                            }
+                        });
+                        if (missedQuestions.length > 0) {
+                            alert("未回答题号：" + missedQuestions);
+                            return;
+                        }
+
+                        let selectedOptions = {};
+                        $('input[type="radio"]:checked').each(function () {
+                            selectedOptions[this.src.split('/exps/').pop()] = this.value;
+                        });
+                        // console.log(selectedOptions);
+
+                        $.post('post.php', { selectedOptions: JSON.stringify(selectedOptions) }, function (response) {
+                            // console.log(response);
+                            if (response.status === 'success') {
+                                alert('Submission successful!');
+                            } else {
+                                alert('An error occurred.');
+                            }
+                        });
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log('Error: ' + textStatus + ' - ' + errorThrown);
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

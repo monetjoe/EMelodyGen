@@ -77,7 +77,7 @@
                     $('#submit-button').click(function () {
                         let missedQuestions = [];
                         $('tr').each(function () {
-                            if ($(this).find('td').eq(3).find('input[type="radio"]:checked').length == 0) {
+                            if ($(this).find('td').eq(2).find('input[type="radio"]:checked').length == 0) {
                                 missedQuestions.push($(this).find('td').eq(0).text());
                             }
                         });

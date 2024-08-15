@@ -328,7 +328,7 @@ def generate_exps(
     fix_t=False,
     fix_m=False,
     fix_p=False,
-    total=200,
+    total=100,
     labels=["Q1", "Q2", "Q3", "Q4"],
 ):
     outdir = "./exps/"
@@ -357,7 +357,7 @@ def generate_exps(
     add_to_log(f"Rough4Q-{outdir.split('/')[-1]}: {sum(hit_rate) / len(hit_rate)}")
 
 
-def success_rate(total=200, outdir="./exps/emopia", labels=["Q1", "Q2", "Q3", "Q4"]):
+def success_rate(total=100, outdir="./exps/emopia", labels=["Q1", "Q2", "Q3", "Q4"]):
     hit_rate = []
     for emo in labels:
         success, fail = 0, 0
@@ -381,4 +381,4 @@ if __name__ == "__main__":
     generate_exps(fix_m=True)
     generate_exps(fix_p=True)
     generate_exps(fix_t=True, fix_m=True, fix_p=True)
-    success_rate()
+    # success_rate()

@@ -1,7 +1,7 @@
 <?php
 // 设置内容类型为 JSON
 header('Content-Type: application/json');
-
+date_default_timezone_set('Asia/Shanghai');
 // 获取 POST 请求中的数据
 $selectedOptions = isset($_POST['selectedOptions']) ? $_POST['selectedOptions'] : null;
 
@@ -12,7 +12,7 @@ $response = array('status' => 'error');
 if ($selectedOptions !== null) {
     $jsonData = json_decode($selectedOptions, true);
     $filePath = './exps/data_' . date('Ymd_His') . '.json';
-    if (file_put_contents($filePath, json_encode($jsonData))) {
+    if (file_put_contents($filePath, json_encode($jsonData, JSON_PRETTY_PRINT))) {
         // 如果成功，设置响应状态为 success
         $response['status'] = 'success';
         // $response['info'] = $jsonData;

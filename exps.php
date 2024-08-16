@@ -6,7 +6,7 @@ date_default_timezone_set('Asia/Shanghai');
 // 根据请求类型执行不同逻辑
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // 定义 wav 文件所在的目录
-    $directorys = ['./exps/all', './exps/mode', './exps/pitch', './exps/tempo'];
+    $directorys = ['./exps/all', './exps/mode', './exps/pitch', './exps/tempo', './exps/none'];
     // GET 请求逻辑
     $wavFiles = array();
     foreach ($directorys as $directory) {

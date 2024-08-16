@@ -347,7 +347,7 @@ def generate_exps(
     for emo in labels:
         success, fail = 0, 0
         while success < total // len(labels):
-            if infers("Rough4Q", emo, outdir):
+            if infers("Rough4Q", emo, outdir, fix_t, fix_m, fix_p):
                 success += 1
             else:
                 fail += 1

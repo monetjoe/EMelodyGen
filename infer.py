@@ -377,8 +377,9 @@ if __name__ == "__main__":
     if os.path.exists("./exps"):
         shutil.rmtree("./exps")
 
+    generate_exps()
     generate_exps(fix_t=True)
     generate_exps(fix_m=True)
     generate_exps(fix_p=True)
     generate_exps(fix_t=True, fix_m=True, fix_p=True)
-    # success_rate()
+    success_rate()

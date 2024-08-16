@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -48,7 +48,7 @@
 
         $(document).ready(function () {
             $.ajax({
-                url: 'get.php',
+                url: 'exps.php',
                 type: 'GET',
                 dataType: 'json',
                 success: function (wavFiles) {
@@ -90,10 +90,8 @@
                         $('input[type="radio"]:checked').each(function () {
                             selectedOptions[this.src.split('/exps/').pop()] = this.value;
                         });
-                        // console.log(selectedOptions);
 
-                        $.post('post.php', { selectedOptions: JSON.stringify(selectedOptions) }, function (response) {
-                            // console.log(response);
+                        $.post('exps.php', { selectedOptions: JSON.stringify(selectedOptions) }, function (response) {
                             if (response.status === 'success') {
                                 alert('提交成功！感谢您参与实验');
                             } else {

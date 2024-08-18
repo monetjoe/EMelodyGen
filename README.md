@@ -8,10 +8,17 @@ Emotionally Conditioned Music Generation in ABC Notation with Chord
 Referring to the RLBH of InstructGPT, we introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
 ## Requirements
+### Conda + Pip
 ```bash
 conda create -n gpt --yes --file conda.txt
 conda activate gpt
 pip install -r requirements.txt
+```
+
+### Pip only
+```bash
+pip install torch torchvision torchaudio -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 ## Maintenance

@@ -3,3 +3,4 @@ transformers==4.18.0
 samplings==0.1.7
 unidecode
 pillow==9.4.0
+datasets

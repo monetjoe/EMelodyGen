@@ -3,4 +3,3 @@ transformers
 samplings
 unidecode
 pillow
-datasets

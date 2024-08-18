@@ -82,7 +82,9 @@ def train_epoch(
     for batch in tqdm_train_set:
         try:
             if is_autocast:
-                with autocast():
+                with autocast(
+                    device_type="cuda" if torch.cuda.is_available() else "cpu"
+                ):
                     loss = process_one_batch(batch, model)
 
                 if loss == None or torch.isnan(loss).item():

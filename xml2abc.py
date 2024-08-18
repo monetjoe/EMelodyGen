@@ -1,5 +1,17 @@
 #!/usr/bin/env python
 # coding=latin-1
+"""
+Copyright (C) 2012-2018: W.G. Vree
+Contributions: M. Tarenskeen, N. Liberg, Paul Villiger, Janus Meuris, Larry Myerscough, 
+Dick Jackson, Jan Wybren de Jong, Mark Zealey.
+
+This program is free software; you can redistribute it and/or modify it under the terms of the
+Lesser GNU General Public License as published by the Free Software Foundation;
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the Lesser GNU General Public License for more details. <http://www.gnu.org/licenses/lgpl.html>.
+"""
 
 try:
     import xml.etree.cElementTree as E

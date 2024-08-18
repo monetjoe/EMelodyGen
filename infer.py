@@ -7,10 +7,13 @@ import shutil
 import argparse
 import warnings
 import subprocess
+from modelscope import snapshot_download
 from transformers import GPT2Config
 from music21 import converter, interval, clef, stream
-from utils import Patchilizer, TunesFormer, EMO2MUSIC_WEIGHTS_DIR, DEVICE
+from utils import Patchilizer, TunesFormer, DEVICE
 from config import *
+
+EMO2MUSIC_WEIGHTS_DIR = snapshot_download("monetjoe/emo2music", cache_dir=TEMP_DIR)
 
 
 def get_args(parser: argparse.ArgumentParser):

@@ -7,15 +7,10 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
 from modelscope.msdatasets import MsDataset
+from modelscope import snapshot_download
 from transformers import GPT2Config, get_scheduler
+from utils import Patchilizer, TunesFormer, PatchilizedData, DEVICE
 from config import *
-from utils import (
-    Patchilizer,
-    TunesFormer,
-    PatchilizedData,
-    TUNESFORMER_WEIGHTS_PATH,
-    DEVICE,
-)
 
 
 def init():
@@ -196,8 +191,11 @@ if __name__ == "__main__":
     )
 
     if LOAD_FROM_CHECKPOINT:
-        checkpoint = torch.load(TUNESFORMER_WEIGHTS_PATH, weights_only=False)
-
+        tunesformer_weights_path = (
+            snapshot_download("MuGeminorum/tunesformer", cache_dir=TEMP_DIR)
+            + "/weights.pth"
+        )
+        checkpoint = torch.load(tunesformer_weights_path, weights_only=False)
         if torch.cuda.device_count() > 1:
             model.module.load_state_dict(checkpoint["model"])
         else:
@@ -266,7 +264,7 @@ if __name__ == "__main__":
                     ),
                 }
 
-            torch.save(checkpoint, TUNESFORMER_WEIGHTS_PATH)
+            torch.save(checkpoint, f"{OUTPUT_PATH}/weights.pth")
             break
 
     print(f"Best Eval Epoch : {str(best_epoch)}\nMin Eval Loss : {str(min_eval_loss)}")

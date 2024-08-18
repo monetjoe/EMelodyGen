@@ -7,7 +7,8 @@ from torch import Tensor
 from transformers import GPT2Config
 from torch.distributions import Categorical
 from modelscope.msdatasets import MsDataset
-from utils import TunesFormer, Patchilizer, DEVICE, TUNESFORMER_WEIGHTS_PATH
+from modelscope import snapshot_download
+from utils import TunesFormer, Patchilizer, DEVICE
 from generate import infer_abc
 from config import *
 
@@ -59,7 +60,7 @@ class PPOTrainer:
     ):
         self.env = env
         self.patchilizer = Patchilizer()
-        self.init_model = self.load_model(TUNESFORMER_WEIGHTS_PATH).eval()
+        self.init_model = self.load_model().eval()
         self.tuned_model = self.load_model(f"{OUTPUT_PATH}/weights.pth")
         self.vf_coef = vf_coef
         self.lamda_kl = lamda_kl
@@ -67,7 +68,11 @@ class PPOTrainer:
         self.optimizer = optim.Adam(self.tuned_model.parameters(), lr=lr)
         self.mse = nn.MSELoss()
 
-    def load_model(self, weights_path: str):
+    def load_model(
+        self,
+        weights_path=snapshot_download("MuGeminorum/tunesformer", cache_dir=TEMP_DIR)
+        + "/weights.pth",
+    ):
         patch_config = GPT2Config(
             num_hidden_layers=PATCH_NUM_LAYERS,
             max_length=PATCH_LENGTH,

@@ -1,39 +1,44 @@
 import os
 import json
 import time
-from utils import *
+import torch
+import random
+from tqdm import tqdm
 from torch.utils.data import DataLoader
-from modelscope.msdatasets import MsDataset
 from torch.amp import autocast, GradScaler
+from modelscope.msdatasets import MsDataset
 from transformers import GPT2Config, get_scheduler
+from config import *
+from utils import (
+    Patchilizer,
+    TunesFormer,
+    PatchilizedData,
+    TUNESFORMER_WEIGHTS_PATH,
+    DEVICE,
+)
 
 
 def init():
     random.seed(42)
     batch_size = torch.cuda.device_count()
     patchilizer = Patchilizer()
-
     patch_config = GPT2Config(
         num_hidden_layers=PATCH_NUM_LAYERS,
         max_length=PATCH_LENGTH,
         max_position_embeddings=PATCH_LENGTH,
         vocab_size=1,
     )
-
     char_config = GPT2Config(
         num_hidden_layers=CHAR_NUM_LAYERS,
         max_length=PATCH_SIZE,
         max_position_embeddings=PATCH_SIZE,
         vocab_size=128,
     )
-
     model = TunesFormer(patch_config, char_config, share_weights=SHARE_WEIGHTS)
-
     # print parameter number
     print(
         f"Parameter Number: {sum(p.numel() for p in model.parameters() if p.requires_grad)}"
     )
-
     if torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model)
 
@@ -145,13 +150,10 @@ def eval_epoch(model, eval_set):  # do one epoch for eval
 
 if __name__ == "__main__":
     # load data
-    from modelscope.hub.api import HubApi
-
-    HubApi().login(os.getenv("ms_app_key"))
     dataset = MsDataset.load(
         f"monetjoe/{DATASET}",
         subset_name=SUBSET,
-        cache_dir="./__pycache__",
+        cache_dir=TEMP_DIR,
     )
     trainset, evalset = [], []
     for song in dataset["train"]:
@@ -194,9 +196,9 @@ if __name__ == "__main__":
     )
 
     if LOAD_FROM_CHECKPOINT:
-        checkpoint = torch.load(WEIGHT_PATH)
+        checkpoint = torch.load(TUNESFORMER_WEIGHTS_PATH, weights_only=False)
 
-        if torch.cuda.device_count() > 1:
+        if torch.cuda.is_available():
             model.module.load_state_dict(checkpoint["model"])
         else:
             model.load_state_dict(checkpoint["model"])
@@ -264,7 +266,7 @@ if __name__ == "__main__":
                     ),
                 }
 
-            torch.save(checkpoint, WEIGHT_PATH)
+            torch.save(checkpoint, TUNESFORMER_WEIGHTS_PATH)
             break
 
     print(f"Best Eval Epoch : {str(best_epoch)}\nMin Eval Loss : {str(min_eval_loss)}")

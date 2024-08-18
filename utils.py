@@ -1,3 +1,4 @@
+import os
 import re
 import torch
 import random
@@ -5,14 +6,16 @@ from config import *
 from tqdm import tqdm
 from unidecode import unidecode
 from torch.utils.data import Dataset
+from modelscope.hub.api import HubApi
 from transformers import GPT2Model, GPT2LMHeadModel, PreTrainedModel
 from samplings import top_p_sampling, top_k_sampling, temperature_sampling
 from modelscope import snapshot_download
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-WEIGHT_PATH = (
-    snapshot_download("MuGeminorum/tunesformer", cache_dir="./__pycache__")
-    + "/weights.pth"
+HubApi().login(os.getenv("ms_app_key"))
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+EMO2MUSIC_WEIGHTS_DIR = snapshot_download("monetjoe/emo2music", cache_dir=TEMP_DIR)
+TUNESFORMER_WEIGHTS_PATH = (
+    snapshot_download("MuGeminorum/tunesformer", cache_dir=TEMP_DIR) + "/weights.pth"
 )
 
 

@@ -3,9 +3,9 @@ import os
 import time
 import torch
 import argparse
-from utils import *
-from config import *
 from transformers import GPT2Config
+from utils import Patchilizer, TunesFormer, DEVICE
+from config import *
 
 
 def get_args(parser):
@@ -46,6 +46,12 @@ def get_args(parser):
         default=False,
         help="whether to show control code",
     )
+    parser.add_argument(
+        "-weights",
+        type=str,
+        default=f"{OUTPUT_PATH}/weights.pth",
+        help="weights path",
+    )
     args = parser.parse_args()
     return args
 
@@ -65,14 +71,7 @@ def generate_abc(args):
         vocab_size=128,
     )
     model = TunesFormer(patch_config, char_config, share_weights=SHARE_WEIGHTS)
-    filename = WEIGHT_PATH
-    if os.path.exists(filename):
-        print(f"Weights already exist at '{filename}'. Loading...")
-
-    else:
-        download()
-
-    checkpoint = torch.load(filename)
+    checkpoint = torch.load(args.weights, weights_only=False)
     model.load_state_dict(checkpoint["model"])
     model = model.to(DEVICE)
     model.eval()
@@ -87,12 +86,12 @@ def generate_abc(args):
     temperature = args.temperature
     seed = args.seed
     show_control_code = args.show_control_code
-    print(" HYPERPARAMETERS ".center(60, "#"), "\n")
+    print(" Hyper params ".center(60, "#"), "\n")
     arg_dict: dict = vars(args)
     for key in arg_dict.keys():
         print(f"{key}: {str(arg_dict[key])}")
 
-    print("\n", " OUTPUT TUNES ".center(60, "#"))
+    print("\n", " Output tunes ".center(60, "#"))
     start_time = time.time()
     for i in range(num_tunes):
         tune = f"X:{str(i + 1)}\n{prompt}"

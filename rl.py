@@ -1,4 +1,3 @@
-import os
 import torch
 import numpy as np
 import torch.nn as nn
@@ -8,7 +7,7 @@ from torch import Tensor
 from transformers import GPT2Config
 from torch.distributions import Categorical
 from modelscope.msdatasets import MsDataset
-from utils import TunesFormer, Patchilizer, download, DEVICE
+from utils import TunesFormer, Patchilizer, DEVICE, TUNESFORMER_WEIGHTS_PATH
 from generate import infer_abc
 from config import *
 
@@ -19,9 +18,12 @@ class MusicGenEnv:
         self.current_index = 0
 
     def prepare_prompts(self):
-        trainset = MsDataset.load(f"monetjoe/{DATASET}", split="train")
-        evalset = MsDataset.load(f"monetjoe/{DATASET}", split="test")
-        dataset = list(trainset) + list(evalset)
+        ds = MsDataset.load(
+            f"monetjoe/{DATASET}",
+            subset_name=SUBSET,
+            cache_dir=TEMP_DIR,
+        )
+        dataset = list(ds["train"]) + list(ds["test"])
         prompt_set = set("A:Q1\n", "A:Q2\n", "A:Q3\n", "A:Q4\n", "")
         for item in dataset:
             prompt_set.add(f"A:{item['label']}\n{item['prompt']}\n")
@@ -57,15 +59,15 @@ class PPOTrainer:
     ):
         self.env = env
         self.patchilizer = Patchilizer()
-        self.init_model = self.load_model(f"{OUTPUT_PATH}/ref_weights.pth").eval()
-        self.tuned_model = self.load_model()
+        self.init_model = self.load_model(TUNESFORMER_WEIGHTS_PATH).eval()
+        self.tuned_model = self.load_model(f"{OUTPUT_PATH}/weights.pth")
         self.vf_coef = vf_coef
         self.lamda_kl = lamda_kl
         self.clip_param = clip_param
         self.optimizer = optim.Adam(self.tuned_model.parameters(), lr=lr)
         self.mse = nn.MSELoss()
 
-    def load_model(self, weights_path=WEIGHT_PATH, weights_url=WEIGHT_URL_ZH):
+    def load_model(self, weights_path: str):
         patch_config = GPT2Config(
             num_hidden_layers=PATCH_NUM_LAYERS,
             max_length=PATCH_LENGTH,
@@ -82,10 +84,7 @@ class PPOTrainer:
         if torch.cuda.device_count() > 1:
             model = torch.nn.DataParallel(model)
 
-        if not os.path.exists(weights_path):
-            download(url=weights_url, filename=weights_path)
-
-        checkpoint = torch.load(weights_path)
+        checkpoint = torch.load(weights_path, weights_only=False)
         if torch.cuda.device_count() > 1:
             model.module.load_state_dict(checkpoint["model"])
         else:
@@ -120,7 +119,9 @@ class PPOTrainer:
         value_loss = self.mse(new_values, rewards)
 
         kl_div = self.compute_kl(old_logits, new_logits)
-        loss = policy_loss + value_loss * self.vf_coef + kl_div * self.lamda_kl
+        loss: torch.Tensor = (
+            policy_loss + value_loss * self.vf_coef + kl_div * self.lamda_kl
+        )
 
         self.optimizer.zero_grad()
         loss.backward()

@@ -1,7 +1,7 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import *
+from config import *
 
 plt.rcParams["font.sans-serif"] = "Times New Roman"
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     eval_loss_list = []  # 用于存储第二个键的值
 
     # 打开并读取JSONL文件
-    with open("./output/logs.jsonl", "r", encoding="utf-8") as file:
+    with open(f"{OUTPUT_PATH}/logs.jsonl", "r", encoding="utf-8") as file:
         for line in file:
             # 解析JSON对象
             obj = json.loads(line)

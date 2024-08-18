@@ -7,28 +7,10 @@ import shutil
 import argparse
 import warnings
 import subprocess
-from modelscope import snapshot_download
-from music21 import converter, interval, clef, stream
 from transformers import GPT2Config
-from utils import (
-    Patchilizer,
-    TunesFormer,
-    PATCH_NUM_LAYERS,
-    PATCH_LENGTH,
-    CHAR_NUM_LAYERS,
-    PATCH_SIZE,
-    SHARE_WEIGHTS,
-)
-
-from modelscope.hub.api import HubApi
-
-api = HubApi()
-api.login(os.getenv("ms_app_key"))
-
-WEIGHTS_DIR = snapshot_download("monetjoe/emo2music", cache_dir="F://")
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-MSCORE = "D:/Program Files/MuseScore 3/bin/MuseScore3.exe"
-TEMP_DIR = "./__pycache__"
+from music21 import converter, interval, clef, stream
+from utils import Patchilizer, TunesFormer, EMO2MUSIC_WEIGHTS_DIR, DEVICE
+from config import *
 
 
 def get_args(parser: argparse.ArgumentParser):
@@ -150,7 +132,7 @@ def generate_music(
         vocab_size=128,
     )
     model = TunesFormer(patch_config, char_config, share_weights=SHARE_WEIGHTS)
-    checkpoint = torch.load(weights)
+    checkpoint = torch.load(weights, weights_only=False)
     model.load_state_dict(checkpoint["model"])
     model = model.to(DEVICE)
     model.eval()
@@ -310,7 +292,7 @@ def infers(
     return generate_music(
         args,
         emo=emotion,
-        weights=f"{WEIGHTS_DIR}/{dataset.lower()}/weights.pth",
+        weights=f"{EMO2MUSIC_WEIGHTS_DIR}/{dataset.lower()}/weights.pth",
         outdir=outdir,
         fix_t=fix_tempo,
         fix_m=fix_mode,
@@ -318,7 +300,7 @@ def infers(
     )
 
 
-def add_to_log(message: str, log_file_path="./exps/success_rates.log"):
+def add_to_log(message: str, log_file_path=f"{EXPERIMENT_DIR}/success_rates.log"):
     print(message)
     with open(log_file_path, "a", encoding="utf-8") as file:
         file.write(message + "\n")
@@ -331,7 +313,7 @@ def generate_exps(
     total=100,
     labels=["Q1", "Q2", "Q3", "Q4"],
 ):
-    outdir = "./exps/"
+    outdir = f"{EXPERIMENT_DIR}/"
     if fix_t and fix_m and fix_p:
         outdir += "all"
     elif fix_t:
@@ -357,25 +339,26 @@ def generate_exps(
     add_to_log(f"Rough4Q-{outdir.split('/')[-1]}: {sum(hit_rate) / len(hit_rate)}")
 
 
-def success_rate(total=100, outdir="./exps/emopia", labels=["Q1", "Q2", "Q3", "Q4"]):
+def success_rate(total=100, subset="EMOPIA", labels=["Q1", "Q2", "Q3", "Q4"]):
     hit_rate = []
+    outdir = f"{EXPERIMENT_DIR}/{subset.lower()}"
     for emo in labels:
         success, fail = 0, 0
         while success + fail < total // len(labels):
-            if infers("emopia", emo, outdir):
+            if infers(subset, emo, outdir):
                 success += 1
             else:
                 fail += 1
 
         hit_rate.append(success / (success + fail))
 
-    add_to_log(f"EMOPIA: {sum(hit_rate) / len(hit_rate)}")
+    add_to_log(f"{subset}: {sum(hit_rate) / len(hit_rate)}")
 
 
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
-    if os.path.exists("./exps"):
-        shutil.rmtree("./exps")
+    if os.path.exists(EXPERIMENT_DIR):
+        shutil.rmtree(EXPERIMENT_DIR)
 
     generate_exps()
     generate_exps(fix_t=True)
@@ -383,3 +366,4 @@ if __name__ == "__main__":
     generate_exps(fix_p=True)
     generate_exps(fix_t=True, fix_m=True, fix_p=True)
     success_rate()
+    success_rate(subset="VGMIDI")

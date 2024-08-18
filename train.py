@@ -4,11 +4,12 @@ import time
 import torch
 import random
 import torch.nn as nn
-from tqdm import tqdm
+import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
 from modelscope.msdatasets import MsDataset
 from modelscope import snapshot_download
+from tqdm import tqdm
 from transformers import GPT2Config, get_scheduler
 from utils import Patchilizer, TunesFormer, PatchilizedData, DEVICE
 from config import *
@@ -40,7 +41,7 @@ def init():
 
     scaler = GradScaler()
     is_autocast = True
-    optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
 
     return batch_size, patchilizer, model, scaler, is_autocast, optimizer
 
@@ -66,8 +67,8 @@ def process_one_batch(batch, model):  # call model with a batch of input
 
 def train_epoch(
     model: nn.Module,
-    optimizer: torch.optim.AdamW,
-    lr_scheduler: torch.optim.lr_scheduler.LambdaLR,
+    optimizer: optim.AdamW,
+    lr_scheduler: optim.lr_scheduler.LambdaLR,
     is_autocast: bool,
     scaler: GradScaler,
     train_set: DataLoader,
@@ -181,7 +182,7 @@ if __name__ == "__main__":
         shuffle=True,
     )
 
-    lr_scheduler: torch.optim.lr_scheduler.LambdaLR = get_scheduler(
+    lr_scheduler: optim.lr_scheduler.LambdaLR = get_scheduler(
         name="cosine",
         optimizer=optimizer,
         num_warmup_steps=NUM_EPOCHS * len(trainset) // 10,

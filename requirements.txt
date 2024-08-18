@@ -5,3 +5,4 @@ modelscope==1.15
 transformers==4.18
 samplings
 unidecode
+music21

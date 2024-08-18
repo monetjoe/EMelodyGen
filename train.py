@@ -102,7 +102,7 @@ def train_epoch(
 
         except RuntimeError as exception:
             if "memory" in str(exception):
-                # print(str(exception))
+                print(str(exception))
                 if hasattr(torch.cuda, "empty_cache"):
                     torch.cuda.empty_cache()
 

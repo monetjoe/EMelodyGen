@@ -290,7 +290,7 @@ def infers(
     os.makedirs(outdir, exist_ok=True)
     parser = argparse.ArgumentParser()
     args = get_args(parser)
-    emusicgen_weights_dir = snapshot_download("monetjoe/emo2music", cache_dir=TEMP_DIR)
+    emusicgen_weights_dir = snapshot_download(f"monetjoe/{DATASET}", cache_dir=TEMP_DIR)
     return generate_music(
         args,
         emo=emotion,

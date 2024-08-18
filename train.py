@@ -5,7 +5,7 @@ import torch
 import random
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from torch.amp import autocast, GradScaler
+from torch.cuda.amp import autocast, GradScaler
 from modelscope.msdatasets import MsDataset
 from modelscope import snapshot_download
 from transformers import GPT2Config, get_scheduler
@@ -15,7 +15,7 @@ from config import *
 
 def init():
     random.seed(42)
-    batch_size = torch.cuda.device_count()
+    batch_size = min(torch.cuda.device_count(), 4)
     patchilizer = Patchilizer()
     patch_config = GPT2Config(
         num_hidden_layers=PATCH_NUM_LAYERS,
@@ -82,9 +82,7 @@ def train_epoch(
     for batch in tqdm_train_set:
         try:
             if is_autocast:
-                with autocast(
-                    device_type="cuda" if torch.cuda.is_available() else "cpu"
-                ):
+                with autocast():
                     loss = process_one_batch(batch, model)
 
                 if loss == None or torch.isnan(loss).item():

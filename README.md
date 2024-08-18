@@ -17,7 +17,7 @@ pip install -r requirements.txt
 
 ### Pip only
 ```bash
-pip install torch==2.1 torchvision torchaudio -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install torch==2.2 torchvision torchaudio -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 

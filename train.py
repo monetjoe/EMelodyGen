@@ -184,7 +184,7 @@ if __name__ == "__main__":
     lr_scheduler = get_scheduler(
         name="cosine",
         optimizer=optimizer,
-        num_warmup_steps=NUM_EPOCHS * len(trainset) / 10,
+        num_warmup_steps=NUM_EPOCHS * len(trainset) // 10,
         num_training_steps=NUM_EPOCHS * len(trainset),
     )
 

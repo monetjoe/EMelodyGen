@@ -3,6 +3,7 @@ import json
 import time
 import torch
 import random
+import torch.nn as nn
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
@@ -29,13 +30,13 @@ def init():
         max_position_embeddings=PATCH_SIZE,
         vocab_size=128,
     )
-    model = TunesFormer(patch_config, char_config, share_weights=SHARE_WEIGHTS)
+    model: nn.Module = TunesFormer(patch_config, char_config, SHARE_WEIGHTS).to(DEVICE)
     # print parameter number
     print(
         f"Parameter Number: {sum(p.numel() for p in model.parameters() if p.requires_grad)}"
     )
     if torch.cuda.device_count() > 1:
-        model = torch.nn.DataParallel(model)
+        model = nn.DataParallel(model)
 
     scaler = GradScaler()
     is_autocast = True
@@ -50,34 +51,33 @@ def collate_batch(batch):
     for input_patch in batch:
         input_patches.append(input_patch.reshape(-1))
 
-    input_patches = torch.nn.utils.rnn.pad_sequence(
+    input_patches = nn.utils.rnn.pad_sequence(
         input_patches, batch_first=True, padding_value=0
     )
 
     return input_patches.to(DEVICE)
 
 
-def split_data(data, eval_ratio=0.1):
-    random.shuffle(data)
-    split_idx = int(len(data) * eval_ratio)
-    eval_set = data[:split_idx]
-    train_set = data[split_idx:]
-    return train_set, eval_set
-
-
 def process_one_batch(batch, model):  # call model with a batch of input
     input_patches = batch
-    loss = model(input_patches).loss
+    loss: torch.Tensor = model(input_patches).loss
     return loss.mean()
 
 
 def train_epoch(
-    model, optimizer, lr_scheduler, is_autocast, scaler, train_set
+    model: nn.Module,
+    optimizer: torch.optim.AdamW,
+    lr_scheduler: torch.optim.lr_scheduler.LambdaLR,
+    is_autocast: bool,
+    scaler: GradScaler,
+    train_set: DataLoader,
 ):  # do one epoch for training
     tqdm_train_set = tqdm(train_set)
     total_train_loss = 0
     iter_idx = 1
     model.train()
+    if hasattr(torch.cuda, "empty_cache"):
+        torch.cuda.empty_cache()
 
     for batch in tqdm_train_set:
         try:
@@ -120,7 +120,7 @@ def train_epoch(
     return total_train_loss / (iter_idx - 1)
 
 
-def eval_epoch(model, eval_set):  # do one epoch for eval
+def eval_epoch(model: nn.Module, eval_set):  # do one epoch for eval
     tqdm_eval_set = tqdm(eval_set)
     total_eval_loss = 0
     iter_idx = 1
@@ -181,7 +181,7 @@ if __name__ == "__main__":
         shuffle=True,
     )
 
-    lr_scheduler = get_scheduler(
+    lr_scheduler: torch.optim.lr_scheduler.LambdaLR = get_scheduler(
         name="cosine",
         optimizer=optimizer,
         num_warmup_steps=NUM_EPOCHS * len(trainset) // 10,
@@ -211,34 +211,42 @@ if __name__ == "__main__":
         best_epoch = 0
         min_eval_loss = 100
 
-    model = model.to(DEVICE)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     os.makedirs(OUTPUT_PATH, exist_ok=True)
-
     for epoch in range(1, NUM_EPOCHS + 1 - pre_epoch):
         epoch += pre_epoch
         print(f"{'-' * 21}Epoch {str(epoch)}{'-' * 21}")
         train_loss = train_epoch(
-            model, optimizer, lr_scheduler, is_autocast, scaler, trainset
+            model,
+            optimizer,
+            lr_scheduler,
+            is_autocast,
+            scaler,
+            trainset,
         )
         eval_loss = eval_epoch(model, evalset)
         with open(LOG_PATH, "a", encoding="utf-8") as jsonl_file:
-            json_str = json.dumps(
-                {
-                    "epoch": int(epoch),
-                    "train_loss": float(train_loss),
-                    "eval_loss": float(eval_loss),
-                    "time": f"{time.asctime(time.localtime(time.time()))}",
-                }
+            jsonl_file.write(
+                json.dumps(
+                    {
+                        "epoch": int(epoch),
+                        "train_loss": float(train_loss),
+                        "eval_loss": float(eval_loss),
+                        "time": f"{time.asctime(time.localtime(time.time()))}",
+                    }
+                )
+                + "\n"
             )
-            jsonl_file.write(json_str + "\n")
 
         if eval_loss < min_eval_loss:
             best_epoch = epoch
             min_eval_loss = eval_loss
-            if torch.cuda.device_count() > 1:
-                checkpoint = {
-                    "model": model.module.state_dict(),
+            torch.save(
+                {
+                    "model": (
+                        model.module.state_dict()
+                        if torch.cuda.device_count() > 1
+                        else model.state_dict()
+                    ),
                     "optimizer": optimizer.state_dict(),
                     "lr_sched": lr_scheduler.state_dict(),
                     "epoch": epoch,
@@ -247,22 +255,9 @@ if __name__ == "__main__":
                     "time_stamp": time.strftime(
                         "%a_%d_%b_%Y_%H_%M_%S", time.localtime()
                     ),
-                }
-
-            else:
-                checkpoint = {
-                    "model": model.state_dict(),
-                    "optimizer": optimizer.state_dict(),
-                    "lr_sched": lr_scheduler.state_dict(),
-                    "epoch": epoch,
-                    "best_epoch": best_epoch,
-                    "min_eval_loss": min_eval_loss,
-                    "time_stamp": time.strftime(
-                        "%a_%d_%b_%Y_%H_%M_%S", time.localtime()
-                    ),
-                }
-
-            torch.save(checkpoint, f"{OUTPUT_PATH}/weights.pth")
+                },
+                f"{OUTPUT_PATH}/weights.pth",
+            )
             break
 
     print(f"Best Eval Epoch : {str(best_epoch)}\nMin Eval Loss : {str(min_eval_loss)}")

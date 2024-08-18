@@ -3,7 +3,7 @@
 
 Emotionally Conditioned Music Generation in ABC Notation with Chord
 
-![image](https://github.com/monet-joe/emo-abc-gen/assets/20459298/9ee364d5-f80f-460d-9154-58b85ad59d15)
+![](https://github.com/monet-joe/emo-abc-gen/assets/20459298/9ee364d5-f80f-460d-9154-58b85ad59d15)
 
 Referring to the RLBH of InstructGPT, we introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
@@ -23,5 +23,6 @@ cd emo-abc-gen
 ## Success rate
 | Dataset |   %   |
 | :-----: | :---: |
-| Rough4Q |  100  |
-| EMOPIA  |  24   |
+| Rough4Q |  99   |
+| EMOPIA  |  27   |
+| VGMIDI  |  --   |

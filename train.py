@@ -198,7 +198,7 @@ if __name__ == "__main__":
     if LOAD_FROM_CHECKPOINT:
         checkpoint = torch.load(TUNESFORMER_WEIGHTS_PATH, weights_only=False)
 
-        if torch.cuda.is_available():
+        if torch.cuda.device_count() > 1:
             model.module.load_state_dict(checkpoint["model"])
         else:
             model.load_state_dict(checkpoint["model"])

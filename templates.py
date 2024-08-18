@@ -37,14 +37,17 @@ def xmls2dataset():
     create_dataset("./data/abcs/outputs")
 
 
-def emopia2dataset():
+def labelled_midi2dataset(jsonl_name="emopia"):
     multi_batch_midi2xml("./data/mids/outputs", "./data/xmls/inputs")
     multi_slice_xmls("./data/xmls/inputs", "./data/xmls/outputs")
     multi_batch_xml2abc("./data/xmls/outputs", "./data/abcs/inputs")
     multi_transpose_abcs("./data/abcs/inputs", "./data/abcs/outputs")
     rm_duplicates("./data/abcs/outputs")
-    create_dataset("./data/abcs/outputs", jsonl_name="emopia")
+    create_dataset("./data/abcs/outputs", jsonl_name)
 
 
 if __name__ == "__main__":
-    whole()
+    multi_batch_xml2abc("./data/xmls/outputs", "./data/abcs/inputs")
+    multi_transpose_abcs("./data/abcs/inputs", "./data/abcs/outputs")
+    rm_duplicates("./data/abcs/outputs")
+    create_dataset("./data/abcs/outputs", "vgmidi")

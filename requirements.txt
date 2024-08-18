@@ -1,6 +1,6 @@
 modelscope==1.15
-transformers==4.18.0
-samplings==0.1.7
+transformers
+samplings
 unidecode
-pillow==9.4.0
+pillow
 datasets

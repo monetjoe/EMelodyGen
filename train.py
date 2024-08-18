@@ -4,7 +4,7 @@ import time
 from utils import *
 from torch.utils.data import DataLoader
 from modelscope.msdatasets import MsDataset
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 from transformers import GPT2Config, get_scheduler
 
 
@@ -145,9 +145,12 @@ if __name__ == "__main__":
     # load data
     from modelscope.hub.api import HubApi
 
-    api = HubApi()
-    api.login(os.getenv("ms_app_key"))
-    dataset = MsDataset.load(f"monetjoe/{DATASET}", subset_name=SUBSET)
+    HubApi().login(os.getenv("ms_app_key"))
+    dataset = MsDataset.load(
+        f"monetjoe/{DATASET}",
+        subset_name=SUBSET,
+        cache_dir="./__pycache__",
+    )
     trainset, evalset = [], []
     for song in dataset["train"]:
         trainset.append(
@@ -189,9 +192,6 @@ if __name__ == "__main__":
     )
 
     if LOAD_FROM_CHECKPOINT:
-        if not os.path.exists(WEIGHT_PATH):
-            download()
-
         checkpoint = torch.load(WEIGHT_PATH)
 
         if torch.cuda.device_count() > 1:

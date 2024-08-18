@@ -12,10 +12,7 @@ PATCH_SAMPLING_BATCH_SIZE = 0
 LOAD_FROM_CHECKPOINT = True  # Whether to load weights from a checkpoint
 # Whether to share weights between the encoder and decoder
 SHARE_WEIGHTS = False
-WEIGHT_URL = "https://huggingface.co/sander-wood/tunesformer/resolve/main/weights.pth"
-WEIGHT_URL_ZH = "https://www.modelscope.cn/models/MuGeminorum/tunesformer/resolve/master/weights.pth"
 OUTPUT_PATH = "./output"
-WEIGHT_PATH = f"{OUTPUT_PATH}/weights.pth"
 LOG_PATH = f"{OUTPUT_PATH}/logs.jsonl"
 PROMPT_PATH = "prompt.txt"
 DATASET = "emo2music"

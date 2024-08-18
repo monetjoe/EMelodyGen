@@ -1,41 +1,19 @@
-import os
 import re
-import time
 import torch
 import random
-import requests
 from config import *
 from tqdm import tqdm
 from unidecode import unidecode
 from torch.utils.data import Dataset
 from transformers import GPT2Model, GPT2LMHeadModel, PreTrainedModel
 from samplings import top_p_sampling, top_k_sampling, temperature_sampling
+from modelscope import snapshot_download
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-def download(url=WEIGHT_URL_ZH, filename=WEIGHT_PATH):
-    os.makedirs(OUTPUT_PATH, exist_ok=True)
-    try:
-        response = requests.get(url, stream=True)
-        total_size = int(response.headers.get("content-length", 0))
-        chunk_size = 1024
-
-        with open(filename, "wb") as file, tqdm(
-            desc=f"Downloading {filename} from {url}...",
-            total=total_size,
-            unit="B",
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as bar:
-            for data in response.iter_content(chunk_size=chunk_size):
-                size = file.write(data)
-                bar.update(size)
-
-    except Exception as e:
-        print(f"Error: {e}")
-        time.sleep(3)
-        download(WEIGHT_URL, filename)
+WEIGHT_PATH = (
+    snapshot_download("MuGeminorum/tunesformer", cache_dir="./__pycache__")
+    + "/weights.pth"
+)
 
 
 class Patchilizer:

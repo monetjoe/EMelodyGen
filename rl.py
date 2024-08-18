@@ -23,6 +23,7 @@ class MusicGenEnv:
             f"monetjoe/{DATASET}",
             subset_name=SUBSET,
             cache_dir=TEMP_DIR,
+            trust_remote_code=True,
         )
         dataset = list(ds["train"]) + list(ds["test"])
         prompt_set = set("A:Q1\n", "A:Q2\n", "A:Q3\n", "A:Q4\n", "")

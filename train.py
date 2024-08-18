@@ -148,6 +148,7 @@ if __name__ == "__main__":
         f"monetjoe/{DATASET}",
         subset_name=SUBSET,
         cache_dir=TEMP_DIR,
+        trust_remote_code=True,
     )
     trainset, evalset = [], []
     for song in dataset["train"]:

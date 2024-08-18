@@ -14,7 +14,6 @@ LOAD_FROM_CHECKPOINT = True  # Whether to load weights from a checkpoint
 SHARE_WEIGHTS = False
 OUTPUT_PATH = "./output"
 LOG_PATH = f"{OUTPUT_PATH}/logs.jsonl"
-PROMPT_PATH = "prompt.txt"
 DATASET = "emo2music"
 SUBSET = "VGMIDI"
 MSCORE = "D:/Program Files/MuseScore 3/bin/MuseScore3.exe"

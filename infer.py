@@ -13,8 +13,6 @@ from music21 import converter, interval, clef, stream
 from utils import Patchilizer, TunesFormer, DEVICE
 from config import *
 
-EMO2MUSIC_WEIGHTS_DIR = snapshot_download("monetjoe/emo2music", cache_dir=TEMP_DIR)
-
 
 def get_args(parser: argparse.ArgumentParser):
     parser.add_argument(
@@ -292,10 +290,11 @@ def infers(
     os.makedirs(outdir, exist_ok=True)
     parser = argparse.ArgumentParser()
     args = get_args(parser)
+    emusicgen_weights_dir = snapshot_download("monetjoe/emo2music", cache_dir=TEMP_DIR)
     return generate_music(
         args,
         emo=emotion,
-        weights=f"{EMO2MUSIC_WEIGHTS_DIR}/{dataset.lower()}/weights.pth",
+        weights=f"{emusicgen_weights_dir}/{dataset.lower()}/weights.pth",
         outdir=outdir,
         fix_t=fix_tempo,
         fix_m=fix_mode,

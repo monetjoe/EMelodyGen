@@ -3,6 +3,7 @@ import os
 import time
 import torch
 import argparse
+import torch.nn as nn
 from transformers import GPT2Config
 from utils import Patchilizer, TunesFormer, DEVICE
 from config import *
@@ -70,14 +71,12 @@ def generate_abc(args):
         max_position_embeddings=PATCH_SIZE,
         vocab_size=128,
     )
-    model = TunesFormer(patch_config, char_config, share_weights=SHARE_WEIGHTS)
+    model: nn.Module = TunesFormer(patch_config, char_config, SHARE_WEIGHTS)
     checkpoint = torch.load(args.weights, weights_only=False)
     model.load_state_dict(checkpoint["model"])
     model = model.to(DEVICE)
     model.eval()
-    with open(PROMPT_PATH, "r") as f:
-        prompt = f.read()
-
+    prompt = 'A:Q1\nS:2\nB:9\nE:4\nB:9\nL:1/8\nM:3/4\nK:D\n de |"D" '
     tunes = ""
     num_tunes = args.num_tunes
     max_patch = args.max_patch

@@ -5,7 +5,7 @@ import torch
 import random
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 from modelscope.msdatasets import MsDataset
 from modelscope import snapshot_download
 from transformers import GPT2Config, get_scheduler
@@ -82,7 +82,7 @@ def train_epoch(
     for batch in tqdm_train_set:
         try:
             if is_autocast:
-                with autocast():
+                with autocast(device_type=DEVICE):
                     loss = process_one_batch(batch, model)
 
                 if loss == None or torch.isnan(loss).item():
@@ -102,7 +102,7 @@ def train_epoch(
 
         except RuntimeError as exception:
             if "memory" in str(exception):
-                print(str(exception))
+                # print(str(exception))
                 if hasattr(torch.cuda, "empty_cache"):
                     torch.cuda.empty_cache()
 

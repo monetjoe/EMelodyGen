@@ -1,11 +1,9 @@
 # EMusicGen
+[![license](https://img.shields.io/badge/License-LGPL-yellow.svg)](https://github.com/monetjoe/EMusicGen/blob/master/LICENSE)
 [![Python application](https://github.com/monetjoe/EMusicGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMusicGen/actions/workflows/python-app.yml)
+[![ms](https://img.shields.io/badge/ModelScope-EMusicGen-624aff.svg)](https://www.modelscope.cn/models/monetjoe/EMusicGen)
 
 Emotionally Conditioned Music Generation in ABC Notation with Chord
-
-![](https://github.com/monetjoe/EMusicGen/assets/20459298/9ee364d5-f80f-460d-9154-58b85ad59d15)
-
-Referring to the RLBH of InstructGPT, we introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
 ## Requirements
 ```bash
@@ -37,3 +35,8 @@ In different control modes, generate music segments using specified emotional pr
 |  Mode   |  0.650   |  0.654   | ![mat-mode](https://github.com/user-attachments/assets/05d4f3b9-6af2-4f95-aa0f-410e300d9f76)  |
 |  Tempo  |  0.530   |  0.487   | ![mat-tempo](https://github.com/user-attachments/assets/5a96ca3c-4e97-416e-a35e-ea799485b8f4) |
 |  None   |  0.520   |  0.498   | ![mat-none](https://github.com/user-attachments/assets/a5a15b6a-f847-4050-9547-34d20eb5e8eb)  |
+
+## Future work
+Referring to the RLBH of InstructGPT, we introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
+
+![](https://github.com/monetjoe/EMusicGen/assets/20459298/9ee364d5-f80f-460d-9154-58b85ad59d15)

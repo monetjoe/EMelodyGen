@@ -24,5 +24,5 @@ cd EMusicGen
 | Dataset |   %   |
 | :-----: | :---: |
 | Rough4Q |  99   |
+| VGMIDI  |  93   |
 | EMOPIA  |  27   |
-| VGMIDI  |   -   |

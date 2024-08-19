@@ -5,12 +5,19 @@ date_default_timezone_set('Asia/Shanghai');
 
 // 根据请求类型执行不同逻辑
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // 定义 wav 文件所在的目录
-    $directorys = ['./exps/all', './exps/mode', './exps/pitch', './exps/tempo', './exps/none'];
-    // GET 请求逻辑
+
+    $jsonFile = './exps/survey_disputes.json';
     $wavFiles = array();
-    foreach ($directorys as $directory) {
-        $wavFiles = array_merge($wavFiles, glob($directory . '/*.wav'));
+    if (file_exists($jsonFile)) {
+        $jsonString = file_get_contents($jsonFile);
+        $wavFiles = json_decode($jsonString, true);
+    } else {
+        // 定义 wav 文件所在的目录
+        $directorys = ['./exps/all', './exps/mode', './exps/pitch', './exps/tempo', './exps/none'];
+        // GET 请求逻辑
+        foreach ($directorys as $directory) {
+            $wavFiles = array_merge($wavFiles, glob($directory . '/*.wav'));
+        }
     }
 
     $filesArray = array();
@@ -32,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // 检查是否接收到数据
     if ($selectedOptions !== null) {
         $jsonData = json_decode($selectedOptions, true);
-        $filePath = './exps/data_' . date('Ymd_His') . '.json';
+        $filePath = './exps/survey_' . date('Ymd_His') . '.json';
         if (file_put_contents($filePath, json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
             // 如果成功，设置响应状态为 success
             $response['status'] = 'success';

@@ -6,9 +6,16 @@
 Emotionally Conditioned Music Generation in ABC Notation
 
 ## Environment
+### Conda + Pip
 ```bash
-conda create -n gpt python=3.8 --yes
-conda activate gpt
+conda create -n cv --yes --file conda.txt -c nvidia
+conda activate cv
+pip install -r requirements.txt
+```
+
+### Pip only
+```bash
+pip install torch torchvision torchaudio -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 

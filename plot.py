@@ -91,8 +91,13 @@ def merge_data(exp_jsons: list):
     for exp in tqdm(exps, desc="Searching most common elements..."):
         exps[exp] = most_common_elements(exps[exp])
         if len(exps[exp]) > 1:
-            disputes.append(f"{EXPERIMENT_DIR}/{exp}")
-            print(f"{exp} : {exps[exp]}")
+            prompt = exp.split("]")[0][-2:]
+            if prompt in exps[exp]:
+                keeps[exp] = prompt
+
+            else:
+                disputes.append(f"{EXPERIMENT_DIR}/{exp}")
+                print(f"{exp} : {exps[exp]}")
 
         else:
             keeps[exp] = exps[exp][0]
@@ -106,10 +111,11 @@ def merge_data(exp_jsons: list):
 
 
 if __name__ == "__main__":
-    merge_data(
-        [
-            f"{EXPERIMENT_DIR}/survey_20240819_085035.json",
-            f"{EXPERIMENT_DIR}/survey_20240819_121603.json",
-            f"{EXPERIMENT_DIR}/survey_20240819_172916.json",
-        ]
-    )
+    # merge_data(
+    #     [
+    #         f"{EXPERIMENT_DIR}/survey_20240819_085035.json",
+    #         f"{EXPERIMENT_DIR}/survey_20240819_121603.json",
+    #         f"{EXPERIMENT_DIR}/survey_20240819_172916.json",
+    #     ]
+    # )
+    plots("./exps/survey_keeps.json")

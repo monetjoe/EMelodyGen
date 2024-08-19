@@ -3,7 +3,7 @@
 [![Python application](https://github.com/monetjoe/EMusicGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMusicGen/actions/workflows/python-app.yml)
 [![ms](https://img.shields.io/badge/ModelScope-EMusicGen-624aff.svg)](https://www.modelscope.cn/models/monetjoe/EMusicGen)
 
-Emotionally Conditioned Music Generation in ABC Notation with Chord
+Emotionally Conditioned Music Generation in ABC Notation
 
 ## Environment
 ```bash

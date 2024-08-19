@@ -5,7 +5,7 @@
 
 Emotionally Conditioned Music Generation in ABC Notation with Chord
 
-## Requirements
+## Environment
 ```bash
 conda create -n gpt python=3.8 --yes
 conda activate gpt
@@ -19,11 +19,9 @@ cd EMusicGen
 ```
 
 ## Success rate
-| Dataset |   %   |
-| :-----: | :---: |
-| Rough4Q |  100  |
-| VGMIDI  |  93   |
-| EMOPIA  |  27   |
+| Dataset | Rough4Q | VGMIDI | EMOPIA |
+| :-----: | :-----: | :----: | :----: |
+|    %    |   100   |   93   |   27   |
 
 ## Performance
 In different control modes, generate music segments using specified emotional prompts. Have three groups of people label these music segments in a blind listening test. Compare the overlap between the prompts and the labels to describe performance.
@@ -37,6 +35,6 @@ In different control modes, generate music segments using specified emotional pr
 |  None   |  0.520   |  0.498   | ![mat-none](https://github.com/user-attachments/assets/a5a15b6a-f847-4050-9547-34d20eb5e8eb)  |
 
 ## Future work
-Referring to the RLBH of InstructGPT, we introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
+Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
 ![](https://github.com/monetjoe/EMusicGen/assets/20459298/9ee364d5-f80f-460d-9154-58b85ad59d15)

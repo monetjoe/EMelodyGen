@@ -19,12 +19,13 @@ def plot_confusion_matrix(
     cm: np.ndarray,
     exp_name: str,
     labels_name=["Q1", "Q2", "Q3", "Q4"],
-    title="Confusion matrix",
+    fontsize: int = 18,
 ):
     cm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]  # Normalized
-    plt.imshow(cm, interpolation="nearest", cmap="Blues")  # 使用 'Blues' colormap
-    plt.title(title, fontweight="bold")  # 图像标题
-    plt.colorbar()
+    _, ax = plt.subplots()  # 创建图形和轴对象
+    cax = ax.imshow(cm, interpolation="nearest", cmap="Blues")
+    cbar = plt.colorbar(cax, ax=ax)
+    cbar.ax.tick_params(labelsize=fontsize)
     num_local = np.array(range(len(labels_name)))
     # 在色块上添加数值
     for i in range(len(labels_name)):
@@ -35,15 +36,17 @@ def plot_confusion_matrix(
                 format(cm[i, j], ".2f"),
                 horizontalalignment="center",
                 color="black" if cm[i, j] <= 0.5 else "white",
+                fontsize=fontsize,
             )  # 根据色块亮度选择文本颜色
     # 在x轴坐标上打印标签
-    plt.xticks(num_local, labels_name, rotation=45)
+    plt.xticks(num_local, labels_name, rotation=45, fontsize=fontsize)
     # 在y轴坐标上打印标签
-    plt.yticks(num_local, labels_name)
-    plt.ylabel("True label")
-    plt.xlabel("Predicted label")
+    plt.yticks(num_local, labels_name, fontsize=fontsize)
+    # plt.ylabel("True label", fontsize=fontsize)
+    # plt.xlabel("Predicted label", fontsize=fontsize)
     plt.tight_layout()
     plt.savefig(f"{EXPERIMENT_DIR}/mat-{exp_name}.jpg", bbox_inches="tight")
+    plt.savefig(f"{EXPERIMENT_DIR}/mat-{exp_name}.pdf", bbox_inches="tight")
     plt.close()
 
 

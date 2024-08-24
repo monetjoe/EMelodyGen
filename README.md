@@ -30,6 +30,23 @@ cd EMusicGen
 | :-----: | :-----: | :----: | :----: |
 |    %    |   100   |   93   |   27   |
 
+## Experiments
+### Tempo control
+| Random |  Q1   |  Q2   |  Q3   |  Q4   |
+| :----: | :---: | :---: | :---: | :---: |
+|  From  |  160  |  184  |  40   |  40   |
+|   To   |  184  |  228  |  69   |  69   |
+
+### Mode control
+| Replace |  Q1   |  Q2   |  Q3   |  Q4   |
+| :-----: | :---: | :---: | :---: | :---: |
+|   To    | major | minor | minor | major |
+
+### Pitch control
+| Transpose |  Q1   |  Q2   |  Q3   |  Q4   |
+| :-------: | :---: | :---: | :---: | :---: |
+|  Offset   |   0   |  -24  |  -12  |   0   |
+
 ## Performance
 In different control modes, generate music segments using specified emotional prompts. Have three groups of people label these music segments in a blind listening test. Compare the overlap between the prompts and the labels to describe performance.
 

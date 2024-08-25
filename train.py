@@ -150,11 +150,12 @@ if __name__ == "__main__":
         cache_dir=TEMP_DIR,
         trust_remote_code=True,
     )
+    classes = dataset["test"].features["label"].names
     trainset, evalset = [], []
     for song in dataset["train"]:
         trainset.append(
             {
-                "control code": "A:" + song["label"] + "\n" + song["prompt"],
+                "control code": "A:" + classes[song["label"]] + "\n" + song["prompt"],
                 "abc notation": song["data"],
             }
         )
@@ -162,7 +163,7 @@ if __name__ == "__main__":
     for song in dataset["test"]:
         evalset.append(
             {
-                "control code": "A:" + song["label"] + "\n" + song["prompt"],
+                "control code": "A:" + classes[song["label"]] + "\n" + song["prompt"],
                 "abc notation": song["data"],
             }
         )

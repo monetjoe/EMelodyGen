@@ -15,8 +15,9 @@ from utils import Patchilizer, TunesFormer, PatchilizedData, DEVICE
 from config import *
 
 
-def init(batch_size=min(torch.cuda.device_count(), 4)):
+def init(bsz=4):
     random.seed(42)
+    batch_size = min(torch.cuda.device_count(), bsz)
     patchilizer = Patchilizer()
     patch_config = GPT2Config(
         num_hidden_layers=PATCH_NUM_LAYERS,

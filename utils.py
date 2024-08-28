@@ -12,6 +12,7 @@ from samplings import top_p_sampling, top_k_sampling, temperature_sampling
 
 HubApi().login(os.getenv("ms_app_key"))
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+MSCORE = os.getenv("mscore")
 
 
 class Patchilizer:

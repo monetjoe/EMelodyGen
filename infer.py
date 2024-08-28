@@ -10,7 +10,7 @@ import subprocess
 from modelscope import snapshot_download
 from transformers import GPT2Config
 from music21 import converter, interval, clef, stream
-from utils import Patchilizer, TunesFormer, DEVICE
+from utils import Patchilizer, TunesFormer, DEVICE, MSCORE
 from config import *
 
 

@@ -15,9 +15,8 @@ from utils import Patchilizer, TunesFormer, PatchilizedData, DEVICE
 from config import *
 
 
-def init():
+def init(batch_size=min(torch.cuda.device_count(), 4)):
     random.seed(42)
-    batch_size = min(torch.cuda.device_count(), 4)
     patchilizer = Patchilizer()
     patch_config = GPT2Config(
         num_hidden_layers=PATCH_NUM_LAYERS,
@@ -142,7 +141,7 @@ def eval_epoch(model: nn.Module, eval_set):  # do one epoch for eval
     return total_eval_loss / (iter_idx - 1)
 
 
-def train(subset: str, dld_mode="reuse_dataset_if_exists"):
+def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
     # load data
     dataset = MsDataset.load(
         f"monetjoe/{DATASET}",
@@ -169,7 +168,7 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists"):
             }
         )
 
-    batch_size, patchilizer, model, scaler, is_autocast, optimizer = init()
+    batch_size, patchilizer, model, scaler, is_autocast, optimizer = init(bsz)
 
     trainset = DataLoader(
         PatchilizedData(trainset, patchilizer),

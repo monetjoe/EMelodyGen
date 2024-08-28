@@ -14,14 +14,15 @@ from config import *
 
 
 class MusicGenEnv:
-    def __init__(self):
+    def __init__(self, subset: str):
         self.prompts = self.prepare_prompts()
         self.current_index = 0
+        self.subset = subset
 
     def prepare_prompts(self):
         ds = MsDataset.load(
             f"monetjoe/{DATASET}",
-            subset_name=SUBSET,
+            subset_name=self.subset,
             cache_dir=TEMP_DIR,
             trust_remote_code=True,
         )
@@ -171,6 +172,6 @@ class PPOTrainer:
 
 
 if __name__ == "__main__":
-    env = MusicGenEnv()
+    env = MusicGenEnv("VGMIDI")
     ppo_trainer = PPOTrainer(env)
     ppo_trainer.train(num_epochs=100)

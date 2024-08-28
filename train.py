@@ -142,13 +142,14 @@ def eval_epoch(model: nn.Module, eval_set):  # do one epoch for eval
     return total_eval_loss / (iter_idx - 1)
 
 
-if __name__ == "__main__":
+def train(subset: str, dld_mode="reuse_dataset_if_exists"):
     # load data
     dataset = MsDataset.load(
         f"monetjoe/{DATASET}",
-        subset_name=SUBSET,
+        subset_name=subset,
         cache_dir=TEMP_DIR,
         trust_remote_code=True,
+        download_mode=dld_mode,
     )
     classes = dataset["test"].features["label"].names
     trainset, evalset = [], []
@@ -214,7 +215,7 @@ if __name__ == "__main__":
         best_epoch = 0
         min_eval_loss = 100
 
-    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    os.makedirs(f"{OUTPUT_PATH}/{subset}", exist_ok=True)
     for epoch in range(1, NUM_EPOCHS + 1 - pre_epoch):
         epoch += pre_epoch
         print(f"{'-' * 21}Epoch {str(epoch)}{'-' * 21}")
@@ -227,7 +228,9 @@ if __name__ == "__main__":
             trainset,
         )
         eval_loss = eval_epoch(model, evalset)
-        with open(LOG_PATH, "a", encoding="utf-8") as jsonl_file:
+        with open(
+            f"{OUTPUT_PATH}/{subset}/logs.jsonl", "a", encoding="utf-8"
+        ) as jsonl_file:
             jsonl_file.write(
                 json.dumps(
                     {
@@ -259,8 +262,14 @@ if __name__ == "__main__":
                         "%a_%d_%b_%Y_%H_%M_%S", time.localtime()
                     ),
                 },
-                f"{OUTPUT_PATH}/weights.pth",
+                f"{OUTPUT_PATH}/{subset}/weights.pth",
             )
             break
 
     print(f"Best Eval Epoch : {str(best_epoch)}\nMin Eval Loss : {str(min_eval_loss)}")
+
+
+if __name__ == "__main__":
+    subsets = ["VGMIDI", "EMOPIA", "Rough4Q"]
+    for subset in subsets:
+        train(subset, "force_redownload")

@@ -10,7 +10,7 @@ Emotionally Conditioned Music Generation in ABC Notation
 conda create -n EMusicGen python=3.9 --yes
 conda activate EMusicGen
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 ## Maintenance

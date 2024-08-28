@@ -290,4 +290,4 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
 if __name__ == "__main__":
     subsets = ["VGMIDI", "EMOPIA", "Rough4Q"]
     for subset in subsets:
-        train(subset, "force_redownload")
+        train(subset, "force_redownload", 4)

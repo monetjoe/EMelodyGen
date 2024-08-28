@@ -3,6 +3,7 @@ import json
 import time
 import torch
 import random
+import shutil
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -145,12 +146,24 @@ def eval_epoch(model: nn.Module, eval_set):  # do one epoch for eval
     return total_eval_loss / (iter_idx - 1)
 
 
+def clean_caches(folder_name: str, root_dir=f"{TEMP_DIR}/cache"):
+    if os.path.exists(root_dir):
+        for dirpath, dirnames, _ in os.walk(root_dir):
+            for d in dirnames:
+                if d == folder_name:
+                    shutil.rmtree(os.path.join(dirpath, d))
+                    return
+
+
 def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
+    if dld_mode == "force_redownload":
+        clean_caches(subset)
+
     # load data
     dataset = MsDataset.load(
         f"monetjoe/{DATASET}",
         subset_name=subset,
-        cache_dir=TEMP_DIR,
+        cache_dir=f"{TEMP_DIR}/cache",
         trust_remote_code=True,
         download_mode=dld_mode,
     )
@@ -275,4 +288,4 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
 if __name__ == "__main__":
     subsets = ["VGMIDI", "EMOPIA", "Rough4Q"]
     for subset in subsets:
-        train(subset, "force_redownload")
+        train(subset, "force_redownload", 4)

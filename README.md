@@ -8,8 +8,8 @@ Emotionally Conditioned Music Generation in ABC Notation
 ## Environment
 ### Conda + Pip
 ```bash
-conda create -n cv --yes --file conda.txt -c nvidia
-conda activate cv
+conda create -n gpt --yes --file conda.txt -c nvidia
+conda activate gpt
 pip install -r requirements.txt
 ```
 

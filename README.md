@@ -11,12 +11,14 @@ Emotionally Conditioned Music Generation in ABC Notation
 conda create -n gpt --yes --file conda.txt -c nvidia
 conda activate gpt
 pip install -r requirements.txt
+
 ```
 
 ### Pip only
 ```bash
 pip install torch torchvision torchaudio -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
 ```
 
 ## Maintenance

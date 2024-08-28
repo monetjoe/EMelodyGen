@@ -101,16 +101,16 @@ def train_epoch(
                 loss.backward()
                 optimizer.step()
 
-        except RuntimeError as exception:
-            if "memory" in str(exception):
-                print(str(exception))
+        except RuntimeError as e:
+            if "memory" in str(e):
+                print(str(e))
                 if hasattr(torch.cuda, "empty_cache"):
                     torch.cuda.empty_cache()
 
                 continue
 
             else:
-                raise exception
+                raise e
 
         lr_scheduler.step()
         model.zero_grad(set_to_none=True)

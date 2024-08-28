@@ -18,6 +18,9 @@ from config import *
 def init(bsz=4):
     random.seed(42)
     batch_size = min(torch.cuda.device_count(), bsz)
+    if batch_size < 1:
+        batch_size = 1
+
     patchilizer = Patchilizer()
     patch_config = GPT2Config(
         num_hidden_layers=PATCH_NUM_LAYERS,

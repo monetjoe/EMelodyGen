@@ -6,12 +6,11 @@ from config import *
 from tqdm import tqdm
 from unidecode import unidecode
 from torch.utils.data import Dataset
-from modelscope.hub.api import HubApi
 from transformers import GPT2Model, GPT2LMHeadModel, PreTrainedModel
 from samplings import top_p_sampling, top_k_sampling, temperature_sampling
 
-HubApi().login(os.getenv("ms_app_key"))
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+APP_KEY = os.getenv("ms_app_key")
 MSCORE = os.getenv("mscore")
 
 

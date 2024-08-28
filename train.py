@@ -9,10 +9,11 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
 from modelscope.msdatasets import MsDataset
+from modelscope.hub.api import HubApi
 from modelscope import snapshot_download
 from tqdm import tqdm
 from transformers import GPT2Config, get_scheduler
-from utils import Patchilizer, TunesFormer, PatchilizedData, DEVICE
+from utils import Patchilizer, TunesFormer, PatchilizedData, DEVICE, APP_KEY
 from config import *
 
 
@@ -160,6 +161,7 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
         clean_caches(subset)
 
     # load data
+    HubApi().login(APP_KEY)
     dataset = MsDataset.load(
         f"monetjoe/{DATASET}",
         subset_name=subset,
@@ -288,4 +290,4 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
 if __name__ == "__main__":
     subsets = ["VGMIDI", "EMOPIA", "Rough4Q"]
     for subset in subsets:
-        train(subset, "force_redownload", 4)
+        train(subset, "force_redownload")

@@ -5,6 +5,8 @@
 
 Emotionally Conditioned Music Generation in ABC Notation
 
+![model](https://github.com/user-attachments/assets/d13f394b-f888-4369-a5d7-e55edf9e8a54)
+
 ## Environment
 ```bash
 conda create -n EMusicGen python=3.9 --yes

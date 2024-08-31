@@ -10,30 +10,37 @@ from modelscope.msdatasets import MsDataset
 from sklearn.svm import LinearSVC
 from tqdm import tqdm
 from utils import APP_KEY, TEMP_DIR, OUTPUT_PATH
+from config import *
 
 
 class DNN(nn.Module):
     def __init__(self):
         super(DNN, self).__init__()
-        self.fc1 = nn.Linear(6, 128)  # 输入层到第一个隐藏层
-        self.fc2 = nn.Linear(128, 64)  # 第一个隐藏层到第二个隐藏层
-        self.fc3 = nn.Linear(64, 4)  # 第二个隐藏层到输出层
-        self.dropout = nn.Dropout(0.5)  # Dropout层，丢弃比例为50%
-        self.relu = nn.ReLU()  # ReLU激活函数
+        self.fc1 = nn.Linear(6, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 32)
+        self.fc5 = nn.Linear(32, 4)
+        self.dropout = nn.Dropout(0.5)
+        self.relu = nn.LeakyReLU(negative_slope=0.01)
 
     def forward(self, x):
         x = self.relu(self.fc1(x))
         x = self.dropout(x)
         x = self.relu(self.fc2(x))
         x = self.dropout(x)
-        x = self.fc3(x)
+        x = self.relu(self.fc3(x))
+        x = self.dropout(x)
+        x = self.relu(self.fc4(x))
+        x = self.dropout(x)
+        x = self.fc5(x)
         return x
 
 
 def data():
     HubApi().login(APP_KEY)
     ds = MsDataset.load(
-        "monetjoe/EMusicGen",
+        f"monetjoe/{DATASET}",
         subset_name="Analysis",
         split="train",
         cache_dir=f"{TEMP_DIR}/cache",
@@ -117,7 +124,9 @@ def dnn(
     train_loader = DataLoader(train_dataset, batch_size=bsz, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=bsz, shuffle=False)
 
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=learning_rate, weight_decay=1e-5
+    )
     best_eval_acc = 0.0
     for ep in range(epochs):
         model.train()
@@ -173,4 +182,4 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     x_train, y_train, x_test, y_test = data()
     dnn(x_train, y_train, x_test, y_test)
-    svm(x_train, y_train, x_test, y_test)
+    # svm(x_train, y_train, x_test, y_test)

@@ -72,7 +72,7 @@ def generate_abc(args):
         vocab_size=128,
     )
     model: nn.Module = TunesFormer(patch_config, char_config, SHARE_WEIGHTS)
-    checkpoint = torch.load(args.weights, weights_only=False)
+    checkpoint = torch.load(args.weights)
     model.load_state_dict(checkpoint["model"])
     model = model.to(DEVICE)
     model.eval()

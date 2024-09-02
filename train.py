@@ -215,7 +215,7 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
             snapshot_download("MuGeminorum/tunesformer", cache_dir=TEMP_DIR)
             + "/weights.pth"
         )
-        checkpoint = torch.load(tunesformer_weights_path, weights_only=False)
+        checkpoint = torch.load(tunesformer_weights_path)
         if torch.cuda.device_count() > 1:
             model.module.load_state_dict(checkpoint["model"])
         else:

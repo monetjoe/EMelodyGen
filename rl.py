@@ -93,7 +93,7 @@ class PPOTrainer:
         if torch.cuda.device_count() > 1:
             model = torch.nn.DataParallel(model)
 
-        checkpoint = torch.load(weights_path, weights_only=False)
+        checkpoint = torch.load(weights_path)
         if torch.cuda.device_count() > 1:
             model.module.load_state_dict(checkpoint["model"])
         else:

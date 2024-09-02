@@ -15,6 +15,9 @@ from music21 import converter, interval, clef, stream
 from utils import Patchilizer, TunesFormer, DEVICE, MSCORE, APP_KEY
 from config import *
 
+HubApi().login(APP_KEY)
+EMUSICGEN_WEIGHTS_DIR = snapshot_download(f"monetjoe/{DATASET}", cache_dir=TEMP_DIR)
+
 
 def get_args(parser: argparse.ArgumentParser):
     parser.add_argument(
@@ -334,11 +337,10 @@ def infers(
     os.makedirs(outdir, exist_ok=True)
     parser = argparse.ArgumentParser()
     args = get_args(parser)
-    emusicgen_weights_dir = snapshot_download(f"monetjoe/{DATASET}", cache_dir=TEMP_DIR)
     return generate_music(
         args,
         emo=emotion,
-        weights=f"{emusicgen_weights_dir}/{dataset.lower()}/weights.pth",
+        weights=f"{EMUSICGEN_WEIGHTS_DIR}/{dataset.lower()}/weights.pth",
         outdir=outdir,
         fix_tempo=fix_tempo,
         fix_mode=fix_mode,
@@ -360,7 +362,7 @@ def generate_exps(
     fix_p=True,
     fix_s=True,
     fix_v=True,
-    total=50,
+    total=100,
     labels=["Q1", "Q2", "Q3", "Q4"],
 ):
     subdir = "none"
@@ -399,7 +401,7 @@ def success_rate(total=100, subset="EMOPIA", labels=["Q1", "Q2", "Q3", "Q4"]):
     outdir = f"{EXPERIMENT_DIR}/{subset.lower()}"
     for emo in labels:
         success, fail = 0, 0
-        while success + fail < total // len(labels):
+        while success + fail < total / len(labels):
             if infers(subset, emo, outdir):
                 success += 1
             else:
@@ -411,7 +413,6 @@ def success_rate(total=100, subset="EMOPIA", labels=["Q1", "Q2", "Q3", "Q4"]):
 
 
 if __name__ == "__main__":
-    HubApi().login(APP_KEY)
     warnings.filterwarnings("ignore")
     if os.path.exists(EXPERIMENT_DIR):
         shutil.rmtree(EXPERIMENT_DIR)

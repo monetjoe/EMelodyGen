@@ -9,9 +9,10 @@ import warnings
 import subprocess
 import soundfile as sf
 from modelscope import snapshot_download
+from modelscope.hub.api import HubApi
 from transformers import GPT2Config
 from music21 import converter, interval, clef, stream
-from utils import Patchilizer, TunesFormer, DEVICE, MSCORE
+from utils import Patchilizer, TunesFormer, DEVICE, MSCORE, APP_KEY
 from config import *
 
 
@@ -359,7 +360,7 @@ def generate_exps(
     fix_p=True,
     fix_s=True,
     fix_v=True,
-    total=100,
+    total=50,
     labels=["Q1", "Q2", "Q3", "Q4"],
 ):
     subdir = "none"
@@ -382,7 +383,7 @@ def generate_exps(
     hit_rate = []
     for emo in labels:
         success, fail = 0, 0
-        while success < total // len(labels):
+        while success < total / len(labels):
             if infers("Rough4Q", emo, outdir, fix_t, fix_m, fix_p, fix_s, fix_v):
                 success += 1
             else:
@@ -410,6 +411,7 @@ def success_rate(total=100, subset="EMOPIA", labels=["Q1", "Q2", "Q3", "Q4"]):
 
 
 if __name__ == "__main__":
+    HubApi().login(APP_KEY)
     warnings.filterwarnings("ignore")
     if os.path.exists(EXPERIMENT_DIR):
         shutil.rmtree(EXPERIMENT_DIR)

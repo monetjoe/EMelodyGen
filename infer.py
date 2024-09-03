@@ -422,7 +422,7 @@ if __name__ == "__main__":
     generate_exps(fix_m=False)  # ablate mode
     generate_exps(fix_p=False)  # ablate avg_pitch (octave)
     generate_exps(fix_s=False)  # ablate pitch_std
-    generate_exps(fix_t=False)  # ablate volume
+    generate_exps(fix_v=False)  # ablate volume
 
     success_rate()  # calc render success rate for EMOPIA
     success_rate(subset="VGMIDI")  # calc render success rate for VGMIDI

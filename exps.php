@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $wavFiles = json_decode($jsonString, true);
     } else {
         // 定义 wav 文件所在的目录
-        $directorys = ['./exps/all', './exps/mode', './exps/pitch', './exps/tempo', './exps/none'];
+        $directorys = ['./exps/std', './exps/volume', './exps/mode', './exps/pitch', './exps/tempo', './exps/none'];
         // GET 请求逻辑
         foreach ($directorys as $directory) {
             $wavFiles = array_merge($wavFiles, glob($directory . '/*.wav'));

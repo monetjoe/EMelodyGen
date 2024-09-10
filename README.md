@@ -37,13 +37,14 @@ cd EMusicGen
 ## Performance
 In different control modes, generate music segments using specified emotional prompts. Have three groups of people label these music segments in a blind listening test. Compare the overlap between the prompts and the labels to describe performance.
 
-| Control | Accuracy | F1-score |                                       Confusion matrix                                        |
-| :-----: | :------: | :------: | :-------------------------------------------------------------------------------------------: |
-|   All   |  0.820   |  0.816   |  ![mat-all](https://github.com/user-attachments/assets/984ee281-3743-4f12-be26-e63b229f6a4a)  |
-|  Pitch  |  0.690   |  0.679   | ![mat-pitch](https://github.com/user-attachments/assets/06f97780-2ce3-461f-b185-e77f07a720ef) |
-|  Mode   |  0.650   |  0.654   | ![mat-mode](https://github.com/user-attachments/assets/05d4f3b9-6af2-4f95-aa0f-410e300d9f76)  |
-|  Tempo  |  0.530   |  0.487   | ![mat-tempo](https://github.com/user-attachments/assets/5a96ca3c-4e97-416e-a35e-ea799485b8f4) |
-|  None   |  0.520   |  0.498   | ![mat-none](https://github.com/user-attachments/assets/a5a15b6a-f847-4050-9547-34d20eb5e8eb)  |
+| Ablation | Accuracy | F1-score |      Confusion matrix      |
+| :------: | :------: | :------: | :------------------------: |
+|  Tempo   |  0.660   |  0.649   | ![](./figs/mat-tempo.jpg)  |
+| Pitch SD |  0.670   |  0.648   |  ![](./figs/mat-std.jpg)   |
+|   Mode   |  0.710   |  0.708   |  ![](./figs/mat-mode.jpg)  |
+|  Octave  |  0.720   |  0.712   | ![](./figs/mat-pitch.jpg)  |
+|  Volume  |  0.860   |  0.859   | ![](./figs/mat-volume.jpg) |
+|   None   |  0.910   |  0.909   |  ![](./figs/mat-none.jpg)  |
 
 ## Future work
 Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.

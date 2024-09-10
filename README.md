@@ -19,7 +19,7 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ## Maintenance
 ```bash
-git clone git@gitee.com:MuGeminorum/EMusicGen.git
+git clone git@github.com:monetjoe/EMusicGen.git
 cd EMusicGen
 ```
 

@@ -5,7 +5,7 @@
 
 Emotionally Conditioned Melody Generation in ABC Notation
 
-![model](https://github.com/user-attachments/assets/d13f394b-f888-4369-a5d7-e55edf9e8a54)
+![](./figs/model.jpg)
 
 ## Environment
 ```bash
@@ -49,4 +49,4 @@ In different control modes, generate music segments using specified emotional pr
 ## Future work
 Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
-![](https://github.com/monetjoe/EMusicGen/assets/20459298/9ee364d5-f80f-460d-9154-58b85ad59d15)
+![](./figs/ppo.png)

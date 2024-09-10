@@ -130,6 +130,7 @@ def generate_music(
     fix_pitch=True,
     fix_std=True,
     fix_volume=True,
+    clean_score=False,
 ):
     patchilizer = Patchilizer()
     patch_config = GPT2Config(
@@ -302,7 +303,7 @@ def generate_music(
             xml = abc2xml(tunes, f"{outdir}/[{emo}]{timestamp}.musicxml")
 
         audio = xml2(xml, "wav")
-        if os.path.exists(xml):
+        if os.path.exists(xml) and clean_score:
             os.remove(xml)
 
         if os.path.exists(audio):

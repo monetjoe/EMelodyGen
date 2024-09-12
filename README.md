@@ -4,6 +4,9 @@
 [![ds](https://img.shields.io/badge/ModelScope-Dataset-624aff.svg)](https://www.modelscope.cn/datasets/monetjoe/EMusicGen)
 [![model](https://img.shields.io/badge/ModelScope-Model-624aff.svg)](https://www.modelscope.cn/models/monetjoe/EMusicGen)
 [![demo](https://img.shields.io/badge/ModelScope-Demo-624aff.svg)](https://www.modelscope.cn/studios/monetjoe/EMusicGen)
+[![ds](https://img.shields.io/badge/HuggingFace-Dataset-ffd21e.svg)](https://huggingface.co/datasets/monetjoe/EMusicGen)
+[![model](https://img.shields.io/badge/HuggingFace-Model-ffd21e.svg)](https://huggingface.co/monetjoe/EMusicGen)
+[![demo](https://img.shields.io/badge/HuggingFace-Demo-ffd21e.svg)](https://huggingface.co/spaces/monetjoe/EMusicGen)
 
 Emotionally Conditioned Melody Generation in ABC Notation
 

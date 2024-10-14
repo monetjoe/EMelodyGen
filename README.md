@@ -15,10 +15,9 @@ Emotionally Conditioned Melody Generation in ABC Notation
 
 ## Environment
 ```bash
-conda create -n EMusicGen python=3.9 --yes
-conda activate EMusicGen
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+conda create -n py311 python=3.11 -y
+conda activate py311
+pip install -r requirements.txt
 ```
 
 ## Maintenance
@@ -63,7 +62,7 @@ Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement lear
 
 ## Cite
 ```bibtex
-@article{Zhou2024EMusicGen,
+@inproceedings{Zhou2024EMusicGen,
   title     = {EMusicGen: Emotion-Conditioned Melody Generation in ABC Notation},
   author    = {Monan Zhou, Xiaobing Li, Feng Yu and Wei Li},
   month     = {Sep},

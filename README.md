@@ -26,6 +26,11 @@ git clone git@github.com:monetjoe/EMusicGen.git
 cd EMusicGen
 ```
 
+## Train
+```bash
+python train.py
+```
+
 ## Success rate
 | Dataset | Rough4Q | VGMIDI | EMOPIA |
 | :-----: | :-----: | :----: | :----: |

@@ -7,9 +7,8 @@ from torch import Tensor
 from transformers import GPT2Config
 from torch.distributions import Categorical
 from modelscope.msdatasets import MsDataset
-from modelscope.hub.api import HubApi
 from modelscope import snapshot_download
-from utils import TunesFormer, Patchilizer, DEVICE, APP_KEY
+from utils import TunesFormer, Patchilizer, DEVICE
 from generate import infer_abc
 from config import *
 
@@ -21,12 +20,10 @@ class MusicGenEnv:
         self.subset = subset
 
     def prepare_prompts(self):
-        HubApi().login(APP_KEY)
         ds = MsDataset.load(
             f"monetjoe/{DATASET}",
             subset_name=self.subset,
             cache_dir=TEMP_DIR,
-            trust_remote_code=True,
         )
         dataset = list(ds["train"]) + list(ds["test"])
         prompt_set = set("A:Q1\n", "A:Q2\n", "A:Q3\n", "A:Q4\n", "")

@@ -8,9 +8,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
-from utils import Patchilizer, TunesFormer, PatchilizedData, DEVICE, APP_KEY
+from utils import Patchilizer, TunesFormer, PatchilizedData, DEVICE
 from modelscope.msdatasets import MsDataset
-from modelscope.hub.api import HubApi
 from modelscope import snapshot_download
 from tqdm import tqdm
 from transformers import GPT2Config, get_scheduler
@@ -36,12 +35,10 @@ def init(bsz=4):
         max_position_embeddings=PATCH_SIZE,
         vocab_size=128,
     )
-    model: nn.Module = TunesFormer(
-        patch_config, char_config, SHARE_WEIGHTS).to(DEVICE)
+    model: nn.Module = TunesFormer(patch_config, char_config, SHARE_WEIGHTS).to(DEVICE)
     # print parameter number
     print(
-        f"Parameter Number: {sum(p.numel()
-                                 for p in model.parameters() if p.requires_grad)}"
+        f"Parameter Number: {sum(p.numel() for p in model.parameters() if p.requires_grad)}"
     )
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
@@ -163,12 +160,10 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
         clean_caches(subset)
 
     # load data
-    HubApi().login(APP_KEY)
     dataset = MsDataset.load(
         f"monetjoe/{DATASET}",
         subset_name=subset,
         cache_dir=f"{TEMP_DIR}/cache",
-        trust_remote_code=True,
         download_mode=dld_mode,
     )
     classes = dataset["test"].features["label"].names
@@ -286,8 +281,7 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
             )
             break
 
-    print(f"Best Eval Epoch : {str(best_epoch)
-                               }\nMin Eval Loss : {str(min_eval_loss)}")
+    print(f"Best Eval Epoch: {str(best_epoch)}\nMin Eval Loss: {str(min_eval_loss)}")
 
 
 if __name__ == "__main__":

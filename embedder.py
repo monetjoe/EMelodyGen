@@ -3,13 +3,11 @@ import json
 import warnings
 import torch
 import torch.nn as nn
-import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-from modelscope.hub.api import HubApi
 from modelscope.msdatasets import MsDataset
 from sklearn.svm import LinearSVC
 from tqdm import tqdm
-from utils import APP_KEY, TEMP_DIR, OUTPUT_PATH
+from utils import TEMP_DIR, OUTPUT_PATH
 from config import *
 
 
@@ -38,13 +36,11 @@ class DNN(nn.Module):
 
 
 def data():
-    HubApi().login(APP_KEY)
     ds = MsDataset.load(
         f"monetjoe/{DATASET}",
         subset_name="Analysis",
         split="train",
         cache_dir=f"{TEMP_DIR}/cache",
-        trust_remote_code=True,
     )
     dataset = list(ds)
     p90 = int(len(dataset) * 0.9)

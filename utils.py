@@ -11,7 +11,6 @@ from samplings import top_p_sampling, top_k_sampling, temperature_sampling
 
 os.environ["MODELSCOPE_LOG_LEVEL"] = "40"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-APP_KEY = os.getenv("ms_app_key")
 MSCORE = os.getenv("mscore")
 
 
@@ -45,8 +44,7 @@ class Patchilizer:
         """
         Convert a bar into a patch of specified length.
         """
-        patch = [self.bos_token_id] + [ord(c)
-                                       for c in bar] + [self.eos_token_id]
+        patch = [self.bos_token_id] + [ord(c) for c in bar] + [self.eos_token_id]
         patch = patch[:patch_size]
         patch += [self.pad_token_id] * (patch_size - len(patch))
         return patch
@@ -79,15 +77,13 @@ class Patchilizer:
 
         for line in lines:
             if len(line) > 1 and (
-                (line[0].isalpha() and line[1] ==
-                 ":") or line.startswith("%%score")
+                (line[0].isalpha() and line[1] == ":") or line.startswith("%%score")
             ):
                 if body:
                     bars = self.split_bars(body)
                     patches.extend(
                         self.bar2patch(
-                            bar + "\n" if idx == len(bars) -
-                            1 else bar, patch_size
+                            bar + "\n" if idx == len(bars) - 1 else bar, patch_size
                         )
                         for idx, bar in enumerate(bars)
                     )
@@ -104,10 +100,8 @@ class Patchilizer:
             )
 
         if add_special_patches:
-            bos_patch = [self.bos_token_id] * \
-                (patch_size - 1) + [self.eos_token_id]
-            eos_patch = [self.bos_token_id] + \
-                [self.eos_token_id] * (patch_size - 1)
+            bos_patch = [self.bos_token_id] * (patch_size - 1) + [self.eos_token_id]
+            eos_patch = [self.bos_token_id] + [self.eos_token_id] * (patch_size - 1)
             patches = [bos_patch] + patches + [eos_patch]
 
         return patches[:patch_length]
@@ -216,8 +210,7 @@ class CharLevelDecoder(PreTrainedModel):
         tokens = tokens.reshape(1, -1)
 
         # Get input embeddings
-        tokens = torch.nn.functional.embedding(
-            tokens, self.base.transformer.wte.weight)
+        tokens = torch.nn.functional.embedding(tokens, self.base.transformer.wte.weight)
 
         # Concatenate the encoded patch with the input embeddings
         tokens = torch.cat((encoded_patch, tokens[:, 1:, :]), dim=1)
@@ -226,8 +219,7 @@ class CharLevelDecoder(PreTrainedModel):
         outputs = self.base(inputs_embeds=tokens)
 
         # Get probabilities of next token
-        probs = torch.nn.functional.softmax(
-            outputs.logits.squeeze(0)[-1], dim=-1)
+        probs = torch.nn.functional.softmax(outputs.logits.squeeze(0)[-1], dim=-1)
 
         return probs
 
@@ -249,8 +241,7 @@ class TunesFormer(PreTrainedModel):
                 encoder_config.num_hidden_layers, decoder_config.num_hidden_layers
             )
 
-            max_context_size = max(
-                encoder_config.max_length, decoder_config.max_length)
+            max_context_size = max(encoder_config.max_length, decoder_config.max_length)
 
             max_position_embeddings = max(
                 encoder_config.max_position_embeddings,
@@ -281,8 +272,7 @@ class TunesFormer(PreTrainedModel):
         :return: the decoded patches
         """
         patches = patches.reshape(len(patches), -1, PATCH_SIZE)
-        encoded_patches = self.patch_level_decoder(
-            patches)["last_hidden_state"]
+        encoded_patches = self.patch_level_decoder(patches)["last_hidden_state"]
 
         return self.char_level_decoder(
             encoded_patches.squeeze(0)[:-1, :],
@@ -305,8 +295,7 @@ class TunesFormer(PreTrainedModel):
         :return: the generated patches
         """
         patches = patches.reshape(len(patches), -1, PATCH_SIZE)
-        encoded_patches = self.patch_level_decoder(
-            patches)["last_hidden_state"]
+        encoded_patches = self.patch_level_decoder(patches)["last_hidden_state"]
 
         if tokens == None:
             tokens = torch.tensor([self.bos_token_id], device=self.device)
@@ -323,8 +312,7 @@ class TunesFormer(PreTrainedModel):
                 n_seed = None
 
             prob = (
-                self.char_level_decoder.generate(
-                    encoded_patches[0][-1], tokens)
+                self.char_level_decoder.generate(encoded_patches[0][-1], tokens)
                 .cpu()
                 .detach()
                 .numpy()
@@ -332,8 +320,7 @@ class TunesFormer(PreTrainedModel):
 
             prob = top_p_sampling(prob, top_p=top_p, return_probs=True)
             prob = top_k_sampling(prob, top_k=top_k, return_probs=True)
-            token = temperature_sampling(
-                prob, temperature=temperature, seed=n_seed)
+            token = temperature_sampling(prob, temperature=temperature, seed=n_seed)
 
             generated_patch.append(token)
             if token == self.eos_token_id or len(tokens) >= PATCH_SIZE - 1:

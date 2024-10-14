@@ -1,11 +1,11 @@
-import torch
 import numpy as np
+import torch
 import torch.nn as nn
 import torch.optim as optim
-from tqdm import tqdm
 from torch import Tensor
-from transformers import GPT2Config
 from torch.distributions import Categorical
+from tqdm import tqdm
+from transformers import GPT2Config
 from utils import TunesFormer, Patchilizer, DEVICE
 from modelscope.msdatasets import MsDataset
 from modelscope import snapshot_download

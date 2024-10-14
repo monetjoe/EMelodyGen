@@ -1,9 +1,9 @@
 import os
 import json
 import time
-import torch
 import random
 import shutil
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader

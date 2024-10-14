@@ -1,8 +1,8 @@
 import re
 import os
 import time
-import torch
 import argparse
+import torch
 import torch.nn as nn
 from transformers import GPT2Config
 from utils import Patchilizer, TunesFormer, DEVICE

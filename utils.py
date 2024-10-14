@@ -1,11 +1,11 @@
 import os
 import re
-import torch
 import random
+import torch
+from torch.utils.data import Dataset
 from config import *
 from tqdm import tqdm
 from unidecode import unidecode
-from torch.utils.data import Dataset
 from transformers import GPT2Model, GPT2LMHeadModel, PreTrainedModel
 from samplings import top_p_sampling, top_k_sampling, temperature_sampling
 

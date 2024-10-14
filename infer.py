@@ -8,10 +8,10 @@ import argparse
 import warnings
 import subprocess
 import soundfile as sf
+from utils import Patchilizer, TunesFormer, DEVICE, MSCORE
 from modelscope import snapshot_download
 from transformers import GPT2Config
 from music21 import converter, interval, clef, stream
-from utils import Patchilizer, TunesFormer, DEVICE, MSCORE
 from config import *
 
 EMUSICGEN_WEIGHTS_DIR = snapshot_download(f"monetjoe/{DATASET}", cache_dir=TEMP_DIR)

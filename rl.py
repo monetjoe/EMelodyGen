@@ -6,9 +6,9 @@ from tqdm import tqdm
 from torch import Tensor
 from transformers import GPT2Config
 from torch.distributions import Categorical
+from utils import TunesFormer, Patchilizer, DEVICE
 from modelscope.msdatasets import MsDataset
 from modelscope import snapshot_download
-from utils import TunesFormer, Patchilizer, DEVICE
 from generate import infer_abc
 from config import *
 

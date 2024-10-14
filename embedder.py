@@ -4,10 +4,10 @@ import warnings
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
+from utils import TEMP_DIR, OUTPUT_PATH
 from modelscope.msdatasets import MsDataset
 from sklearn.svm import LinearSVC
 from tqdm import tqdm
-from utils import TEMP_DIR, OUTPUT_PATH
 from config import *
 
 

@@ -53,7 +53,7 @@ def data():
                 item["mode"],
                 item["pitch"],
                 item["range"],
-                item["variation"],
+                item["pitchSD"],
                 item["tempo"],
                 item["volume"],
             ]
@@ -67,7 +67,7 @@ def data():
                 item["mode"],
                 item["pitch"],
                 item["range"],
-                item["variation"],
+                item["pitchSD"],
                 item["tempo"],
                 item["volume"],
             ]
@@ -177,5 +177,5 @@ def dnn(
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     x_train, y_train, x_test, y_test = data()
-    dnn(x_train, y_train, x_test, y_test)
+    dnn(x_train, y_train, x_test, y_test, epochs=1)
     # svm(x_train, y_train, x_test, y_test)

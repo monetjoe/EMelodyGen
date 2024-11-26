@@ -12,6 +12,16 @@ Emotionally Conditioned Melody Generation in ABC Notation
 
 ![](./figs/model.jpg)
 
+Our work represents the first exploratory attempt to generate emotion-conditioned melodies using ABC notation. Previous research on emotion-conditioned melody generation based on symbolic music has predominantly focused on MIDI or other label systems, so we have no direct comparisons, datasets, or methods to rely on. Our goal is to generate emotionally controlled melodies with relatively consistent scores, which is a highly challenging task.
+
+Given the lack of ABC notation datasets with emotion labels, we turned to existing MIDI datasets with emotion annotations, namely EMOPIA and VGMIDI. We wrote scripts to convert them into ABC notation format and clean the data. However, training the Tuneformer model with these datasets was challenging, as it struggled to produce well-formed scores, resulting in a low error-free rate (the error-free rate is calculated based on the music21 library, which determines whether the generated score can be parsed correctly without errors). These datasets, although labeled, were not suitable for training.
+
+On the other hand, training Tuneformer with datasets containing well-formed scores (such as JSB, Nottingham, Wikifonia, Essen, and Irishman, ...) produced high error-free rates, but these datasets lacked emotion labels, making them suitable for training but without annotations. As a result, we conducted statistical correlation experiments on the merged VGMIDI and EMOPIA datasets, identifying features strongly correlated with emotions. These experimental findings were then used as prior knowledge to guide the automatic rough labeling of the well-formed score dataset, creating the Rough4Q dataset. To mitigate the impact of label transfer across datasets, we involved prior knowledge from music psychology to select mode and pitch standard deviation (pitchSD) as criteria for roughly labeling the 4Q emotions. These features were then used as control variables in the embedding stage.
+
+However, these two features alone were insufficient to fully control emotion-conditioned melodies. Therefore, we incorporated the previous statistical findings and music psychology knowledge, introducing three additional key features—tempo, octave, and volume—which are more easily controlled in the model’s output. This allowed us to control five features in total.
+
+We also compared the error-free rates of the Tuneformer model trained on Rough4Q, VGMIDI, and EMOPIA datasets, and selected the best-performing Rough4Q model for further experiments. Based on statistical experiments, music psychology findings, and auditory design, we created a feature template that allows for emotional control. We then used this template to conduct ablation experiments on the different features to validate the effectiveness of emotional control and assess the contribution of each feature to the overall control.
+
 ## Environment
 ```bash
 conda create -n py311 python=3.11 -y

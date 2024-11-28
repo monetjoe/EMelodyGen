@@ -54,7 +54,7 @@ python train.py
 | Volume (dB) |   +5    |   +10   |   0   |   0   |
 
 ## Performance
-In different control modes, generate music segments using specified emotional prompts. Have three groups of people label these music segments in a blind listening test. Compare the overlap between the prompts and the labels to describe performance.
+In different control modes, generate music segments using specified emotional prompts. Under blind conditions, we had 3 groups of music enthusiasts listen to the pieces and label them according to their perceived 4Q emotion. To minimize subjective bias, we employed a best-of-three format: if at least 2 of the 3 people identified a piece as a specific emotion, that emotion was considered the true emotion. If all 3 people provided 3 different responses, we randomized controversial questions and used another 3 people to retake the test until all discrepancies were resolved. So each of the initial 3 groups contained one person, after the above process, each of them was expanded to 2-3 people. Compare the overlap between the prompts and the labels to describe performance.
 
 | Ablation | Accuracy | F1-score |      Confusion matrix      |
 | :------: | :------: | :------: | :------------------------: |

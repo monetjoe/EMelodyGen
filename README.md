@@ -1,14 +1,14 @@
-# EMusicGen
-[![license](https://img.shields.io/badge/License-LGPL-yellow.svg)](https://github.com/monetjoe/EMusicGen/blob/master/LICENSE)
-[![Python application](https://github.com/monetjoe/EMusicGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMusicGen/actions/workflows/python-app.yml)
-[![ds](https://img.shields.io/badge/ModelScope-Dataset-624aff.svg)](https://www.modelscope.cn/datasets/monetjoe/EMusicGen)
-[![model](https://img.shields.io/badge/ModelScope-Model-624aff.svg)](https://www.modelscope.cn/models/monetjoe/EMusicGen)
-[![demo](https://img.shields.io/badge/ModelScope-Demo-624aff.svg)](https://www.modelscope.cn/studios/monetjoe/EMusicGen)
-[![ds](https://img.shields.io/badge/HuggingFace-Dataset-ffd21e.svg)](https://huggingface.co/datasets/monetjoe/EMusicGen)
-[![model](https://img.shields.io/badge/HuggingFace-Model-ffd21e.svg)](https://huggingface.co/monetjoe/EMusicGen)
-[![demo](https://img.shields.io/badge/HuggingFace-Demo-ffd21e.svg)](https://huggingface.co/spaces/monetjoe/EMusicGen)
+# EMelodyGen
+[![license](https://img.shields.io/badge/License-LGPL-yellow.svg)](https://github.com/monetjoe/EMelodyGen/blob/master/LICENSE)
+[![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml)
+[![ds](https://img.shields.io/badge/ModelScope-Dataset-624aff.svg)](https://www.modelscope.cn/datasets/monetjoe/EMelodyGen)
+[![model](https://img.shields.io/badge/ModelScope-Model-624aff.svg)](https://www.modelscope.cn/models/monetjoe/EMelodyGen)
+[![demo](https://img.shields.io/badge/ModelScope-Demo-624aff.svg)](https://www.modelscope.cn/studios/monetjoe/EMelodyGen)
+[![ds](https://img.shields.io/badge/HuggingFace-Dataset-ffd21e.svg)](https://huggingface.co/datasets/monetjoe/EMelodyGen)
+[![model](https://img.shields.io/badge/HuggingFace-Model-ffd21e.svg)](https://huggingface.co/monetjoe/EMelodyGen)
+[![demo](https://img.shields.io/badge/HuggingFace-Demo-ffd21e.svg)](https://huggingface.co/spaces/monetjoe/EMelodyGen)
 
-Emotionally Conditioned Melody Generation in ABC Notation
+Emotionally Conditioned Melody Generation in ABC Notation with RLHF
 
 ![](./figs/model.jpg)
 
@@ -31,8 +31,8 @@ pip install -r requirements.txt
 
 ## Maintenance
 ```bash
-git clone git@github.com:monetjoe/EMusicGen.git
-cd EMusicGen
+git clone git@github.com:monetjoe/EMelodyGen.git
+cd EMelodyGen
 ```
 
 ## Train
@@ -68,7 +68,7 @@ In different control modes, generate music segments using specified emotional pr
 ## Future work
 However, our current work still faces several limitations. For instance, conclusions derived from statistical correlations only provide a rough guide for designing emotional templates and do not fully reflect the true distribution of features within the emotional space. Additionally, due to the relatively small amount of data and the concentration on pop and game music styles, our analysis results are susceptible to [Simpson's Paradox](https://en.wikipedia.org/wiki/Simpson%27s_paradox). Furthermore, melody generation based on emotional control templates often results in music that is concentrated on a few specified emotions, rather than representing the complete emotional quadrant. For instance, when aiming to generate music for the Q2 quadrant, specifying templates may lead to a concentration on tense music, whereas anger and some other emotions also fall within Q2. Although this approach allows for high precision in 4Q representation, it may lead to a lack of emotional diversity in the generated music.
 
-To address these issues, we have released an application demonstration on [HuggingFace](https://huggingface.co/spaces/monetjoe/EMusicGen) based on the inference code of our generation system. This demonstration enables users to design and specify emotional templates, utilizing large-scale data to progressively refine feature distributions for greater accuracy. Additionally, the error-free rate is merely a necessary condition for quality but does not fully reflect the true quality of the generated melodies. Future work could incorporate reinforcement learning feedback in the demonstration to adjust the system's generation quality based on user-generated evaluations. Furthermore, while this study focuses on melody, chords are a crucial factor influencing musical emotion. Therefore, our demonstration also includes an option to add chords, and their impact will be considered in future research.
+To address these issues, we have released an application demonstration on [HuggingFace](https://huggingface.co/spaces/monetjoe/EMelodyGen) based on the inference code of our generation system. This demonstration enables users to design and specify emotional templates, utilizing large-scale data to progressively refine feature distributions for greater accuracy. Additionally, the error-free rate is merely a necessary condition for quality but does not fully reflect the true quality of the generated melodies. Future work could incorporate reinforcement learning feedback in the demonstration to adjust the system's generation quality based on user-generated evaluations. Furthermore, while this study focuses on melody, chords are a crucial factor influencing musical emotion. Therefore, our demonstration also includes an option to add chords, and their impact will be considered in future research.
 
 ![](./figs/ppo.png)
 
@@ -76,14 +76,14 @@ Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement lear
 
 ## Cite
 ```bibtex
-@inproceedings{Zhou2024EMusicGen,
-  title     = {EMusicGen: Emotion-Conditioned Melody Generation in ABC Notation},
+@inproceedings{Zhou2024EMelodyGen,
+  title     = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with RLHF},
   author    = {Monan Zhou, Xiaobing Li, Feng Yu and Wei Li},
   month     = {Sep},
   year      = {2024},
   publisher = {GitHub},
   version   = {0.1},
-  url       = {https://github.com/monetjoe/EMusicGen}
+  url       = {https://github.com/monetjoe/EMelodyGen}
 }
 ```
 

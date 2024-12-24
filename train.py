@@ -209,7 +209,7 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
 
     if LOAD_FROM_CHECKPOINT:
         tunesformer_weights_path = (
-            snapshot_download("MuGeminorum/tunesformer", cache_dir=TEMP_DIR)
+            snapshot_download("Genius-Society/tunesformer", cache_dir=TEMP_DIR)
             + "/weights.pth"
         )
         checkpoint = torch.load(tunesformer_weights_path)

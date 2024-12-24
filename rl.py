@@ -71,7 +71,7 @@ class PPOTrainer:
 
     def load_model(
         self,
-        weights_path=snapshot_download("MuGeminorum/tunesformer", cache_dir=TEMP_DIR)
+        weights_path=snapshot_download("Genius-Society/tunesformer", cache_dir=TEMP_DIR)
         + "/weights.pth",
     ):
         patch_config = GPT2Config(

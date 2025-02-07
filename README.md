@@ -7,7 +7,7 @@ Convert MIDI into abc jsonl dataset
 
 ## Maintenance
 ```bash
-git clone git@gitee.com:MuGeminorum/mids2abc_dataset.git
+git clone git@gitee.com:monetjoe/mids2abc_dataset.git
 cd mids2abc_dataset
 ```
 

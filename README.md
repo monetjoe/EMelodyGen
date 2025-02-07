@@ -34,7 +34,7 @@ However, since the ABC score and the XML score data are of equal status, the sho
 ## Transpose ABC Notations
 transpose abc scores to 15 tones:
 
-![image](https://github.com/monetjoe/abc_transposition/assets/20459298/776fc0cd-6f48-4c68-90aa-084915252e05)
+![image](https://github.com/monet-joe/abc_transposition/assets/20459298/776fc0cd-6f48-4c68-90aa-084915252e05)
 
 ## Test WebUI
 ```bash

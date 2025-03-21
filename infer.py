@@ -14,7 +14,7 @@ from transformers import GPT2Config
 from music21 import converter, interval, clef, stream
 from config import *
 
-EMUSICGEN_WEIGHTS_DIR = snapshot_download(f"monetjoe/{DATASET}", cache_dir=TEMP_DIR)
+EMelodyGen_WEIGHTS_DIR = snapshot_download(f"monetjoe/{DATASET}", cache_dir=TEMP_DIR)
 
 
 def get_args(parser: argparse.ArgumentParser):
@@ -339,7 +339,7 @@ def infers(
     return generate_music(
         args,
         emo=emotion,
-        weights=f"{EMUSICGEN_WEIGHTS_DIR}/{dataset.lower()}/weights.pth",
+        weights=f"{EMelodyGen_WEIGHTS_DIR}/{dataset.lower()}/weights.pth",
         outdir=outdir,
         fix_tempo=fix_tempo,
         fix_mode=fix_mode,

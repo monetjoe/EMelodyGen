@@ -1,6 +1,6 @@
 # EMelodyGen
 [![license](https://img.shields.io/badge/License-LGPL-yellow.svg)](https://github.com/monetjoe/EMelodyGen/blob/master/LICENSE)
-[![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml)
+<!-- [![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml) -->
 [![ds](https://img.shields.io/badge/ModelScope-Dataset-624aff.svg)](https://www.modelscope.cn/datasets/monetjoe/EMelodyGen)
 [![model](https://img.shields.io/badge/ModelScope-Model-624aff.svg)](https://www.modelscope.cn/models/monetjoe/EMelodyGen)
 [![demo](https://img.shields.io/badge/ModelScope-Demo-624aff.svg)](https://www.modelscope.cn/studios/monetjoe/EMelodyGen)
@@ -8,7 +8,7 @@
 [![model](https://img.shields.io/badge/HuggingFace-Model-ffd21e.svg)](https://huggingface.co/monetjoe/EMelodyGen)
 [![demo](https://img.shields.io/badge/HuggingFace-Demo-ffd21e.svg)](https://huggingface.co/spaces/monetjoe/EMelodyGen)
 
-Emotionally Conditioned Melody Generation in ABC Notation with RLHF
+Emotionally Conditioned Melody Generation in ABC Notation <!--with RLHF-->
 
 ![](./figs/model.jpg)
 
@@ -74,7 +74,7 @@ To address these issues, we have released an application demonstration on [Huggi
 
 Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
-## Cite
+<!-- ## Cite
 ```bibtex
 @inproceedings{Zhou2024EMelodyGen,
   title     = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with RLHF},
@@ -85,7 +85,7 @@ Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement lear
   version   = {0.1},
   url       = {https://github.com/monetjoe/EMelodyGen}
 }
-```
+``` -->
 
 ## Thanks
 Thanks to [@sanderwood](https://github.com/sanderwood) and [@ElectricAlexis](https://github.com/ElectricAlexis) for providing technical supports on data processing and feature extraction.

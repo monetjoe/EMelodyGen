@@ -1,12 +1,8 @@
 # EMelodyGen
 [![license](https://img.shields.io/badge/License-LGPL-yellow.svg)](https://github.com/monetjoe/EMelodyGen/blob/master/LICENSE)
+[![ms](https://img.shields.io/badge/ModelScope-EMelodyGen-624aff.svg)](https://www.modelscope.cn/collections/EMelodyGen-1811c77b0a5042)
+[![hf](https://img.shields.io/badge/HuggingFace-EMelodyGen-ffd21e.svg)](https://huggingface.co/collections/monetjoe/emelodygen-67dd1c0471027d42fa595f62)
 <!-- [![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml) -->
-[![ds](https://img.shields.io/badge/ModelScope-Dataset-624aff.svg)](https://www.modelscope.cn/datasets/monetjoe/EMelodyGen)
-[![model](https://img.shields.io/badge/ModelScope-Model-624aff.svg)](https://www.modelscope.cn/models/monetjoe/EMelodyGen)
-[![demo](https://img.shields.io/badge/ModelScope-Demo-624aff.svg)](https://www.modelscope.cn/studios/monetjoe/EMelodyGen)
-[![ds](https://img.shields.io/badge/HuggingFace-Dataset-ffd21e.svg)](https://huggingface.co/datasets/monetjoe/EMelodyGen)
-[![model](https://img.shields.io/badge/HuggingFace-Model-ffd21e.svg)](https://huggingface.co/monetjoe/EMelodyGen)
-[![demo](https://img.shields.io/badge/HuggingFace-Demo-ffd21e.svg)](https://huggingface.co/spaces/monetjoe/EMelodyGen)
 
 Emotionally Conditioned Melody Generation in ABC Notation <!--with RLHF-->
 

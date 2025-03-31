@@ -70,18 +70,18 @@ To address these issues, we have released an application demonstration on [Huggi
 
 Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
-<!-- ## Cite
+## Cite
 ```bibtex
-@inproceedings{Zhou2024EMelodyGen,
-  title     = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with RLHF},
-  author    = {Monan Zhou, Xiaobing Li, Feng Yu and Wei Li},
-  month     = {Sep},
-  year      = {2024},
+@inproceedings{Zhou2025EMelodyGen,
+  title     = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with the Musical Feature Template},
+  author    = {Monan Zhou and Xiaobing Li and Feng Yu and Wei Li},
+  month     = {Mar},
+  year      = {2025},
   publisher = {GitHub},
   version   = {0.1},
   url       = {https://github.com/monetjoe/EMelodyGen}
 }
-``` -->
+```
 
 ## Thanks
 Thanks to [@sanderwood](https://github.com/sanderwood) and [@ElectricAlexis](https://github.com/ElectricAlexis) for providing technical supports on data processing and feature extraction.

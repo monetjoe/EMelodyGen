@@ -7,7 +7,7 @@ from multiprocessing import Pool
 # utils
 CPU_ALL_IN = False
 LOG_FILE = "./data/log.txt"
-MSCORE3 = "D:/Program Files/MuseScore 3/bin/MuseScore3.exe"
+MSCORE3 = os.getenv("mscore")
 TONE_CHOICES = [
     "Cb",
     "Gb",

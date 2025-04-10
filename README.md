@@ -1,20 +1,21 @@
-# mids2abc_dataset
-[![Python application](https://github.com/monetjoe/mids2abc_dataset/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/mids2abc_dataset/actions/workflows/python-app.yml)
+# EMelodyGen data processor
+[![License: MIT](https://img.shields.io/badge/license-MIT-98c610.svg)](./LICENSE)
+[![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=mid2abc)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml)
 
 Convert MIDI into abc jsonl dataset
 
-![绘图1](https://github.com/monetjoe/mids2abc_dataset/assets/20459298/0aaee260-d8e3-4162-a64f-f62c4789f74d)
+![](https://github.com/monetjoe/mids2abc_dataset/assets/20459298/0aaee260-d8e3-4162-a64f-f62c4789f74d)
 
 ## Maintenance
 ```bash
-git clone git@github.com:monetjoe/mids2abc_dataset.git
-cd mids2abc_dataset
+git clone -b mid2abc git@github.com:monetjoe/EMelodyGen.git
+cd EMelodyGen
 ```
 
 ## Environment
 ```bash
-conda create -n data --yes --file conda.txt
-conda activate data
+conda create -n py39 --yes --file conda.txt
+conda activate py39
 pip install -r requirements.txt
 ```
 
@@ -34,7 +35,7 @@ However, since the ABC score and the XML score data are of equal status, the sho
 ## Transpose ABC Notations
 transpose abc scores to 15 tones:
 
-![image](https://github.com/monet-joe/abc_transposition/assets/20459298/776fc0cd-6f48-4c68-90aa-084915252e05)
+![](https://github.com/monet-joe/abc_transposition/assets/20459298/776fc0cd-6f48-4c68-90aa-084915252e05)
 
 ## Test WebUI
 ```bash

@@ -1,7 +1,6 @@
-george-chou/*
 output_tunes/*
 rename.sh
-test.py
+test.*
 data/*
 *__pycache__*
 *.abc

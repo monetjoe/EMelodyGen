@@ -1,7 +1,7 @@
 # EMelodyGen
 Emotionally Conditioned Melody Generation in ABC Notation <!--with RLHF-->
 
-[![license](https://img.shields.io/github/license/monetjoe/EMelodyGen.svg)](https://github.com/monetjoe/EMelodyGen/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/monetjoe/EMelodyGen.svg)](./LICENSE)
 [![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml)
 [![hf](https://img.shields.io/badge/HuggingFace-EMelodyGen-ffd21e.svg)](https://huggingface.co/collections/monetjoe/emelodygen-67dd1c0471027d42fa595f62)
 [![ms](https://img.shields.io/badge/ModelScope-EMelodyGen-624aff.svg)](https://www.modelscope.cn/collections/EMelodyGen-1811c77b0a5042)

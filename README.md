@@ -1,6 +1,6 @@
 # EMelodyGen data processor
 [![license](https://img.shields.io/github/license/monetjoe/EMelodyGen.svg)](./LICENSE)
-[![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=mid2abc)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml)
+[![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml)
 
 Convert MIDI into abc jsonl dataset
 
@@ -8,7 +8,7 @@ Convert MIDI into abc jsonl dataset
 
 ## Maintenance
 ```bash
-git clone -b mid2abc git@github.com:monetjoe/EMelodyGen.git
+git clone -b data git@github.com:monetjoe/EMelodyGen.git
 cd EMelodyGen
 ```
 

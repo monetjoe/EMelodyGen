@@ -3,8 +3,8 @@ Emotionally Conditioned Melody Generation in ABC Notation <!--with RLHF-->
 
 [![license](https://img.shields.io/github/license/monetjoe/EMelodyGen.svg)](./LICENSE)
 [![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml)
-[![hf](https://img.shields.io/badge/HuggingFace-EMelodyGen-ffd21e.svg)](https://huggingface.co/collections/monetjoe/emelodygen-67dd1c0471027d42fa595f62)
-[![ms](https://img.shields.io/badge/ModelScope-EMelodyGen-624aff.svg)](https://www.modelscope.cn/collections/EMelodyGen-1811c77b0a5042)
+[![hf](https://img.shields.io/badge/huggingface-EMelodyGen-ffd21e.svg)](https://huggingface.co/collections/monetjoe/emelodygen-67dd1c0471027d42fa595f62)
+[![ms](https://img.shields.io/badge/modelscope-EMelodyGen-624aff.svg)](https://www.modelscope.cn/collections/EMelodyGen-1811c77b0a5042)
 
 Our work represents the first exploratory attempt to generate emotion-conditioned melodies using ABC notation. Previous research on emotion-conditioned melody generation based on symbolic music has predominantly focused on MIDI or other label systems, so we have no direct comparisons, datasets, or methods to rely on. Our goal is to generate emotionally controlled melodies with relatively consistent scores, which is a highly challenging task.
 

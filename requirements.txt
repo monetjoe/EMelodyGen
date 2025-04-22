@@ -1,6 +1,7 @@
-torch==2.3.1+cu118
+torch==2.6.0+cu118
+torchvision==0.21.0+cu118
 -f https://mirrors.aliyun.com/pytorch-wheels/cu118
-modelscope[framework]==1.18.1
+modelscope[framework]==1.21
 transformers==4.23
 samplings==0.1.7
 datasets==2.18
@@ -11,4 +12,3 @@ soundfile
 unidecode
 matplotlib
 scikit-learn
-# -i https://pypi.tuna.tsinghua.edu.cn/simple

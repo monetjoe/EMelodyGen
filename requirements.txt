@@ -1,6 +1,6 @@
 torch==2.6.0+cu118
 -f https://mirrors.aliyun.com/pytorch-wheels/cu118
-modelscope[framework]==1.21
+modelscope[framework]==1.18
 transformers==4.23
 samplings==0.1.7
 datasets==2.18

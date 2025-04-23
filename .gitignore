@@ -1,4 +1,4 @@
-__pycache__/*
+*__pycache__*
 output/*
 rename.sh
 test.py
@@ -9,3 +9,4 @@ key.txt
 *.wav
 exps/*
 exps.zip
+test.*

@@ -73,14 +73,14 @@ Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement lear
 
 ## Cite
 ```bibtex
-@inproceedings{Zhou2025EMelodyGen,
-  title     = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with the Musical Feature Template},
-  author    = {Monan Zhou and Xiaobing Li and Feng Yu and Wei Li},
-  month     = {Mar},
-  year      = {2025},
-  publisher = {GitHub},
-  version   = {0.1},
-  url       = {https://github.com/monetjoe/EMelodyGen}
+@misc{zhou2025emelodygenemotionconditionedmelodygeneration,
+  title         = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with the Musical Feature Template},
+  author        = {Monan Zhou and Xiaobing Li and Feng Yu and Wei Li},
+  year          = {2025},
+  eprint        = {2309.13259},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.IR},
+  url           = {https://arxiv.org/abs/2309.13259}
 }
 ```
 

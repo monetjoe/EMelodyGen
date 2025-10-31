@@ -1,13 +1,12 @@
-torch==2.6.0+cu118
--f https://mirrors.aliyun.com/pytorch-wheels/cu118
-modelscope[framework]==1.18
-transformers==4.23
-samplings==0.1.7
 datasets==2.18
-numpy==1.26.4
-music21==8.3
-pillow==9.4
-soundfile
-unidecode
 matplotlib
+modelscope[framework]
+music21==8.3
+numpy==1.26.4
+pillow==9.4
+samplings==0.1.7
 scikit-learn
+soundfile
+torch
+transformers==4.23
+unidecode

@@ -6,7 +6,8 @@ Emotionally Conditioned Melody Generation in ABC Notation <!--with RLHF-->
 [![hf](https://img.shields.io/badge/huggingface-EMelodyGen-ffd21e.svg)](https://huggingface.co/collections/monetjoe/emelodygen-67dd1c0471027d42fa595f62)
 [![ms](https://img.shields.io/badge/modelscope-EMelodyGen-624aff.svg)](https://www.modelscope.cn/collections/EMelodyGen-1811c77b0a5042)
 [![arxiv](https://img.shields.io/badge/arXiv-2309.13259-b31b1b.svg)](https://arxiv.org/pdf/2309.13259.pdf)
-[![icmew](https://img.shields.io/badge/AIART-2025-34495e.svg)](https://aiart-2025.github.io/aiart2025.github.io)
+[![icmew](https://img.shields.io/badge/AIART-2025-34495e.svg)](https://doi.org/10.1109/ICMEW68306.2025.11152266)
+[![tai](https://img.shields.io/badge/TAI-2025-3f598a.svg)](https://doi.org/10.53941/tai.2025.100013)
 
 Our work represents the first exploratory attempt to generate emotion-conditioned melodies using ABC notation. Previous research on emotion-conditioned melody generation based on symbolic music has predominantly focused on MIDI or other label systems, so we have no direct comparisons, datasets, or methods to rely on. Our goal is to generate emotionally controlled melodies with relatively consistent scores, which is a highly challenging task.
 
@@ -73,15 +74,32 @@ To address these issues, we have released an application demonstration on [Huggi
 Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
 ## Cite
+### ICMEW 2025
 ```bibtex
-@misc{zhou2025emelodygenemotionconditionedmelodygeneration,
-  title         = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with the Musical Feature Template},
-  author        = {Monan Zhou and Xiaobing Li and Feng Yu and Wei Li},
-  year          = {2025},
-  eprint        = {2309.13259},
-  archiveprefix = {arXiv},
-  primaryclass  = {cs.IR},
-  url           = {https://arxiv.org/abs/2309.13259}
+@inproceedings{11152266,
+  author    = {Zhou, Monan and Li, Xiaobing and Yu, Feng and Li, Wei},
+  booktitle = {2025 IEEE International Conference on Multimedia and Expo Workshops (ICMEW)},
+  title     = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with the Musical Feature Template},
+  year      = {2025},
+  pages     = {1-6},
+  keywords  = {Correlation;Codes;Conferences;Confusion matrices;Music;Psychology;Data augmentation;Complexity theory;Reliability;Melody generation;controllable music generation;ABC notation;emotional condition},
+  doi       = {10.1109/ICMEW68306.2025.11152266}
+}
+```
+
+### TAI 2025
+```bibtex
+@article{zhou_li_yu_li_2025,
+  title     = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with Musical Feature Templates},
+  volume    = {1},
+  issn      = {2982-3439},
+  doi       = {10.53941/tai.2025.100013},
+  number    = {1},
+  journal   = {Transactions on Artificial Intelligence},
+  publisher = {Scilight Press},
+  author    = {Zhou, Monan and Li, Xiaobing and Yu, Feng and Li, Wei},
+  year      = {2025},
+  pages     = {199&ndash;211}
 }
 ```
 

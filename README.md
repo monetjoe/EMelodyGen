@@ -1,13 +1,13 @@
 # EMelodyGen
-Emotionally Conditioned Melody Generation in ABC Notation <!--with RLHF-->
+Emotionally Conditioned Melody Generation in ABC Notation
 
 [![license](https://img.shields.io/github/license/monetjoe/EMelodyGen.svg)](./LICENSE)
 [![Python application](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/monetjoe/EMelodyGen/actions/workflows/python-app.yml)
 [![hf](https://img.shields.io/badge/huggingface-EMelodyGen-ffd21e.svg)](https://huggingface.co/collections/monetjoe/emelodygen-67dd1c0471027d42fa595f62)
 [![ms](https://img.shields.io/badge/modelscope-EMelodyGen-624aff.svg)](https://www.modelscope.cn/collections/EMelodyGen-1811c77b0a5042)
 [![arxiv](https://img.shields.io/badge/arXiv-2309.13259-b31b1b.svg)](https://arxiv.org/pdf/2309.13259.pdf)
-[![icmew](https://img.shields.io/badge/AIART-2025-34495e.svg)](https://doi.org/10.1109/ICMEW68306.2025.11152266)
-[![tai](https://img.shields.io/badge/TAI-2025-3f598a.svg)](https://doi.org/10.53941/tai.2025.100013)
+[![icmew](https://img.shields.io/badge/DOI-10.1109/ICMEW68306.2025.11152266-34495e.svg)](https://doi.org/10.1109/ICMEW68306.2025.11152266)
+[![tai](https://img.shields.io/badge/DOI-10.53941/tai.2025.100013-3f598a.svg)](https://doi.org/10.53941/tai.2025.100013)
 
 Our work represents the first exploratory attempt to generate emotion-conditioned melodies using ABC notation. Previous research on emotion-conditioned melody generation based on symbolic music has predominantly focused on MIDI or other label systems, so we have no direct comparisons, datasets, or methods to rely on. Our goal is to generate emotionally controlled melodies with relatively consistent scores, which is a highly challenging task.
 
@@ -74,7 +74,7 @@ To address these issues, we have released an application demonstration on [Huggi
 Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement learning fine-tuning optimization for the tunesformer model as well.
 
 ## Cite
-### ICMEW 2025
+### AIART
 ```bibtex
 @inproceedings{11152266,
   author    = {Zhou, Monan and Li, Xiaobing and Yu, Feng and Li, Wei},
@@ -87,7 +87,7 @@ Referring to the RLBH of InstructGPT, we will introduce a PPO reinforcement lear
 }
 ```
 
-### TAI 2025
+### TAI
 ```bibtex
 @article{zhou_li_yu_li_2025,
   title     = {EMelodyGen: Emotion-Conditioned Melody Generation in ABC Notation with Musical Feature Templates},

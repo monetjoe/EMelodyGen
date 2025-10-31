@@ -1,4 +1,4 @@
 jellyfish
-unidecode
 music21
 tqdm
+unidecode

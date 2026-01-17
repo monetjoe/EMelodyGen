@@ -1,12 +1,10 @@
-datasets==2.18
+datasets
 matplotlib
 modelscope[framework]
-music21==8.3
-numpy==1.26.4
-pillow==9.4
+music21
 samplings==0.1.7
 scikit-learn
 soundfile
 torch
-transformers==4.23
+transformers
 unidecode

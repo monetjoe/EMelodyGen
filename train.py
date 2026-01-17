@@ -165,6 +165,7 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
         subset_name=subset,
         cache_dir=f"{TEMP_DIR}/cache",
         download_mode=dld_mode,
+        trust_remote_code=True,
     )
     classes = dataset["test"].features["label"].names
     trainset, evalset = [], []
@@ -212,11 +213,11 @@ def train(subset: str, dld_mode="reuse_dataset_if_exists", bsz=1):
             snapshot_download("Genius-Society/tunesformer", cache_dir=TEMP_DIR)
             + "/weights.pth"
         )
-        checkpoint = torch.load(tunesformer_weights_path)
+        checkpoint = torch.load(tunesformer_weights_path, weights_only=False)
         if torch.cuda.device_count() > 1:
-            model.module.load_state_dict(checkpoint["model"])
+            model.module.load_state_dict(checkpoint["model"], strict=False)
         else:
-            model.load_state_dict(checkpoint["model"])
+            model.load_state_dict(checkpoint["model"], strict=False)
 
         optimizer.load_state_dict(checkpoint["optimizer"])
         lr_scheduler.load_state_dict(checkpoint["lr_sched"])

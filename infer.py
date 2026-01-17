@@ -144,8 +144,8 @@ def generate_music(
         vocab_size=128,
     )
     model = TunesFormer(patch_config, char_config, share_weights=SHARE_WEIGHTS)
-    checkpoint = torch.load(weights)
-    model.load_state_dict(checkpoint["model"])
+    checkpoint = torch.load(weights, weights_only=False)
+    model.load_state_dict(checkpoint["model"], strict=False)
     model = model.to(DEVICE)
     model.eval()
     prompt = ""

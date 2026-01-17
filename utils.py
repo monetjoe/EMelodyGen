@@ -280,6 +280,14 @@ class TunesFormer(PreTrainedModel):
             patch_sampling_batch_size,
         )
 
+    def norm(self, prob):
+        prob = [float(x) for x in prob]
+        s = sum(prob)
+        if s == 0:
+            raise ValueError("全零概率")
+
+        return [x / s for x in prob]
+
     def generate(
         self,
         patches: torch.Tensor,
@@ -320,7 +328,11 @@ class TunesFormer(PreTrainedModel):
 
             prob = top_p_sampling(prob, top_p=top_p, return_probs=True)
             prob = top_k_sampling(prob, top_k=top_k, return_probs=True)
-            token = temperature_sampling(prob, temperature=temperature, seed=n_seed)
+            token = temperature_sampling(
+                self.norm(prob),
+                temperature=temperature,
+                seed=n_seed,
+            )
 
             generated_patch.append(token)
             if token == self.eos_token_id or len(tokens) >= PATCH_SIZE - 1:

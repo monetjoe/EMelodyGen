@@ -1,4 +1,6 @@
-jellyfish
 music21
-tqdm
+pymupdf
+samplings==0.1.7
+soundfile
+transformers
 unidecode

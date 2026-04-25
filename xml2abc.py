@@ -2,7 +2,7 @@
 # coding=latin-1
 """
 Copyright (C) 2012-2018: W.G. Vree
-Contributions: M. Tarenskeen, N. Liberg, Paul Villiger, Janus Meuris, Larry Myerscough, 
+Contributions: M. Tarenskeen, N. Liberg, Paul Villiger, Janus Meuris, Larry Myerscough,
 Dick Jackson, Jan Wybren de Jong, Mark Zealey.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the

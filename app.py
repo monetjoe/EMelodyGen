@@ -351,4 +351,4 @@ if __name__ == "__main__":
         )
         fdb_btn.click(fn=feedback, inputs=fdb_radio, outputs=status_bar)
 
-    demo.launch()
+    demo.launch(css="#gradio-share-link-button-0 { display: none; }", ssr_mode=False)

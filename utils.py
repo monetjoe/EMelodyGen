@@ -1,11 +1,9 @@
 import os
 import sys
-import time
 import torch
+import shutil
 import warnings
-import requests
 import subprocess
-from tqdm import tqdm
 
 warnings.filterwarnings("ignore")
 
@@ -76,33 +74,10 @@ def _L(en_txt: str):
     return en_txt if EN_US else f"{en_txt} ({EN2ZH[en_txt]})"
 
 
-def download(filename: str, url: str):
-    try:
-        response = requests.get(url, stream=True)
-        total_size = int(response.headers.get("content-length", 0))
-        chunk_size = 1024
-
-        with open(filename, "wb") as file, tqdm(
-            desc=f"Downloading {filename} from {url}...",
-            total=total_size,
-            unit="B",
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as bar:
-            for data in response.iter_content(chunk_size=chunk_size):
-                size = file.write(data)
-                bar.update(size)
-
-    except Exception as e:
-        print(f"Error: {e}")
-        time.sleep(10)
-        download(filename, url)
-
-
 if sys.platform.startswith("linux"):
     apkname = "MuseScore.AppImage"
+    shutil.move(os.path.realpath(f"{WEIGHTS_DIR}/{apkname}"), f"./{apkname}")
     extra_dir = "squashfs-root"
-    download(filename=apkname, url=os.getenv("mscore"))
     if not os.path.exists(extra_dir):
         subprocess.run(["chmod", "+x", f"./{apkname}"])
         subprocess.run([f"./{apkname}", "--appimage-extract"])

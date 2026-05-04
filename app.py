@@ -4,7 +4,7 @@ import shutil
 import argparse
 import gradio as gr
 from generate import generate_music, get_args
-from utils import _L, WEIGHTS_DIR, TEMP_DIR, EN_US
+from utils import _L, WEIGHTS_DIR, TEMP_DIR
 
 
 def infer_by_template(dataset: str, v: str, a: str, add_chord: bool):
@@ -159,13 +159,8 @@ if __name__ == "__main__":
         with gr.Row():
             with gr.Column():
                 with gr.Accordion(label=_L("Additional info & options"), open=False):
-                    gr.Video(
-                        "./demo.mp4" if EN_US else "./src/tutorial.mp4",
-                        label=_L("Video demo"),
-                    )
-                    gr.Markdown(
-                        f"## {_L('Cite')}"
-                        + """
+                    gr.Video(f"{WEIGHTS_DIR}/demo.mp4", label=_L("Video demo"))
+                    gr.Markdown(f"## {_L('Cite')}" + """
                         ### AIART
                         ```bibtex
                         @inproceedings{11152266,
@@ -192,8 +187,7 @@ if __name__ == "__main__":
                             year      = {2025},
                             pages     = {199&ndash;211}
                         }
-                        ```"""
-                    )
+                        ```""")
                     with gr.Row():
                         data_opt = gr.Dropdown(
                             ["VGMIDI", "EMOPIA", "Rough4Q"],
@@ -206,14 +200,7 @@ if __name__ == "__main__":
                         )
 
                 with gr.Tab(_L("By template")):
-                    gr.Image(
-                        (
-                            "https://www.modelscope.cn/studio/monetjoe/EMelodyGen/resolve/master/src/4q.jpg"
-                            if EN_US
-                            else "./src/4q.jpg"
-                        ),
-                        show_label=False,
-                    )
+                    gr.Image(f"{WEIGHTS_DIR}/4q.jpg", show_label=False)
                     v_radio = gr.Radio(
                         [_L("Low"), _L("High")],
                         label=_L(

@@ -10,8 +10,10 @@ warnings.filterwarnings("ignore")
 TEMP_DIR = "./__pycache__"
 EN_US = os.getenv("LANG") != "zh_CN.UTF-8"
 if EN_US:
+    import spaces
     import huggingface_hub
 
+    ZERO = spaces.GPU
     WEIGHTS_DIR = huggingface_hub.snapshot_download(
         "monetjoe/EMelodyGen",
         cache_dir=TEMP_DIR,
@@ -23,6 +25,10 @@ else:
         "monetjoe/EMelodyGen",
         cache_dir=TEMP_DIR,
     )
+
+    def ZERO(fn):
+        return fn
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 PATCH_LENGTH = 128  # Patch Length

@@ -4,9 +4,10 @@ import shutil
 import argparse
 import gradio as gr
 from generate import generate_music, get_args
-from utils import _L, WEIGHTS_DIR, TEMP_DIR
+from utils import ZERO, _L, WEIGHTS_DIR, TEMP_DIR
 
 
+@ZERO
 def infer_by_template(dataset: str, v: str, a: str, add_chord: bool):
     status = "Success"
     audio = midi = pdf = xml = mxl = tunes = jpg = None
@@ -39,6 +40,7 @@ def infer_by_template(dataset: str, v: str, a: str, add_chord: bool):
     return status, audio, midi, pdf, xml, mxl, tunes, jpg
 
 
+@ZERO
 def infer_by_features(
     dataset: str,
     pitch_std: str,

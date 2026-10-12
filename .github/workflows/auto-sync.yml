@@ -91,7 +91,7 @@ jobs:
           diff_days=$(((now_ts - last_commit_ts) / 86400))
           if [ $diff_days -gt 58 ]; then
             git commit --allow-empty -m "chore: keep repo active [skip ci]"
-            git push origin HEAD:main
+            git push origin HEAD:app
           else
             echo "Files are the same, no changes."
           fi
